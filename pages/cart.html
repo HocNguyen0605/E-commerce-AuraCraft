@@ -55,13 +55,14 @@
                             <input type="checkbox" class="item-checkbox" checked>
                             <img src="../assets/img/products/necklace_02.jpg" alt="Dây chuyền Custom">
                             <div class="item-info">
-                                <h3>Dây chuyền Custom (Thiết kế riêng)</h3>
+                                <h3>Dây chuyền mặt trăng (Custom mẫu có sẵn)</h3>
                                 <div class="item-category custom-details">
-                                    <p>- Dây da: 30.000đ</p>
+                                    <p>- Giá cơ sở: 120.000đ</p>
+                                    <p>- Dây da thay thế: 30.000đ</p>
                                     <p>- 5 hạt chữ: 50.000đ</p>
                                     <p>- Charm hoa (x1): 40.000đ</p>
                                 </div>
-                                <p class="item-price">120.000đ <span class="price-note">(Giá cơ sở)</span></p>
+                                <p class="item-price">240.000đ</p>
                             </div>
                         </div>
                         <div class="cart-item-right">
@@ -80,7 +81,7 @@
             </div>
 
             <div class="cart-summary">
-                <p>Tổng cộng: <strong class="total-price">150.000đ</strong></p>
+                <p>Tổng cộng: <strong class="total-price">390.000đ</strong></p>
                 <button class="btn btn-primary checkout-btn">Tiến hành thanh toán</button>
             </div>
         </div>
@@ -90,12 +91,20 @@
 
     <script>
         fetch('../components/header.html')
-            .then(r => r.text())
-            .then(html => document.getElementById('header-placeholder').innerHTML = html);
+            .then(response => response.text())
+            .then(data => {
+                let html = data.replace(/href="index\.html"/g, 'href="../index.html"');
+                document.getElementById('header-placeholder').innerHTML = html;
+            })
+            .catch(error => console.error('Error loading header:', error));
 
         fetch('../components/footer.html')
-            .then(r => r.text())
-            .then(html => document.getElementById('footer-placeholder').innerHTML = html);
+            .then(response => response.text())
+            .then(data => {
+                let html = data.replace(/href="index\.html"/g, 'href="../index.html"');
+                document.getElementById('footer-placeholder').innerHTML = html;
+            })
+            .catch(error => console.error('Error loading footer:', error));
     </script>
 </body>
 </html>
