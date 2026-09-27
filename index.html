@@ -30,18 +30,18 @@
                 <div class="steps-grid">
                     <div class="step-card">
                         <div class="step-icon"><i class="fa-solid fa-wand-magic-sparkles"></i></div>
-                        <h3>1. Thiết kế & Yêu cầu</h3>
-                        <p>Chọn sản phẩm, thêm Charm, và tự do sáng tạo. Gửi yêu cầu Custom đến cộng đồng thợ thủ công.</p>
+                        <h3>1. Chọn & Sáng tạo</h3>
+                        <p>Mua nguyên bản, tùy chỉnh từ mẫu có sẵn hoặc yêu cầu thợ làm một thiết kế hoàn toàn mới của riêng bạn.</p>
                     </div>
                     <div class="step-card">
                         <div class="step-icon"><i class="fa-solid fa-file-invoice-dollar"></i></div>
-                        <h3>2. Nhận Báo giá</h3>
-                        <p>Các thợ thủ công tài năng sẽ gửi báo giá và thời gian chế tác chi tiết cho thiết kế của bạn.</p>
+                        <h3>2. Tính giá & Báo giá</h3>
+                        <p>Giá tính tự động cho sản phẩm nguyên bản hoặc custom mẫu có sẵn. Riêng thiết kế mới hoàn toàn sẽ nhận báo giá từ thợ.</p>
                     </div>
                     <div class="step-card">
                         <div class="step-icon"><i class="fa-regular fa-comments"></i></div>
-                        <h3>3. Trao đổi & Chốt đơn</h3>
-                        <p>Chat trực tiếp với thợ để điều chỉnh thiết kế, sau đó thanh toán an toàn qua hệ thống.</p>
+                        <h3>3. Đặt hàng & Chốt đơn</h3>
+                        <p>Đặt hàng trực tiếp với sản phẩm có sẵn/custom từ mẫu, hoặc chat với thợ để chốt đơn thiết kế mới hoàn toàn.</p>
                     </div>
                     <div class="step-card">
                         <div class="step-icon"><i class="fa-solid fa-box-open"></i></div>
@@ -123,12 +123,18 @@
     <script>
         fetch('./components/header.html')
             .then(response => response.text())
-            .then(data => document.getElementById('header-placeholder').innerHTML = data)
+            .then(data => {
+                let html = data.replace(/href="((?!index\.html|http|#)[^"]+)"/g, 'href="pages/$1"');
+                document.getElementById('header-placeholder').innerHTML = html;
+            })
             .catch(error => console.error('Error loading header:', error));
 
         fetch('./components/footer.html')
             .then(response => response.text())
-            .then(data => document.getElementById('footer-placeholder').innerHTML = data)
+            .then(data => {
+                let html = data.replace(/href="((?!index\.html|http|#)[^"]+)"/g, 'href="pages/$1"');
+                document.getElementById('footer-placeholder').innerHTML = html;
+            })
             .catch(error => console.error('Error loading footer:', error));
     </script>
 </body>
