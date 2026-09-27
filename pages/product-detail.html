@@ -1,1 +1,145 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Chi tiết sản phẩm — AuraCraft</title>
+<link rel="stylesheet" href="../assets/css/style.css">
+<link rel="stylesheet" href="../assets/css/styleProduct-detail.css">
+</head>
+<body>
+ <div id="header-placeholder"></div>
+<main class="container pd-wrap">
 
+  <nav class="breadcrumb">
+    <a href="../pages/list-product.html">Sản phẩm</a> / <span id="pdBreadType">—</span> / <span id="pdBreadName">—</span>
+  </nav>
+
+  <section class="pd-top">
+    <div class="pd-gallery">
+      <div class="pd-gallery-main" id="pdGalleryMain">
+        <div class="pd-gallery-zoom" id="pdGalleryZoom"></div>
+        —
+      </div>
+      <div class="pd-gallery-thumbs" id="pdThumbs"></div>
+    </div>
+
+    <div class="pd-info">
+      <span class="tag" id="pdTag">—</span>
+      <h1 id="pdTitle">—</h1>
+      <div class="pd-rating" id="pdRating"></div>
+      <div class="pd-price" id="pdPrice"></div>
+      <p id="pdDesc"></p>
+
+      <div class="pd-variants" id="pdVariants">
+        <div class="pd-variant-group">
+          <span class="pd-variant-label">Màu sắc</span>
+          <div class="pd-color-list" id="pdColorList">
+            <button type="button" class="pd-color-swatch is-active" data-color="Vàng đồng" style="--swatch-color:#C9A24B"></button>
+            <button type="button" class="pd-color-swatch" data-color="Bạc" style="--swatch-color:#C9C2BC"></button>
+            <button type="button" class="pd-color-swatch" data-color="Nâu da" style="--swatch-color:#8B5E3C"></button>
+          </div>
+          <small class="pd-variant-selected" id="pdColorSelected">Đã chọn: Vàng đồng</small>
+        </div>
+        <div class="pd-variant-group">
+          <span class="pd-variant-label">Kích cỡ</span>
+          <div class="pd-size-list" id="pdSizeList">
+            <button type="button" class="pd-size-btn" data-size="S">S</button>
+            <button type="button" class="pd-size-btn is-active" data-size="M">M</button>
+            <button type="button" class="pd-size-btn" data-size="L">L</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="pd-qty-row">
+        <label for="qty">Số lượng</label>
+        <div class="stepper">
+          <button type="button" id="qtyMinus" aria-label="Giảm">−</button>
+          <input type="number" id="qty" value="1" min="1">
+          <button type="button" id="qtyPlus" aria-label="Tăng">+</button>
+        </div>
+      </div>
+
+      <div class="pd-actions">
+        <button class="btn btn-outline">Thêm vào giỏ</button>
+        <button class="btn btn-primary">Mua ngay</button>
+      </div>
+
+      <a href="#" class="custom-cta" id="pdCustomCta">
+        <span class="custom-cta-icon">✎</span>
+        <span>
+          <strong id="pdCustomCtaTitle">Custom sản phẩm này</strong>
+          <small id="pdCustomCtaSub">Kéo thả vật liệu, charm vào đúng vị trí mong muốn</small>
+        </span>
+      </a>
+    </div>
+  </section>
+
+  <section class="pd-shop-section">
+    <h3>Cửa hàng</h3>
+    <a href="../pages/shop-profile.html" class="pd-shop" id="pdShop">
+      <span class="pd-shop-avatar" id="pdShopAvatar">A</span>
+      <span class="pd-shop-body">
+        <strong class="pd-shop-name" id="pdShopName">Tên shop</strong>
+        <span class="pd-shop-meta" id="pdShopMeta">★ 4.9 · 82 đơn Custom</span>
+      </span>
+      <span class="pd-shop-arrow">›</span>
+    </a>
+  </section>
+
+  <section class="pd-desc card">
+    <h3>Mô tả sản phẩm</h3>
+    <p id="pdDescLong"></p>
+  </section>
+  <section class="pd-charm-gallery" id="pdCharmGallery" hidden>
+    <h2 class="section-title">Các mẫu móc khóa khác của shop</h2>
+    <div class="charm-gallery-grid" id="pdCharmGalleryGrid"></div>
+  </section>
+
+  <section class="pd-reviews">
+    <h2 class="section-title">Đánh giá từ người mua</h2>
+    <div class="review-grid">
+      <article class="review-card card">
+        <div class="review-head"><strong>Minh Anh</strong><span>★★★★★</span></div>
+        <p>Sản phẩm đẹp hơn ảnh, giao hàng nhanh, đóng gói cẩn thận.</p>
+        <div class="review-images">
+          <img src="https://myumemories.com/wp-content/uploads/2026/01/z7461915860226_00fb3ad756b0b24c78c89caf38ad44ba-768x512.jpg" alt="Ảnh thực tế do khách gửi kèm đánh giá">
+        </div>
+      </article>
+      <article class="review-card card">
+        <div class="review-head"><strong>Thảo Vy</strong><span>★★★★★</span></div>
+        <p>Chất lượng tốt, đúng như mô tả, sẽ ủng hộ shop tiếp.</p>
+        <div class="review-images">
+          <img src="https://myumemories.com/wp-content/uploads/2026/02/3-1-300x300.png" alt="Ảnh thực tế do khách gửi kèm đánh giá">
+          <img src="https://myumemories.com/wp-content/uploads/2025/11/8-28-300x300.png" alt="Ảnh thực tế do khách gửi kèm đánh giá">
+        </div>
+      </article>
+      <article class="review-card card">
+        <div class="review-head"><strong>Gia Bảo</strong><span>★★★★☆</span></div>
+        <p>Ổn trong tầm giá, mong shop ra thêm nhiều mẫu mới.</p>
+        <div class="review-images">
+          <img src="https://myumemories.com/wp-content/uploads/2026/01/2-11-300x300.png" alt="Ảnh thực tế do khách gửi kèm đánh giá">
+        </div>
+      </article>
+    </div>
+  </section>
+  <section class="pd-shop-suggestions" id="pdShopSuggestions" hidden>
+    <h2 class="section-title">Sản phẩm tương tự</h2>
+    <div class="shop-suggest-grid" id="pdShopSuggestGrid"></div>
+  </section>
+
+</main>
+<div id="footer-placeholder"></div>
+<script src="../assets/js/products-data.js"></script>
+<script src="../assets/js/product-detail.js"></script>
+<script>
+        fetch('../components/header.html')
+            .then(r => r.text())
+            .then(html => document.getElementById('header-placeholder').innerHTML = html);
+
+        fetch('../components/footer.html')
+            .then(r => r.text())
+            .then(html => document.getElementById('footer-placeholder').innerHTML = html);
+</script>
+</body>
+</html>
