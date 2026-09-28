@@ -17,6 +17,8 @@
 <main class="container">
     <h1 class="page-title">Chợ Yêu Cầu Custom</h1>
 
+    <section class="request-grid" id="customRequestList" aria-label="Yêu cầu Custom đang mở"></section>
+
     <div class="request-grid">
         <!-- Card 1 -->
         <div class="request-card"
@@ -174,6 +176,29 @@
             <p style="margin-top:0; color: var(--text-muted); font-size: 14px;">Đang báo giá cho: <strong id="modalReqName" style="color: var(--primary-brown);"></strong></p>
 
             <div class="form-group">
+                <label for="sellerName">Tên thợ</label>
+                <input type="text" id="sellerName" placeholder="Tên hiển thị của bạn" required>
+            </div>
+            <div class="form-group">
+                <label for="sellerEmail">Email liên hệ</label>
+                <input type="email" id="sellerEmail" placeholder="tho@example.com" required>
+            </div>
+            <div class="form-group">
+                <label for="sellerPortfolio">Portfolio</label>
+                <input type="url" id="sellerPortfolio" placeholder="https://example.com/portfolio">
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="sellerRating">Đánh giá</label>
+                    <input type="number" id="sellerRating" min="1" max="5" step="0.1" value="5" required>
+                </div>
+                <div class="form-group">
+                    <label for="sellerCompletedOrders">Đơn hoàn thành</label>
+                    <input type="number" id="sellerCompletedOrders" min="0" value="0" required>
+                </div>
+            </div>
+
+            <div class="form-group">
                 <label>Giá nhận làm thực tế (VNĐ)</label>
                 <input type="number" id="quotePrice" placeholder="VD: 110000" required>
             </div>
@@ -229,6 +254,7 @@
 </div>
 
 <!-- Scripts -->
+<script src="../assets/js/custom-workflow.js"></script>
 <script>
     fetch('../components/header.html')
         .then(response => response.text())
@@ -249,10 +275,146 @@
     /* --- QUẢN LÝ POPUP BÁO GIÁ --- */
     const quoteModal = document.getElementById('quoteModal');
     const quoteForm = document.getElementById('quoteForm');
+    const customRequestList = document.getElementById('customRequestList');
     let currentReqId = null;
 
+    function renderCustomRequests() {
+        const requests = window.AuraCraftCustom.listOpenRequests();
+        customRequestList.replaceChildren();
+        requests.forEach(request => {
+            const card = document.createElement('article');
+            card.className = 'request-card';
+            card.dataset.reqId = request.id;
+            card.dataset.buyer = request.buyerName;
+            card.dataset.date = new Date(request.createdAt).toLocaleString('vi-VN');
+            card.dataset.title = request.productType;
+            card.dataset.desc = `${request.materials}. ${request.charmDescription}`;
+            card.dataset.tags = request.materials;
+            card.dataset.price = `${Number(request.budget).toLocaleString('vi-VN')} đ`;
+            card.dataset.img = request.designImages[0] || request.charmImages[0] || '';
+            const body = document.createElement('div');
+            body.className = 'req-body';
+            const title = document.createElement('h3');
+            const desc = document.createElement('p');
+            const price = document.createElement('p');
+            const quoteButton = document.createElement('button');
+            title.textContent = request.productType;
+            desc.textContent = `${request.buyerName}: ${request.materials}. ${request.charmDescription}`;
+            price.textContent = `Giá dự kiến: ${Number(request.budget).toLocaleString('vi-VN')} đ`;
+            quoteButton.type = 'button';
+            quoteButton.className = 'btn btn-primary';
+            quoteButton.textContent = 'Gửi báo giá';
+            quoteButton.addEventListener('click', () => openQuoteModal(request.id, request.productType));
+            body.append(title, desc, price, quoteButton);
+            const images = [...request.designImages, ...request.charmImages];
+            if (images.length) {
+                const gallery = document.createElement('div');
+                gallery.className = 'custom-request-images';
+                images.forEach((imageUrl, index) => {
+                    const imageButton = document.createElement('button');
+                    const image = document.createElement('img');
+                    imageButton.type = 'button';
+                    imageButton.className = 'custom-request-image';
+                    imageButton.setAttribute('aria-label', `Xem ảnh thiết kế ${index + 1}`);
+                    image.src = imageUrl;
+                    image.alt = `Ảnh thiết kế tham khảo ${index + 1}`;
+                    image.loading = 'lazy';
+                    imageButton.append(image);
+                    imageButton.addEventListener('click', () => openDetailModal(card));
+                    gallery.append(imageButton);
+                });
+                card.append(gallery);
+            }
+            card.append(body);
+            customRequestList.append(card);
+        });
+    }
+
+    function renderMyRequest() {
+        const requestId = new URLSearchParams(window.location.search).get('mine');
+        const request = requestId && window.AuraCraftCustom.getRequest(requestId);
+        document.getElementById('myCustomRequest')?.remove();
+        if (!request) return;
+        const section = document.createElement('section');
+        section.className = 'request-summary';
+        section.id = 'myCustomRequest';
+        const heading = document.createElement('h2');
+        const details = document.createElement('p');
+        const status = document.createElement('p');
+        const quoteLink = document.createElement('a');
+        const statusLabels = { open: 'Đang mở', quoted: 'Đã có báo giá', awarded: 'Đã chọn thợ', cancelled: 'Đã hủy' };
+        heading.textContent = 'Yêu cầu của bạn';
+        details.textContent = `${request.productType} · ${Number(request.budget).toLocaleString('vi-VN')} đ`;
+        status.textContent = `Trạng thái: ${statusLabels[request.status] || request.status}`;
+        quoteLink.className = 'btn btn-outline';
+        quoteLink.href = `choose-seller.html?requestId=${encodeURIComponent(request.id)}`;
+        quoteLink.textContent = `Xem ${window.AuraCraftCustom.listQuotes(request.id).length} báo giá`;
+        section.append(heading, details, status, quoteLink);
+        if (['open', 'quoted'].includes(request.status)) {
+            const editButton = document.createElement('button');
+            const cancelButton = document.createElement('button');
+            editButton.type = 'button';
+            editButton.className = 'btn btn-outline';
+            editButton.textContent = 'Sửa yêu cầu';
+            editButton.addEventListener('click', () => {
+                const productType = prompt('Loại sản phẩm:', request.productType);
+                if (productType === null) return;
+                const materials = prompt('Vật liệu:', request.materials);
+                if (materials === null) return;
+                const description = prompt('Mô tả charm/thiết kế:', request.charmDescription);
+                if (description === null) return;
+                const budget = prompt('Giá dự kiến (VNĐ):', request.budget);
+                if (budget === null) return;
+                try {
+                    window.AuraCraftCustom.updateRequest(request.id, { productType, materials, charmDescription: description, budget });
+                    window.location.reload();
+                } catch (error) {
+                    alert(error.message);
+                }
+            });
+            cancelButton.type = 'button';
+            cancelButton.className = 'btn btn-outline';
+            cancelButton.textContent = 'Hủy yêu cầu';
+            cancelButton.addEventListener('click', () => {
+                if (!confirm('Hủy yêu cầu Custom này?')) return;
+                try {
+                    window.AuraCraftCustom.cancelRequest(request.id);
+                    window.location.reload();
+                } catch (error) {
+                    alert(error.message);
+                }
+            });
+            section.append(editButton, cancelButton);
+        }
+        customRequestList.before(section);
+    }
+
+    renderCustomRequests();
+    renderMyRequest();
+    window.addEventListener('storage', () => {
+        renderCustomRequests();
+        renderMyRequest();
+    });
+
     function openQuoteModal(reqId, reqName) {
-        currentReqId = reqId;
+        const storedRequest = window.AuraCraftCustom.getRequest(reqId)
+            || window.AuraCraftCustom.listRequests().find(request => request.sourceId === reqId);
+        currentReqId = storedRequest ? storedRequest.id : reqId;
+        if (!storedRequest) {
+            const sourceCard = Array.from(document.querySelectorAll('.request-card'))
+                .find(card => card.dataset.reqId === reqId);
+            if (!sourceCard) return;
+            const legacyRequest = window.AuraCraftCustom.createRequest({
+                buyerName: sourceCard.dataset.buyer,
+                buyerEmail: `${reqId.toLowerCase()}@example.local`,
+                sourceId: reqId,
+                productType: sourceCard.dataset.title,
+                materials: sourceCard.dataset.tags,
+                charmDescription: sourceCard.dataset.desc,
+                budget: sourceCard.dataset.price.replace(/[^\d]/g, '')
+            });
+            currentReqId = legacyRequest.id;
+        }
         document.getElementById('modalReqName').innerText = reqName;
 
         // Đóng detail modal nếu đang mở
@@ -280,7 +442,23 @@
             return;
         }
 
-        alert('Gửi báo giá thành công! Người mua sẽ sớm phản hồi cho bạn.');
+        try {
+            window.AuraCraftCustom.addQuote(currentReqId, {
+                sellerName: document.getElementById('sellerName').value,
+                sellerEmail: document.getElementById('sellerEmail').value,
+                portfolio: document.getElementById('sellerPortfolio').value,
+                rating: document.getElementById('sellerRating').value,
+                completedOrders: document.getElementById('sellerCompletedOrders').value,
+                price: document.getElementById('quotePrice').value,
+                days,
+                note: document.getElementById('quoteNote').value
+            });
+            alert('Đã lưu báo giá. Người mua có thể xem và so sánh.');
+            renderCustomRequests();
+        } catch (error) {
+            alert(error.message);
+            return;
+        }
         closeQuoteModal();
     });
 
@@ -299,7 +477,8 @@
         const img = cardElement.getAttribute('data-img');
 
         // Đổ dữ liệu vào Modal chi tiết
-        document.getElementById('detailImg').src = img;
+        const detailImg = document.getElementById('detailImg');
+        detailImg.src = img || '../assets/img/products/bracelet_01.jpg';
         document.getElementById('detailTitle').innerText = title;
         document.getElementById('detailBuyer').innerText = buyer;
         document.getElementById('detailDate').innerText = date;
@@ -307,8 +486,12 @@
         document.getElementById('detailPrice').innerText = price;
 
         // Render tags
-        const tagsHtml = tags.split(',').map(tag => `<span>${tag.trim()}</span>`).join('');
-        document.getElementById('detailTags').innerHTML = tagsHtml;
+        const detailTags = document.getElementById('detailTags');
+        detailTags.replaceChildren(...tags.split(',').map(tag => {
+            const element = document.createElement('span');
+            element.textContent = tag.trim();
+            return element;
+        }));
 
         // Gắn event cho nút Báo giá bên trong modal chi tiết
         document.getElementById('detailQuoteBtn').onclick = () => openQuoteModal(reqId, title);

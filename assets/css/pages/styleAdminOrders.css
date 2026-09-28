@@ -1,0 +1,17 @@
+/* --- ADMIN ORDER MANAGEMENT STYLES --- */
+.admin-toolbar { display: flex; gap: 15px; margin-bottom: 20px; flex-wrap: wrap; }
+.search-box { flex-grow: 1; display: flex; align-items: center; background: var(--white); border: 1px solid var(--gray-light); border-radius: 8px; padding: 5px 15px; }
+.search-box input { border: none; outline: none; width: 100%; padding: 10px; font-family: 'Mulish', sans-serif; font-size: 15px; }
+.search-box i { color: var(--text-muted); }
+
+.filter-select { padding: 10px 15px; border: 1px solid var(--gray-light); border-radius: 8px; font-family: 'Mulish', sans-serif; font-size: 15px; background: var(--white); outline: none; cursor: pointer; color: var(--text-dark); }
+
+.order-participants { display: flex; gap: 20px; font-size: 14px; margin-bottom: 8px; }
+.participant { display: flex; align-items: center; gap: 6px; }
+.participant i { color: var(--primary-blue); }
+
+.action-btn-danger { background-color: transparent; border: 1px solid #E74C3C; color: #E74C3C; padding: 8px 16px; border-radius: 6px; font-family: 'Mulish', sans-serif; font-weight: bold; cursor: pointer; transition: 0.3s; }
+.action-btn-danger:hover { background-color: #E74C3C; color: var(--white); }
+
+.action-btn-warning { background-color: transparent; border: 1px solid #F39C12; color: #F39C12; padding: 8px 16px; border-radius: 6px; font-family: 'Mulish', sans-serif; font-weight: bold; cursor: pointer; transition: 0.3s; }
+.action-btn-warning:hover { background-color: #F39C12; color: var(--white); }

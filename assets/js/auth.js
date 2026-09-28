@@ -49,12 +49,25 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const registerForm = document.getElementById("registerForm");
   if (registerForm) {
+    const accountRole = document.getElementById("accountRole");
+    const artisanFields = document.getElementById("artisanFields");
+    const updateArtisanFields = () => {
+      const isArtisan = accountRole.value === "artisan";
+      artisanFields.hidden = !isArtisan;
+      document.getElementById("introduction").required = isArtisan;
+      document.getElementById("portfolio").required = isArtisan;
+    };
+    accountRole.addEventListener("change", updateArtisanFields);
+    updateArtisanFields();
+
     registerForm.addEventListener("submit", (e) => {
       e.preventDefault();
       const fullName = document.getElementById("fullName");
       const email = document.getElementById("email");
       const password = document.getElementById("password");
       const confirmPassword = document.getElementById("confirmPassword");
+      const introduction = document.getElementById("introduction");
+      const portfolio = document.getElementById("portfolio");
       let isValid = true;
 
       // Kiểm tra họ và tên
@@ -71,6 +84,7 @@ document.addEventListener("DOMContentLoaded", () => {
         isValid = false;
       } else {
         email.closest(".input-group").classList.remove("invalid");
+        email.closest(".input-group").querySelector(".error-msg").textContent = "Vui lòng nhập email hợp lệ.";
       }
 
       // Kiểm tra độ dài mật khẩu
@@ -89,9 +103,35 @@ document.addEventListener("DOMContentLoaded", () => {
         confirmPassword.closest(".input-group").classList.remove("invalid");
       }
 
+      if (accountRole.value === "artisan") {
+        const introductionGroup = introduction.closest(".input-group");
+        const portfolioGroup = portfolio.closest(".input-group");
+        const validPortfolio = portfolio.checkValidity();
+        introductionGroup.classList.toggle("invalid", !introduction.value.trim());
+        portfolioGroup.classList.toggle("invalid", !validPortfolio);
+        isValid = Boolean(introduction.value.trim()) && validPortfolio && isValid;
+      }
+
       if (isValid) {
-        alert("Đăng ký tài khoản AuraCraft thành công! Vui lòng đăng nhập.");
-        window.location.href = "login.html";
+        try {
+          const user = window.AuraCraftUsers.create({
+            fullName: fullName.value,
+            email: email.value,
+            role: accountRole ? accountRole.value : "buyer",
+            introduction: introduction ? introduction.value : "",
+            portfolio: portfolio ? portfolio.value : ""
+          });
+          const successMessage = user.role === "artisan"
+            ? "Đăng ký thành công. Tài khoản thợ đang chờ admin duyệt trước khi nhận đơn."
+            : "Đăng ký thành công. Vui lòng đăng nhập.";
+          alert(successMessage);
+          window.location.href = "login.html";
+        } catch (error) {
+          const emailGroup = email.closest(".input-group");
+          emailGroup.classList.add("invalid");
+          emailGroup.querySelector(".error-msg").textContent = error.message;
+          email.focus();
+        }
       }
     });
   }

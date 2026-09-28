@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quản lý Tài khoản - AuraCraft Admin</title>
+    <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;600;700&family=Mulish:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <link rel="stylesheet" href="../assets/css/admin-layout.css">
+    <link rel="stylesheet" href="../assets/css/pages/styleAdminUsers.css">
+</head>
+<body>
+    <div class="admin-wrapper">
+        <div id="admin-sidebar-placeholder"></div>
+        <main class="admin-main-content">
+            <header class="users-page-header">
+                <div>
+                    <p class="users-eyebrow">AURACRAFT / ADMIN</p>
+                    <h1 class="users-page-title"><i class="fa-solid fa-users"></i> Quản lý tài khoản</h1>
+                    <p class="users-page-description">Theo dõi hồ sơ người mua và xét duyệt tài khoản thợ thủ công.</p>
+                </div>
+            </header>
+
+            <section class="user-stats" aria-label="Thống kê tài khoản">
+                <article class="user-stat">
+                    <span class="user-stat-label">Tổng tài khoản</span>
+                    <strong id="totalUsers">0</strong>
+                </article>
+                <article class="user-stat">
+                    <span class="user-stat-label">Người mua</span>
+                    <strong id="buyerUsers">0</strong>
+                </article>
+                <article class="user-stat user-stat-pending">
+                    <span class="user-stat-label">Thợ chờ duyệt</span>
+                    <strong id="pendingArtisans">0</strong>
+                </article>
+                <article class="user-stat user-stat-suspended">
+                    <span class="user-stat-label">Tài khoản tạm khóa</span>
+                    <strong id="suspendedUsers">0</strong>
+                </article>
+            </section>
+
+            <section class="user-management" aria-label="Danh sách tài khoản">
+                <div class="user-toolbar">
+                    <label class="user-search">
+                        <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+                        <span class="visually-hidden">Tìm theo tên hoặc email</span>
+                        <input id="userSearch" type="search" placeholder="Tìm theo tên hoặc email">
+                    </label>
+                    <label class="visually-hidden" for="roleFilter">Lọc theo vai trò</label>
+                    <select class="user-filter" id="roleFilter">
+                        <option value="all">Tất cả vai trò</option>
+                        <option value="buyer">Người mua</option>
+                        <option value="artisan">Thợ thủ công</option>
+                    </select>
+                    <label class="visually-hidden" for="statusFilter">Lọc theo trạng thái</label>
+                    <select class="user-filter" id="statusFilter">
+                        <option value="all">Tất cả trạng thái</option>
+                        <option value="active">Đang hoạt động</option>
+                        <option value="pending">Chờ duyệt</option>
+                        <option value="suspended">Tạm khóa</option>
+                    </select>
+                </div>
+
+                <p id="userFeedback" class="user-feedback" role="status" aria-live="polite"></p>
+                <div class="user-table-wrap">
+                    <table class="user-table">
+                        <thead>
+                            <tr>
+                                <th scope="col">Tài khoản</th>
+                                <th scope="col">Vai trò</th>
+                                <th scope="col">Hồ sơ</th>
+                                <th scope="col">Ngày tạo</th>
+                                <th scope="col">Trạng thái</th>
+                            </tr>
+                        </thead>
+                        <tbody id="userTableBody"></tbody>
+                    </table>
+                    <div id="emptyUsers" class="empty-users" hidden>
+                        <i class="fa-regular fa-folder-open" aria-hidden="true"></i>
+                        <p>Chưa có tài khoản phù hợp với bộ lọc.</p>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script src="../assets/js/user-store.js"></script>
+    <script src="../assets/js/admin-users.js"></script>
+</body>
+</html>

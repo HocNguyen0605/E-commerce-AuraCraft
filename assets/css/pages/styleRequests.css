@@ -42,6 +42,10 @@ h1, h2, h3 { font-family: 'Baloo 2', cursive; }
 .req-footer { display: flex; justify-content: space-between; align-items: center; margin-top: 20px; border-top: 1px dashed var(--gray-light); padding-top: 16px;}
 .req-price { font-size: 18px; font-weight: bold; color: var(--accent-gold); }
 
+.custom-request-images { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; }
+.custom-request-image { width: 72px; height: 72px; padding: 0; overflow: hidden; border: 1px solid var(--gray-light); border-radius: 6px; background: var(--white); cursor: pointer; }
+.custom-request-image img { width: 100%; height: 100%; object-fit: cover; }
+
 /* --- PHÂN TRANG (PAGINATION) --- */
 .pagination { display: flex; justify-content: center; align-items: center; gap: 8px; margin-top: 40px; }
 .page-btn { width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; border-radius: 8px; border: 1px solid var(--gray-light); background: var(--white); cursor: pointer; color: var(--primary-brown); font-weight: bold; font-family: 'Mulish', sans-serif; transition: 0.3s;}
