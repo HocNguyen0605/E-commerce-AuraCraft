@@ -315,6 +315,12 @@ ul {
     transform: scale(1.05);
 }
 
+.footer-bottom {
+  border-top: 1px solid rgba(250, 239, 198, 0.15); /* Đường kẻ mờ màu be */
+  padding-top: 20px;
+  opacity: 0.7;
+  font-size: 0.9rem;
+}
 .product-info {
     padding: 20px;
     text-align: center;

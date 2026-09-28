@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Thiết kế Custom — AuraCraft</title>
+<link rel="stylesheet" href="../assets/css/style.css">
+<link rel="stylesheet" href="../assets/css/customizer.css">
+</head>
+<body>
+
+ <div id="header-placeholder"></div>
+
+<main class="cz-wrap">
+  <div class="container cz-headbar">
+    <div>
+      <a href="../pages/product-detail.html" class="cz-back-link" id="czBackLink">← Quay lại sản phẩm</a>
+      <span class="tag" id="czTag">Thiết kế Custom</span>
+      <h1 id="czHeading">Vòng tay của bạn</h1>
+      <p class="cz-hint" id="czHint">Chọn charm từ thư viện bên dưới rồi bấm hoặc kéo vào một vị trí trống trên dải — mỗi vị trí giữ đúng 1 charm, bạn có thể kéo lại để đổi chỗ.</p>
+    </div>
+  </div>
+
+  <div class="container cz-grid">
+
+    <section class="cz-canvas-panel card">
+      <h3>Bản thiết kế</h3>
+
+      <p class="cz-slot-counter" id="czSlotCounter"></p>
+
+      <div class="cz-strip" id="czStrip"></div>
+
+      <p class="cz-strip-hint">Bấm vào charm bên dưới để thêm vào vị trí trống tiếp theo, hoặc kéo thả charm đúng vào ô mong muốn — có thể kéo charm đã đặt sang ô khác để đổi chỗ.</p>
+
+      <div class="cz-library-inline">
+        <h3>Thư viện vật liệu</h3>
+        <div class="cz-lib-strip" id="czLibrary"></div>
+      </div>
+    </section>
+
+    <section class="cz-price card">
+      <h3>Chi phí thiết kế</h3>
+      <div class="cz-price-body">
+        <div class="cz-price-cost">
+          <div class="cz-shop-info" id="czShopInfo"></div>
+          <ul class="cz-price-list" id="czPriceList">
+            <li class="cz-price-empty">Chưa có thành phần nào</li>
+          </ul>
+          <div class="cz-total-row">
+            <span>Tổng tiền</span>
+            <strong id="czTotal">0 ₫</strong>
+          </div>
+        </div>
+        <div class="cz-price-actions">
+          <button type="button" class="btn btn-ghost cz-request-btn" id="czSendShopBtn">Gửi yêu cầu Custom đến shop</button>
+          <a href="product-detail.html" class="cz-cancel-link" id="czCancelLink">Không muốn custom nữa? Quay lại sản phẩm</a>
+        </div>
+      </div>
+    </section>
+
+  </div>
+</main>
+<div id="footer-placeholder"></div>
+
+<div class="cz-modal-overlay" id="czSendModalOverlay">
+  <div class="cz-modal card">
+    <div class="cz-modal-icon">✓</div>
+    <h3>Đã gửi yêu cầu Custom!</h3>
+    <p>Thiết kế của bạn đã được gửi trực tiếp tới <strong id="czSendShopName">shop</strong>. Shop sẽ xem thiết kế và gửi báo giá thực tế cho bạn.</p>
+    <button class="btn btn-primary" id="czSendModalClose">Quay lại sản phẩm</button>
+  </div>
+</div>
+
+<script src="../assets/js/products-data.js"></script>
+<script src="../assets/js/customizer.js"></script>
+<script>
+        fetch('../components/header.html')
+            .then(r => r.text())
+            .then(html => document.getElementById('header-placeholder').innerHTML = html);
+
+        fetch('../components/footer.html')
+            .then(r => r.text())
+            .then(html => document.getElementById('footer-placeholder').innerHTML = html);
+    </script>
+</body>
+</html>
