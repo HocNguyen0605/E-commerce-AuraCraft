@@ -73,7 +73,7 @@
                         </div>
                     </div>
 
-                    <div class="chat-messages">
+                    <div class="chat-messages" id="customMessages">
                         <div class="message received">
                             <img src="https://i.pravatar.cc/150?img=47" alt="Avatar" class="avatar-sm">
                             <div class="msg-bubble">
@@ -108,15 +108,18 @@
                     <div class="chat-input-area">
                         <button class="icon-btn-ghost"><i class="bi bi-paperclip"></i></button>
                         <button class="icon-btn-ghost"><i class="bi bi-emoji-smile"></i></button>
-                        <input type="text" placeholder="Nhập tin nhắn tư vấn..." class="chat-input">
-                        <button class="btn-send"><i class="bi bi-send-fill"></i></button>
+                        <input type="text" placeholder="Nhập tin nhắn tư vấn..." class="chat-input" id="customMessageInput">
+                        <button type="button" class="btn-send" id="sendCustomMessage" aria-label="Gửi tin nhắn"><i class="bi bi-send-fill"></i></button>
                     </div>
+                    <section class="custom-change-requests" id="customChangeRequests" aria-live="polite"></section>
                 </section>
             </div>
         </section>
     </main>
 
     <div id="footer-placeholder"></div>
+    <script src="../assets/js/custom-workflow.js"></script>
+    <script src="../assets/js/custom-chat.js"></script>
     <script>
         fetch('../components/header.html').then(r => r.text()).then(html => document.getElementById('header-placeholder').innerHTML = html);
         fetch('../components/footer.html').then(r => r.text()).then(html => document.getElementById('footer-placeholder').innerHTML = html);

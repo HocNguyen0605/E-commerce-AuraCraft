@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Giám sát Custom & Giao dịch - AuraCraft Admin</title>
+    <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;600;700&family=Mulish:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <link rel="stylesheet" href="../assets/css/admin-layout.css">
+    <link rel="stylesheet" href="../assets/css/pages/styleAdminCustom.css">
+</head>
+<body>
+    <div class="admin-wrapper">
+        <div id="admin-sidebar-placeholder"></div>
+        <main class="admin-main-content">
+            <header class="custom-admin-header">
+                <div>
+                    <p class="custom-admin-eyebrow">AURACRAFT / ADMIN</p>
+                    <h1><i class="fa-solid fa-wand-magic-sparkles" aria-hidden="true"></i> Giám sát Custom &amp; Giao dịch</h1>
+                    <p>Theo dõi yêu cầu, báo giá, đơn Custom và trạng thái thanh toán.</p>
+                </div>
+            </header>
+
+            <section class="custom-admin-stats" aria-label="Tổng quan Custom">
+                <article class="custom-admin-stat">
+                    <span>Yêu cầu</span>
+                    <strong id="requestCount">0</strong>
+                </article>
+                <article class="custom-admin-stat">
+                    <span>Chờ chọn thợ</span>
+                    <strong id="quoteCount">0</strong>
+                </article>
+                <article class="custom-admin-stat">
+                    <span>Đơn Custom</span>
+                    <strong id="orderCount">0</strong>
+                </article>
+                <article class="custom-admin-stat custom-admin-stat-alert">
+                    <span>Giao dịch cần theo dõi</span>
+                    <strong id="attentionCount">0</strong>
+                </article>
+            </section>
+
+            <section class="custom-admin-content" aria-label="Dữ liệu quy trình Custom">
+                <div class="custom-admin-toolbar">
+                    <div class="custom-admin-tabs" role="tablist" aria-label="Loại dữ liệu">
+                        <button type="button" class="custom-admin-tab active" role="tab" aria-selected="true" data-view="requests">Yêu cầu &amp; báo giá</button>
+                        <button type="button" class="custom-admin-tab" role="tab" aria-selected="false" data-view="orders">Đơn Custom</button>
+                        <button type="button" class="custom-admin-tab" role="tab" aria-selected="false" data-view="transactions">Giao dịch</button>
+                    </div>
+                    <div class="custom-admin-filters">
+                        <label class="custom-admin-search">
+                            <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+                            <span class="visually-hidden">Tìm mã, tên hoặc email</span>
+                            <input id="customSearch" type="search" placeholder="Tìm mã, tên hoặc email">
+                        </label>
+                        <label class="visually-hidden" for="customStatusFilter">Lọc theo trạng thái</label>
+                        <select id="customStatusFilter">
+                            <option value="all">Tất cả trạng thái</option>
+                        </select>
+                    </div>
+                </div>
+
+                <p id="customAdminFeedback" class="custom-admin-feedback" role="status" aria-live="polite"></p>
+                <div class="custom-admin-table-wrap">
+                    <table class="custom-admin-table">
+                        <thead id="customTableHead"></thead>
+                        <tbody id="customTableBody"></tbody>
+                    </table>
+                    <div id="customAdminEmpty" class="custom-admin-empty" hidden>
+                        <i class="fa-regular fa-folder-open" aria-hidden="true"></i>
+                        <p>Chưa có dữ liệu phù hợp với bộ lọc.</p>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+    <script src="../assets/js/custom-workflow.js"></script>
+    <script src="../assets/js/admin-custom-workflow.js"></script>
+</body>
+</html>
