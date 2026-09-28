@@ -12,7 +12,7 @@
 </head>
 
 <body>
-    <!-- <div id="header-placeholder"></div> -->
+    <div id="header-placeholder"></div>
 
     <main class="form-page">
         <div class="container">
@@ -62,6 +62,27 @@
                         </div>
 
                         <div class="input-group">
+                            <label for="accountRole">Loại tài khoản</label>
+                            <select id="accountRole" class="auth-select">
+                                <option value="buyer">Người mua</option>
+                                <option value="artisan">Thợ thủ công</option>
+                            </select>
+                        </div>
+
+                        <div class="artisan-fields" id="artisanFields" hidden>
+                            <div class="input-group">
+                                <label for="introduction">Giới thiệu về bạn</label>
+                                <textarea id="introduction" class="auth-textarea" rows="3" placeholder="Kinh nghiệm và phong cách chế tác của bạn"></textarea>
+                                <span class="error-msg">Vui lòng giới thiệu về bạn.</span>
+                            </div>
+                            <div class="input-group">
+                                <label for="portfolio">Portfolio (đường dẫn)</label>
+                                <input type="url" id="portfolio" class="auth-field" placeholder="https://example.com/portfolio">
+                                <span class="error-msg">Vui lòng nhập đường dẫn portfolio hợp lệ.</span>
+                            </div>
+                        </div>
+
+                        <div class="input-group">
                             <label for="password">Mật khẩu</label>
                             <div class="input-wrapper">
                                 <i class="fa-solid fa-lock field-icon"></i>
@@ -102,8 +123,9 @@
         </div>
     </main>
 
-    <!-- <div id="footer-placeholder"></div> -->
+    <div id="footer-placeholder"></div>
 
+    <script src="../assets/js/user-store.js"></script>
     <script src="../assets/js/auth.js"></script>
     <script>
         fetch('../components/header.html')
