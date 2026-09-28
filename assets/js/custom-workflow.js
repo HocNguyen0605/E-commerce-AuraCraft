@@ -17,10 +17,13 @@
         orders: Array.isArray(stored.orders) ? stored.orders : [],
         transactions: Array.isArray(stored.transactions) ? stored.transactions : [],
         messages: Array.isArray(stored.messages) ? stored.messages : [],
-        changes: Array.isArray(stored.changes) ? stored.changes : []
+        changes: Array.isArray(stored.changes) ? stored.changes : [],
+        disputes: Array.isArray(stored.disputes) ? stored.disputes : [],
+        violations: Array.isArray(stored.violations) ? stored.violations : [],
+        adminActions: Array.isArray(stored.adminActions) ? stored.adminActions : []
       };
     } catch (error) {
-      return { requests: [], quotes: [], orders: [], transactions: [], messages: [], changes: [] };
+      return { requests: [], quotes: [], orders: [], transactions: [], messages: [], changes: [], disputes: [], violations: [], adminActions: [] };
     }
   }
 
@@ -173,7 +176,8 @@
       days: quote.days,
       status: "pending_payment",
       paymentStatus: "unpaid",
-      createdAt: new Date().toISOString()
+      createdAt: new Date().toISOString(),
+      paymentDeadlineAt: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString()
     };
     state.orders.push(order);
     writeState(state);
@@ -227,6 +231,7 @@
       order.paymentStatus = "paid";
       order.status = "crafting";
       order.paidAt = transaction.createdAt;
+      order.deadlineAt = new Date(new Date(transaction.createdAt).getTime() + order.days * 24 * 60 * 60 * 1000).toISOString();
     }
     writeState(state);
     return { order, transaction };
@@ -323,9 +328,249 @@
     return change;
   }
 
+  function recordAdminAction(state, order, action, note, metadata) {
+    const entry = {
+      id: makeId("ADMIN"),
+      orderId: order.id,
+      action,
+      note: (note || "").trim(),
+      metadata: metadata || {},
+      createdAt: new Date().toISOString()
+    };
+    state.adminActions.push(entry);
+    return entry;
+  }
+
+  function listDisputes() {
+    return readState().disputes;
+  }
+
+  function listViolations() {
+    return readState().violations;
+  }
+
+  function clearViolation(violationId, note) {
+    const state = readState();
+    const violation = requireRecord(state.violations, violationId, "Vi phạm");
+    if (violation.clearedAt) throw new Error("Vi phạm này đã được xử lý.");
+    violation.clearedAt = new Date().toISOString();
+    violation.resolutionNote = (note || "").trim();
+    const order = requireRecord(state.orders, violation.orderId, "Đơn hàng");
+    recordAdminAction(state, order, "violation_cleared", violation.resolutionNote, { violationId });
+    writeState(state);
+    return violation;
+  }
+
+  function listAdminActions(orderId) {
+    return readState().adminActions.filter((entry) => !orderId || entry.orderId === orderId);
+  }
+
+  function extendOrderDeadline(orderId, days, reason) {
+    const state = readState();
+    const order = requireRecord(state.orders, orderId, "Đơn hàng");
+    const extensionDays = Number(days);
+    if (!["crafting", "late"].includes(order.status) || !Number.isInteger(extensionDays) || extensionDays < 1 || extensionDays > 30) {
+      throw new Error("Chỉ gia hạn đơn đang chế tác/trễ hạn từ 1 đến 30 ngày.");
+    }
+    const previousDeadline = order.deadlineAt || new Date(Date.now() + order.days * 86400000).toISOString();
+    order.deadlineAt = new Date(new Date(previousDeadline).getTime() + extensionDays * 86400000).toISOString();
+    order.deadlineExtensionDays = (order.deadlineExtensionDays || 0) + extensionDays;
+    order.status = "crafting";
+    order.lateReviewedAt = null;
+    recordAdminAction(state, order, "deadline_extended", reason, { days: extensionDays, previousDeadline, deadlineAt: order.deadlineAt });
+    writeState(state);
+    return order;
+  }
+
+  function reviewLateOrder(orderId, note) {
+    const state = readState();
+    const order = requireRecord(state.orders, orderId, "Đơn hàng");
+    const deadlineAt = order.deadlineAt || (order.paidAt ? new Date(new Date(order.paidAt).getTime() + order.days * 86400000).toISOString() : null);
+    if (!deadlineAt || !["crafting", "late"].includes(order.status) || new Date(deadlineAt).getTime() >= Date.now()) {
+      throw new Error("Đơn hàng chưa quá deadline hoặc không còn ở giai đoạn chế tác.");
+    }
+    order.status = "late";
+    order.lateReviewedAt = new Date().toISOString();
+    const activeViolation = state.violations.find((item) => item.orderId === order.id && item.type === "late_delivery" && !item.clearedAt);
+    if (!activeViolation) {
+      state.violations.push({
+        id: makeId("VIOLATION"), orderId: order.id, sellerEmail: order.sellerEmail,
+        type: "late_delivery", note: (note || "Quá hạn deadline cam kết.").trim(),
+        createdAt: order.lateReviewedAt, clearedAt: null
+      });
+    }
+    recordAdminAction(state, order, "late_reviewed", note, { deadlineAt });
+    writeState(state);
+    return order;
+  }
+
+  function advanceOrderStatus(orderId, nextStatus, details) {
+    const transitions = {
+      crafting: ["completed"], late: ["completed"], completed: ["handed_to_carrier"],
+      handed_to_carrier: ["in_transit"], in_transit: ["delivered"]
+    };
+    const state = readState();
+    const order = requireRecord(state.orders, orderId, "Đơn hàng");
+    if (!transitions[order.status]?.includes(nextStatus)) throw new Error("Không thể chuyển đơn sang trạng thái này.");
+    if (nextStatus === "handed_to_carrier" && (!details?.carrier?.trim() || !details?.trackingNumber?.trim())) {
+      throw new Error("Cần có đơn vị vận chuyển và mã vận đơn trước khi bàn giao.");
+    }
+    order.status = nextStatus;
+    order.updatedAt = new Date().toISOString();
+    if (nextStatus === "handed_to_carrier") {
+      order.carrier = details.carrier.trim();
+      order.trackingNumber = details.trackingNumber.trim();
+    }
+    if (nextStatus === "delivered") order.deliveredAt = order.updatedAt;
+    if (nextStatus === "completed") order.completedAt = order.updatedAt;
+    recordAdminAction(state, order, "status_changed", details?.note, { status: nextStatus });
+    writeState(state);
+    return order;
+  }
+
+  function calculateRefundDue(state, order) {
+    const transactions = state.transactions.filter((transaction) => transaction.orderId === order.id);
+    const successfulPayments = transactions
+      .filter((transaction) => transaction.method !== "refund" && transaction.result === "success")
+      .reduce((total, transaction) => total + Number(transaction.amount || 0), 0);
+    const settledRefunds = transactions
+      .filter((transaction) => transaction.method === "refund" && transaction.result === "success")
+      .reduce((total, transaction) => total + Number(transaction.amount || 0), 0);
+    const pendingRefunds = transactions.filter((transaction) => transaction.method === "refund" && transaction.result === "pending");
+    const pendingAmount = pendingRefunds.reduce((total, transaction) => total + Number(transaction.amount || 0), 0);
+    const fallbackAmount = transactions.length === 0 && ["paid", "adjustment_due", "refund_due"].includes(order.paymentStatus)
+      ? Number(order.price || 0)
+      : successfulPayments;
+    return {
+      amount: Math.max(0, fallbackAmount - settledRefunds - pendingAmount),
+      hasPendingRefund: pendingRefunds.length > 0
+    };
+  }
+
+  function cancelOrder(orderId, reason) {
+    const state = readState();
+    const order = requireRecord(state.orders, orderId, "Đơn hàng");
+    if (!["pending_payment", "crafting", "late", "completed"].includes(order.status)) {
+      throw new Error("Không thể hủy đơn sau khi đã bàn giao cho vận chuyển.");
+    }
+    if (!reason || !reason.trim()) throw new Error("Cần nhập lý do hủy đơn.");
+    order.status = "cancelled";
+    order.cancelledAt = new Date().toISOString();
+    order.cancellationReason = reason.trim();
+    let refund = null;
+    const refundDue = calculateRefundDue(state, order);
+    if (refundDue.amount > 0 || refundDue.hasPendingRefund) {
+      order.paymentStatus = "refund_due";
+      if (refundDue.amount > 0) {
+        refund = {
+          id: makeId("TXN"), orderId: order.id, method: "refund", result: "pending",
+          amount: refundDue.amount, reason: order.cancellationReason, createdAt: order.cancelledAt
+        };
+        state.transactions.push(refund);
+      }
+    }
+    recordAdminAction(state, order, "order_cancelled", reason, { refundAmount: refund?.amount || 0 });
+    writeState(state);
+    return { order, refund };
+  }
+
+  function processRefund(orderId, reference) {
+    const state = readState();
+    const order = requireRecord(state.orders, orderId, "Đơn hàng");
+    if (order.paymentStatus !== "refund_due") throw new Error("Đơn này chưa đủ điều kiện hoàn tiền.");
+    const pendingRefunds = state.transactions.filter((item) => item.orderId === order.id && item.method === "refund" && item.result === "pending");
+    if (!pendingRefunds.length) throw new Error("Không tìm thấy khoản hoàn tiền đang chờ.");
+    pendingRefunds.forEach((refund) => {
+      refund.result = "success";
+      refund.reference = (reference || "").trim();
+      refund.processedAt = new Date().toISOString();
+    });
+    order.paymentStatus = order.status === "cancelled" ? "refunded" : "paid";
+    recordAdminAction(state, order, "refund_processed", "Hoàn tiền được ghi nhận đã xử lý.", { reference: (reference || "").trim() });
+    writeState(state);
+    return order;
+  }
+
+  function createDispute(details) {
+    const state = readState();
+    const order = requireRecord(state.orders, details.orderId, "Đơn hàng");
+    const dispute = {
+      id: makeId("DSP"),
+      orderId: order.id,
+      buyerEmail: (details.buyerEmail || order.buyerEmail).trim().toLowerCase(),
+      sellerEmail: order.sellerEmail,
+      subject: details.subject.trim(),
+      description: details.description.trim(),
+      status: "open",
+      adminNote: "",
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
+    };
+    if (!dispute.subject || !dispute.description) throw new Error("Cần nhập tiêu đề và nội dung khiếu nại.");
+    state.disputes.unshift(dispute);
+    recordAdminAction(state, order, "dispute_opened", dispute.subject, { disputeId: dispute.id });
+    writeState(state);
+    return dispute;
+  }
+
+  function updateDispute(disputeId, status, adminNote) {
+    const validStatuses = new Set(["open", "investigating", "awaiting_information", "closed"]);
+    if (!validStatuses.has(status)) throw new Error("Trạng thái khiếu nại không hợp lệ.");
+    const state = readState();
+    const dispute = requireRecord(state.disputes, disputeId, "Khiếu nại");
+    if (["resolved_buyer", "resolved_seller", "closed"].includes(dispute.status)) throw new Error("Khiếu nại này đã được đóng.");
+    dispute.status = status;
+    dispute.adminNote = (adminNote || "").trim();
+    dispute.updatedAt = new Date().toISOString();
+    if (status === "closed") dispute.resolvedAt = dispute.updatedAt;
+    const order = requireRecord(state.orders, dispute.orderId, "Đơn hàng");
+    recordAdminAction(state, order, "dispute_updated", dispute.adminNote, { disputeId, status });
+    writeState(state);
+    return dispute;
+  }
+
+  function resolveDispute(disputeId, outcome, resolutionNote) {
+    if (!["buyer", "seller"].includes(outcome)) throw new Error("Kết quả giải quyết không hợp lệ.");
+    if (!resolutionNote || !resolutionNote.trim()) throw new Error("Cần ghi rõ kết luận xử lý.");
+    const state = readState();
+    const dispute = requireRecord(state.disputes, disputeId, "Khiếu nại");
+    if (["resolved_buyer", "resolved_seller", "closed"].includes(dispute.status)) throw new Error("Khiếu nại này đã được đóng.");
+    const order = requireRecord(state.orders, dispute.orderId, "Đơn hàng");
+    dispute.status = outcome === "buyer" ? "resolved_buyer" : "resolved_seller";
+    dispute.resolution = resolutionNote.trim();
+    dispute.resolvedAt = new Date().toISOString();
+    dispute.updatedAt = dispute.resolvedAt;
+    dispute.adminNote = dispute.resolution;
+    let refund = null;
+    if (outcome === "buyer") {
+      if (!["pending_payment", "crafting", "late", "completed"].includes(order.status)) {
+        throw new Error("Không thể hoàn tiền sau khi đơn đã bàn giao vận chuyển.");
+      }
+      order.status = "cancelled";
+      order.cancelledAt = dispute.resolvedAt;
+      order.cancellationReason = `Giải quyết khiếu nại ${dispute.id}`;
+      const refundDue = calculateRefundDue(state, order);
+      if (refundDue.amount > 0 || refundDue.hasPendingRefund) {
+        order.paymentStatus = "refund_due";
+        if (refundDue.amount > 0) {
+          refund = {
+            id: makeId("TXN"), orderId: order.id, method: "refund", result: "pending",
+            amount: refundDue.amount, reason: dispute.resolution, createdAt: dispute.resolvedAt
+          };
+          state.transactions.push(refund);
+        }
+      }
+    }
+    recordAdminAction(state, order, "dispute_resolved", dispute.resolution, { disputeId, outcome, refundAmount: refund?.amount || 0 });
+    writeState(state);
+    return { dispute, order, refund };
+  }
+
   window.AuraCraftCustom = {
     listRequests, getRequest, createRequest, updateRequest, cancelRequest,
     listOpenRequests, listQuotes, addQuote, selectQuote, getOrder, listOrders, listTransactions, getOrderForRequest, saveOrderDetails, recordPayment,
+    listDisputes, listViolations, clearViolation, listAdminActions, extendOrderDeadline, reviewLateOrder,
+    advanceOrderStatus, cancelOrder, processRefund, createDispute, updateDispute, resolveDispute,
     listMessages, addMessage, proposeChange, listChanges, respondToChange
   };
 })();

@@ -53,6 +53,38 @@
         <div class="tab-item" data-tab="done">Đã hoàn thành (1)</div>
     </div>
 
+    <section class="admin-custom-operations" aria-label="Đơn Custom cần vận hành">
+        <div class="admin-custom-operations-header">
+            <div>
+                <h2>Vận hành đơn Custom</h2>
+                <p>Theo dõi deadline, cập nhật trạng thái và xử lý hủy/hoàn tiền.</p>
+            </div>
+            <a class="btn btn-outline" href="admin-disputes.html"><i class="fa-solid fa-scale-balanced" aria-hidden="true"></i> Khiếu nại &amp; vi phạm</a>
+        </div>
+        <div class="admin-custom-toolbar">
+            <label class="search-box">
+                <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+                <span class="visually-hidden">Tìm mã đơn, buyer hoặc thợ</span>
+                <input type="search" id="customOrderSearch" placeholder="Tìm mã đơn, buyer hoặc thợ">
+            </label>
+            <label class="visually-hidden" for="customOrderStatus">Lọc trạng thái đơn</label>
+            <select class="filter-select" id="customOrderStatus">
+                <option value="all">Tất cả đơn Custom</option>
+                <option value="pending_payment">Chờ thanh toán</option>
+                <option value="payment_expired">Quá hạn thanh toán</option>
+                <option value="crafting">Đang chế tác</option>
+                <option value="late">Trễ hạn</option>
+                <option value="completed">Hoàn thành</option>
+                <option value="handed_to_carrier">Đã bàn giao vận chuyển</option>
+                <option value="in_transit">Đang vận chuyển</option>
+                <option value="delivered">Đã giao</option>
+                <option value="cancelled">Đã hủy</option>
+            </select>
+        </div>
+        <p class="admin-custom-feedback" id="customOrderFeedback" role="status" aria-live="polite"></p>
+        <div class="order-list" id="adminCustomOrderList"></div>
+    </section>
+
     <!-- Danh sách đơn hàng -->
     <div class="order-list">
 
@@ -230,6 +262,8 @@
 </div>
 
 <!-- Scripts -->
+<script src="../assets/js/custom-workflow.js"></script>
+<script src="../assets/js/admin-order-operations.js"></script>
 <script>
     // Load Admin Sidebar
     fetch('../components/admin-sidebar.html')
