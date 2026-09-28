@@ -1,0 +1,57 @@
+/* Bổ sung cho profile.css – dùng chung cho 4 trang tài khoản (chỉ style phần nội dung col-9) */
+.funciton_item.active { background-color: var(--text-dark); color: var(--white); }
+.filter { cursor: pointer; }
+.filter.active { background-color: var(--text-dark); }
+
+.panel { padding: 16px; margin-bottom: 16px; background-color: var(--white); }
+.panel-title { font-size: 1.3rem; margin-bottom: 16px; }
+
+/* Form */
+.form-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
+.form-group { display: flex; flex-direction: column; gap: 8px; }
+.form-group.full { grid-column: span 2; }
+.form-group label { font-weight: 700; font-size: 0.9rem; }
+.form-input { padding: 8px 16px; border: 2px solid var(--gray-light); border-radius: 12px; font-family: var(--font-content); font-size: 1rem; color: var(--text-dark); transition: all 0.3s ease; }
+.form-input:focus { outline: none; border-color: var(--primary-blue); }
+.form-input[readonly] { background-color: var(--gray-light); }
+.form-actions { display: flex; gap: 8px; margin-top: 16px; justify-content: flex-end; }
+.btn-sm { padding: 6px 16px; font-size: 0.95rem; }
+.btn-danger { background-color: transparent; border-color: var(--logo-pink); color: var(--text-dark); }
+.btn-danger:hover { background-color: var(--logo-pink); }
+
+/* Địa chỉ */
+.address-item { display: flex; justify-content: space-between; gap: 16px; padding: 16px; border: 2px solid var(--gray-light); border-radius: 12px; margin-bottom: 8px; }
+.tag { display: inline-block; padding: 0 8px; border-radius: 8px; background-color: var(--card-bg); font-size: 0.8rem; font-weight: 700; margin-left: 8px; }
+
+/* Đơn hàng / báo giá */
+.order-actions { display: flex; flex-wrap: wrap; gap: 8px; justify-content: flex-end; padding: 8px 0; }
+.order-total { text-align: right; padding: 8px 0; }
+.order-total strong { color: var(--primary-blue); font-size: 1.2rem; }
+.status.done { color: #2E7D32; }
+.status.cancel { color: #B23A48; }
+.status.wait { color: var(--accent-gold); }
+.detail-box { margin-top: 8px; border-top: 1px dashed var(--gray-light); padding-top: 8px; }
+.detail-box summary { cursor: pointer; font-weight: 700; color: var(--primary-blue); }
+.timeline { margin: 16px 0 8px 8px; border-left: 2px solid var(--gray-light); padding-left: 16px; }
+.timeline li { position: relative; padding-bottom: 16px; font-size: 0.95rem; }
+.timeline li::before { content: ""; position: absolute; left: -24px; top: 6px; width: 12px; height: 12px; border-radius: 50%; background-color: var(--gray-light); }
+.timeline li.done::before { background-color: var(--primary-blue); }
+.timeline small { display: block; color: #666; }
+.empty-state { text-align: center; padding: 32px 16px; color: #666; }
+
+/* Yêu thích */
+.fav-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+.fav-card { position: relative; border-radius: 16px; overflow: hidden; background-color: var(--white); box-shadow: var(--shadow); }
+.fav-card img { width: 100%; height: 160px; object-fit: cover; display: block; }
+.fav-card .product-info { padding: 16px; }
+.fav-remove { position: absolute; top: 8px; right: 8px; width: 32px; height: 32px; border-radius: 50%; border: none; background-color: var(--white); color: var(--logo-pink); cursor: pointer; box-shadow: var(--shadow); transition: all 0.3s ease; }
+.fav-remove:hover { background-color: var(--logo-pink); color: var(--white); }
+.fav-card .btn { margin-top: 8px; width: 100%; }
+
+@media (max-width: 1024px) { .fav-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 768px) {
+    .form-grid, .fav-grid { grid-template-columns: 1fr; }
+    .form-group.full { grid-column: span 1; }
+    .menu { flex-wrap: wrap; }
+    .order-actions, .order-total, .col-2.right, .col-6.right { text-align: left; justify-content: flex-start; }
+}

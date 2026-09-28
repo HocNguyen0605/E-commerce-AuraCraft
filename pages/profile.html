@@ -7,6 +7,8 @@
     <link rel="stylesheet" href="../assets/css/style.css">
     <link rel="stylesheet" href="../assets/css/header-footer.css">
     <link rel="stylesheet" href="../assets/css/pages/profile.css">
+    <link rel="stylesheet" href="../assets/css/pages/profile-content.css">
+
 </head>
 <body>
 <div id="header-placeholder"></div>
@@ -21,23 +23,24 @@
             <!--Thanh menu -->
             <div class="col-3 over_content">
                 <ul class="menu_function">
-                    <li class="funciton_item"><a href="#">Thông tin cá nhân</a></li>
-                    <li class="funciton_item"><a href="#">Đơn hàng</a></li>
-                    <li class="funciton_item"><a href="#">Yêu thích</a></li>
-                    <li class="funciton_item"><a href="#">Báo giá</a></li>
+                    <li class="funciton_item"><a href="profile-info.html">Thông tin cá nhân</a></li>
+                    <li class="funciton_item active"><a href="profile-orders.html">Đơn hàng</a></li>
+                    <li class="funciton_item"><a href="profile-favorites.html">Yêu thích</a></li>
+                    <li class="funciton_item"><a href="profile-quotes.html">Báo giá</a></li>
                 </ul>
             </div>
             <!--Màn hình hiển thị thông tin -->
             <div class="col-9 over_content">
                 <div class="col-12 over_content">
                     <ul class="menu">
-                        <li class="btn-primary filter">All</li>
-                        <li class="btn-primary filter" >Báo giá</li>
-                        <li class="btn-primary filter ">Đang thực hiện</li>
-                        <li class="btn-primary filter">Đang chờ lấy hàng</li>
-                        <li class="btn-primary filter">Đang giao</li>
-                        <li class="btn-primary filter">Đã giao</li>
-                        <li class="btn-primary filter">Đã hủy</li>
+                        <li class="btn-primary filter active" data-filter="all">All</li>
+                        <li class="btn-primary filter" data-filter="quote">Báo giá</li>
+                        <li class="btn-primary filter" data-filter="processing">Đang thực hiện</li>
+                        <li class="btn-primary filter" data-filter="pickup">Đang chờ lấy hàng</li>
+                        <li class="btn-primary filter" data-filter="shipping">Đang giao</li>
+                        <li class="btn-primary filter" data-filter="done">Đã giao</li>
+                        <li class="btn-primary filter" data-filter="cancel">Đã hủy</li>
+                        <li class="btn-primary filter" data-filter="return">Trả hàng / Khiếu nại</li>
                     </ul>
                 </div>
                 <!--Thông tin một sản phẩm -->
