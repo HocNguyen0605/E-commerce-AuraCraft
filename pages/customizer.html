@@ -78,7 +78,8 @@
           </div>
         </div>
         <div class="cz-price-actions">
-          <button type="button" class="btn btn-ghost cz-request-btn" id="czSendShopBtn">Gửi yêu cầu Custom đến shop</button>
+          <button type="button" class="btn btn-outline cz-save-btn" id="czSaveDesignBtn">Lưu thiết kế</button>
+          <button type="button" class="btn btn-primary cz-request-btn" id="czSendShopBtn">Thanh toán ngay</button>
           <a href="product-detail.html" class="cz-cancel-link" id="czCancelLink">Không muốn custom nữa? Quay lại sản phẩm</a>
         </div>
       </div>
@@ -104,5 +105,6 @@
 
         fetch('../components/footer.html').then(response => response.text()).then(data => { let html = data.replace(/href="index\.html"/g, 'href="../index.html"'); document.getElementById('footer-placeholder').innerHTML = html; }).catch(error => console.error('Error loading footer:', error));
     </script>
+<script src="../assets/js/popup.js"></script>
 </body>
 </html>

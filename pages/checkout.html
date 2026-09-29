@@ -112,6 +112,10 @@
                                     </div>
                                 </label>
                             </div>
+                            
+                            <div id="customDepositAlert" style="display: none; background: #e8f0fe; color: #1a73e8; padding: 12px; border-radius: 8px; font-size: 13px; margin-top: 16px; border: 1px solid #c6dafc;">
+                                <i class="fa-solid fa-circle-info"></i> Đơn hàng của bạn có sản phẩm chế tác theo yêu cầu (Custom). Vui lòng thanh toán cọc 50% để thợ bắt đầu chế tác.
+                            </div>
                         </div>
 
                     </div>
@@ -150,28 +154,38 @@
                             <!-- Chi phí & Phí vận chuyển -->
                             <div class="summary-cost-table">
                                 <div class="cost-row">
-                                    <span>Tạm tính (2 sản phẩm)</span>
-                                    <span class="cost-value">390.000đ</span>
+                                    <span>Tạm tính</span>
+                                    <span class="cost-value" id="summarySubtotal">390.000đ</span>
                                 </div>
 
                                 <div class="cost-row shipping-fee-row">
                                     <span><i class="fa-solid fa-truck-fast"></i> Phí vận chuyển</span>
-                                    <span class="cost-value">30.000đ</span>
+                                    <span class="cost-value" id="summaryShipping">25.300đ</span>
                                 </div>
 
                                 <div class="cost-row">
                                     <span>Mã giảm giá (Voucher)</span>
-                                    <span class="cost-value">-0đ</span>
+                                    <span class="cost-value" id="summaryDiscount">-0đ</span>
                                 </div>
 
                                 <div class="cost-row total-row">
-                                    <span>Tổng thanh toán</span>
-                                    <span class="total-amount">420.000đ</span>
+                                    <span>Tổng cộng</span>
+                                    <span class="total-amount" id="summaryTotal">415.300đ</span>
+                                </div>
+                                
+                                <div class="cost-row deposit-row" id="depositRow" style="display: none; border-top: 1px dashed var(--gray-light); padding-top: 14px; margin-top: 4px; color: var(--primary-brown); font-weight: 700;">
+                                    <span>Tiền cọc cần thanh toán (50%)</span>
+                                    <span class="cost-value" id="summaryDeposit" style="color: var(--primary-blue); font-size: 1.4rem; font-family: var(--font-title);">0đ</span>
+                                </div>
+                                
+                                <div class="cost-row remaining-row" id="remainingRow" style="display: none; padding-top: 4px; color: var(--text-muted); font-size: 13px;">
+                                    <span>Còn lại (thanh toán sau)</span>
+                                    <span class="cost-value" id="summaryRemaining">0đ</span>
                                 </div>
                             </div>
 
                             <button type="submit" id="btnConfirmOrder" class="btn btn-primary btn-confirm-order">
-                                <span>Xác nhận đặt hàng</span>
+                                <span id="btnConfirmText">Xác nhận đặt hàng</span>
                                 <i class="fa-solid fa-arrow-right"></i>
                             </button>
 
@@ -186,6 +200,22 @@
             </form>
         </div>
     </main>
+
+    <!-- QR Payment Modal -->
+    <div id="qrPaymentModal" class="modal-overlay" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); z-index:99999; justify-content:center; align-items:center; backdrop-filter:blur(4px);">
+        <div style="background:white; padding:30px; border-radius:12px; max-width:400px; text-align:center; font-family:'Mulish', sans-serif;">
+            <h3 style="margin-bottom:15px; color:var(--primary-blue); font-family:'Baloo 2', cursive;">Thanh toán cọc 50% qua Mã QR</h3>
+            <p style="margin-bottom:20px; color:var(--text-muted);">Vui lòng dùng ứng dụng ngân hàng quét mã QR dưới đây để thanh toán số tiền: <strong id="qrDepositAmount" style="color:var(--accent-gold); font-size:18px;"></strong></p>
+            <div style="background:var(--gray-light); padding:20px; margin:0 auto 20px; display:inline-block; border-radius:8px;">
+                <!-- Dummy QR -->
+                <i class="fa-solid fa-qrcode" style="font-size:120px; color:#333;"></i>
+            </div>
+            <div style="display:flex; justify-content:center; gap:10px;">
+                <button type="button" id="btnCancelQr" class="btn btn-outline" style="padding:10px 16px; font-size:14px; white-space:nowrap;">Hủy giao dịch</button>
+                <button type="button" id="btnSuccessQr" class="btn btn-primary" style="padding:10px 16px; font-size:14px; white-space:nowrap;">Đã thanh toán xong</button>
+            </div>
+        </div>
+    </div>
 
     <div id="footer-placeholder"></div>
 
@@ -206,6 +236,7 @@
             })
             .catch(err => console.error('Lỗi tải Footer:', err));
     </script>
+<script src="../assets/js/popup.js"></script>
 </body>
 
 </html>
