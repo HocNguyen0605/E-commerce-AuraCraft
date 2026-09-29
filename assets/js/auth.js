@@ -177,6 +177,7 @@ document.addEventListener("DOMContentLoaded", () => {
         isValid = false;
       } else {
         email.closest(".input-group").classList.remove("invalid");
+        email.closest(".input-group").querySelector(".error-msg").textContent = "Vui lòng nhập email hợp lệ.";
       }
 
       if (password.value.length < 6) {
