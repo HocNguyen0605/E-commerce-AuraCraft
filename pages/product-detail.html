@@ -63,8 +63,8 @@
       </div>
 
       <div class="pd-actions">
-        <button class="btn btn-outline">Thêm vào giỏ</button>
-        <button class="btn btn-primary">Mua ngay</button>
+        <button class="btn btn-outline" id="pdAddToCartBtn">Thêm vào giỏ</button>
+        <button class="btn btn-primary" id="pdBuyNowBtn">Mua ngay</button>
       </div>
 
       <a href="#" class="custom-cta" id="pdCustomCta">
@@ -139,5 +139,6 @@
 
         fetch('../components/footer.html').then(response => response.text()).then(data => { let html = data.replace(/href="index\.html"/g, 'href="../index.html"'); document.getElementById('footer-placeholder').innerHTML = html; }).catch(error => console.error('Error loading footer:', error));
 </script>
+<script src="../assets/js/popup.js"></script>
 </body>
 </html>

@@ -155,4 +155,12 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('qtyPlus')?.addEventListener('click', () => {
     qty.value = parseInt(qty.value || '1', 10) + 1;
   });
+
+  document.getElementById('pdAddToCartBtn')?.addEventListener('click', () => {
+    alert(`Đã thêm ${qty.value} x ${product.name} vào giỏ hàng`);
+  });
+
+  document.getElementById('pdBuyNowBtn')?.addEventListener('click', () => {
+    window.location.href = 'checkout.html';
+  });
 });

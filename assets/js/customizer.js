@@ -283,17 +283,54 @@ document.addEventListener('DOMContentLoaded', () => {
   refreshAll();
 
   const sendShopBtn = document.getElementById('czSendShopBtn');
+  const saveDesignBtn = document.getElementById('czSaveDesignBtn');
   const sendOverlay = document.getElementById('czSendModalOverlay');
   const sendModalClose = document.getElementById('czSendModalClose');
   const sendShopNameEl = document.getElementById('czSendShopName');
 
+  if (saveDesignBtn) {
+    saveDesignBtn.addEventListener('click', () => {
+        if (filledCount() === 0) {
+            alert('Vui lòng thêm ít nhất một charm vào thiết kế trước khi lưu.');
+            return;
+        }
+        alert('Thiết kế của bạn đã được lưu vào Bộ sưu tập cá nhân!');
+    });
+  }
+
   sendShopBtn.addEventListener('click', () => {
     if (filledCount() === 0) {
-      alert('Vui lòng thêm ít nhất một charm vào thiết kế trước khi gửi yêu cầu Custom.');
+      alert('Vui lòng thêm ít nhất một charm vào thiết kế trước khi đặt hàng.');
       return;
     }
-    sendShopNameEl.textContent = shopName;
-    sendOverlay.classList.add('cz-open');
+    
+    // Tạo đơn hàng ảo
+    const total = slots.reduce((sum, p) => sum + (p ? p.price : 0), 0);
+    const virtualOrderId = "ORD-" + Math.floor(1000 + Math.random() * 9000);
+    const orderData = {
+        id: virtualOrderId,
+        productType: product ? `Custom: ${product.name}` : `Custom: ${cfg.label}`,
+        sellerName: shopName,
+        price: total,
+        days: 5,
+        paymentStatus: 'unpaid',
+        buyerName: 'Khách hàng',
+        buyerEmail: 'khachhang@example.com'
+    };
+    
+    // Lưu vào AuraCraftCustom DB giả lập
+    try {
+        const stateStr = localStorage.getItem("auracraft_custom_workflow");
+        if (stateStr) {
+            const state = JSON.parse(stateStr);
+            state.orders.push(orderData);
+            localStorage.setItem("auracraft_custom_workflow", JSON.stringify(state));
+        }
+    } catch (e) {
+        console.error(e);
+    }
+    
+    window.location.href = `checkout.html?orderId=${orderData.id}`;
   });
   sendModalClose.addEventListener('click', () => { window.location.href = backHref; });
 });

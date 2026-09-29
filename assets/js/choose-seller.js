@@ -143,6 +143,36 @@ document.addEventListener('DOMContentLoaded', () => {
             c.classList.remove('rejected');
             cChooseBtn.textContent = 'Đã chọn';
             cChooseBtn.disabled = true;
+            
+            // Redirect to checkout for the demo flow
+            const virtualOrderId = "ORD-" + Math.floor(1000 + Math.random() * 9000);
+            const total = parseInt(c.querySelector('.quote-price').textContent.replace(/[^\d]/g, ''), 10);
+            
+            // Simulate saving an order
+            const orderData = {
+                id: virtualOrderId,
+                productType: `Custom Mẫu Yêu Cầu`,
+                sellerName: sellerName,
+                price: total,
+                days: parseInt(c.querySelector('.meta-info span:nth-child(3)').textContent.replace(/[^\d]/g, ''), 10) || 5,
+                paymentStatus: 'unpaid',
+                buyerName: 'Khách hàng',
+                buyerEmail: 'khachhang@example.com'
+            };
+            try {
+                const stateStr = localStorage.getItem("auracraft_custom_workflow");
+                if (stateStr) {
+                    const state = JSON.parse(stateStr);
+                    state.orders.push(orderData);
+                    localStorage.setItem("auracraft_custom_workflow", JSON.stringify(state));
+                }
+            } catch (e) {
+                console.error(e);
+            }
+            
+            setTimeout(() => {
+                window.location.href = `checkout.html?orderId=${virtualOrderId}`;
+            }, 500);
           } else {
             c.classList.add('rejected');
             cChooseBtn.textContent = 'Không được chọn';
