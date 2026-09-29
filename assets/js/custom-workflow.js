@@ -8,22 +8,281 @@
     return `${prefix}-${randomPart}`;
   }
 
+  const defaultWorkflowState = {
+    requests: [
+      {
+        id: "REQ-001",
+        buyerName: "Anna Nguyễn",
+        buyerEmail: "anna@auracraft.vn",
+        productType: "Vòng tay Macrame phối Charm",
+        materials: "Dây đan Macrame màu be, Charm hoa hồng bạc 925",
+        charmDescription: "Có 2 charm hoa hồng bạc và 1 hạt chữ 'A'. Dây có thể tăng giảm size.",
+        budget: 120000,
+        status: "quoted",
+        createdAt: "2026-09-29T10:00:00.000Z",
+        designImages: ["../assets/img/products/bracelet_01.jpg"],
+        charmImages: []
+      },
+      {
+        id: "REQ-002",
+        buyerName: "Trần Bảo",
+        buyerEmail: "bao@auracraft.vn",
+        productType: "Dây chuyền mặt Resin đại dương",
+        materials: "Keo Epoxy Resin cao cấp, Dây da đen chống nước",
+        charmDescription: "Đổ keo Resin tạo hình sóng biển xanh dương đậm và bãi cát trắng nhỏ.",
+        budget: 250000,
+        status: "awarded",
+        createdAt: "2026-09-29T08:30:00.000Z",
+        designImages: ["../assets/img/products/necklace_02.jpg"],
+        charmImages: []
+      },
+      {
+        id: "REQ-003",
+        buyerName: "Lê Vy",
+        buyerEmail: "vy@auracraft.vn",
+        productType: "Lắc chân đính đá Aquamarine",
+        materials: "Bạc Ý 925, Đá Aquamarine thiên nhiên",
+        charmDescription: "Sợi mảnh đính 3 viên đá nhỏ phong thủy. Chiều dài vòng cổ chân 21cm.",
+        budget: 350000,
+        status: "open",
+        createdAt: "2026-09-28T14:15:00.000Z",
+        designImages: ["../assets/img/products/anket_01.jpg"],
+        charmImages: []
+      },
+      {
+        id: "REQ-004",
+        buyerName: "Hải Nam",
+        buyerEmail: "nam@gmail.com",
+        productType: "Dây đeo điện thoại ngọc trai",
+        materials: "Hạt ngọc trai nhân tạo, Hạt cườm mặt cười",
+        charmDescription: "Độ dài dây 15cm, gắn khóa móc chắc chắn.",
+        budget: 80000,
+        status: "open",
+        createdAt: "2026-09-27T16:00:00.000Z",
+        designImages: ["../assets/img/products/phoneStrap_01.jpg"],
+        charmImages: []
+      }
+    ],
+    quotes: [
+      {
+        id: "QUO-101",
+        requestId: "REQ-001",
+        sellerName: "Lê Vy",
+        sellerEmail: "vy@auracraft.vn",
+        price: 120000,
+        days: 3,
+        status: "submitted",
+        portfolio: "https://instagram.com/candlelab_handmade",
+        createdAt: "2026-09-29T10:30:00.000Z"
+      },
+      {
+        id: "QUO-102",
+        requestId: "REQ-002",
+        sellerName: "Trần Bảo",
+        sellerEmail: "bao@auracraft.vn",
+        price: 250000,
+        days: 4,
+        status: "accepted",
+        portfolio: "https://facebook.com/resinartdanang",
+        createdAt: "2026-09-29T09:00:00.000Z"
+      }
+    ],
+    orders: [
+      {
+        id: "ORD-9805",
+        requestId: "REQ-002",
+        quoteId: "QUO-102",
+        productType: "Dây chuyền mặt Resin đại dương",
+        buyerName: "Hoàng Khang",
+        buyerEmail: "khang@gmail.com",
+        sellerName: "Trần Bảo",
+        sellerEmail: "bao@auracraft.vn",
+        price: 250000,
+        days: 4,
+        status: "late",
+        paymentStatus: "paid",
+        createdAt: "2026-09-05T07:00:00.000Z",
+        deadline: "2026-09-09T07:00:00.000Z"
+      },
+      {
+        id: "ORD-9821",
+        requestId: "REQ-001",
+        quoteId: "QUO-101",
+        productType: "Lắc chân Custom - Charm Cỏ 4 lá",
+        buyerName: "Minh Hằng",
+        buyerEmail: "hang@gmail.com",
+        sellerName: "Anna Nguyễn",
+        sellerEmail: "anna@auracraft.vn",
+        price: 180000,
+        days: 5,
+        status: "crafting",
+        paymentStatus: "paid",
+        createdAt: "2026-09-08T03:00:00.000Z",
+        deadline: "2026-09-13T03:00:00.000Z"
+      },
+      {
+        id: "ORD-9799",
+        requestId: "REQ-003",
+        quoteId: "QUO-103",
+        productType: "Đèn ngủ Resin san hô biển",
+        buyerName: "Thu Hương",
+        buyerEmail: "huong@gmail.com",
+        sellerName: "Trần Bảo",
+        sellerEmail: "bao@auracraft.vn",
+        price: 520000,
+        days: 7,
+        status: "cancelled",
+        paymentStatus: "refund_due",
+        createdAt: "2026-09-20T04:00:00.000Z",
+        deadline: "2026-09-27T04:00:00.000Z"
+      }
+    ],
+    transactions: [
+      {
+        id: "TXN-8801",
+        orderId: "ORD-9805",
+        method: "VNPay",
+        amount: 250000,
+        result: "success",
+        createdAt: "2026-09-05T07:05:00.000Z"
+      },
+      {
+        id: "TXN-8802",
+        orderId: "ORD-9821",
+        method: "MoMo",
+        amount: 180000,
+        result: "success",
+        createdAt: "2026-09-08T03:05:00.000Z"
+      },
+      {
+        id: "TXN-8803",
+        orderId: "ORD-9799",
+        method: "Chuyển khoản QR",
+        amount: 520000,
+        result: "success",
+        createdAt: "2026-09-20T04:05:00.000Z"
+      },
+      {
+        id: "TXN-8804",
+        orderId: "ORD-9799",
+        method: "refund",
+        amount: 520000,
+        result: "pending",
+        reason: "Hoàn tiền do sản phẩm lỗi và trễ tiến độ",
+        createdAt: "2026-09-28T09:30:00.000Z"
+      }
+    ],
+    disputes: [
+      {
+        id: "DIS-101",
+        orderId: "ORD-9799",
+        buyerEmail: "huong@gmail.com",
+        sellerEmail: "bao@auracraft.vn",
+        subject: "Sản phẩm nứt vỡ khi nhận hàng và thợ trễ tiến độ",
+        description: "Mình nhận đèn ngủ Resin bị nứt một đường dài ở góc đáy, thợ giao trễ 2 ngày và đóng gói sơ sài.",
+        status: "investigating",
+        adminNote: "Đã yêu cầu thợ gửi video đóng gói và bên vận chuyển đối soát.",
+        createdAt: "2026-09-28T08:00:00.000Z",
+        updatedAt: "2026-09-28T10:00:00.000Z"
+      },
+      {
+        id: "DIS-102",
+        orderId: "ORD-9805",
+        buyerEmail: "khang@gmail.com",
+        sellerEmail: "bao@auracraft.vn",
+        subject: "Đơn trễ hạn chế tác 2 ngày không thông báo",
+        description: "Thợ hẹn 4 ngày hoàn thành nhưng đã quá hạn mà chưa gửi ảnh cập nhật tiến độ cho mình.",
+        status: "open",
+        adminNote: "",
+        createdAt: "2026-09-29T07:30:00.000Z",
+        updatedAt: "2026-09-29T07:30:00.000Z"
+      },
+      {
+        id: "DIS-103",
+        orderId: "ORD-9821",
+        buyerEmail: "hang@gmail.com",
+        sellerEmail: "anna@auracraft.vn",
+        subject: "Charm bị sai màu sắc so với bản vẽ đã chốt",
+        description: "Màu men hoa hồng trên charm là màu hồng pastel chứ không phải đỏ ruby như yêu cầu ban đầu.",
+        status: "awaiting_information",
+        adminNote: "Đang chờ buyer gửi ảnh chụp cận cảnh dưới ánh sáng tự nhiên để đối chiếu bản vẽ.",
+        createdAt: "2026-09-27T15:20:00.000Z",
+        updatedAt: "2026-09-28T09:10:00.000Z"
+      },
+      {
+        id: "DIS-104",
+        orderId: "ORD-9799",
+        buyerEmail: "vy@auracraft.vn",
+        sellerEmail: "bao@auracraft.vn",
+        subject: "Thợ hủy đơn đột ngột không lý do",
+        description: "Thợ nhận làm vòng sau 3 ngày thì hủy đơn, làm lỡ ngày sinh nhật của bạn mình.",
+        status: "resolved_buyer",
+        adminNote: "Đã xác minh thợ đơn phương hủy đơn không báo trước.",
+        resolution: "Hoàn tiền 100% cho Buyer (520.000 đ) và trừ điểm uy tín của Thợ (BR48).",
+        createdAt: "2026-09-25T11:00:00.000Z",
+        updatedAt: "2026-09-26T14:30:00.000Z"
+      }
+    ],
+    violations: [
+      {
+        id: "VIO-01",
+        orderId: "ORD-9805",
+        sellerEmail: "bao@auracraft.vn",
+        type: "late_delivery",
+        note: "Quá hạn hoàn thành đơn 2 ngày không gia hạn kịp thời (BR45).",
+        createdAt: "2026-09-29T07:00:00.000Z",
+        clearedAt: null
+      },
+      {
+        id: "VIO-02",
+        orderId: "ORD-9610",
+        sellerEmail: "minh@artisan.vn",
+        type: "wrong_item",
+        note: "Giao sai mẫu charm so với yêu cầu đã chốt với buyer.",
+        createdAt: "2026-09-26T14:00:00.000Z",
+        clearedAt: "2026-09-27T16:00:00.000Z",
+        resolutionNote: "Đã cảnh cáo thợ và hoàn tiền 100% cho buyer (BR48)."
+      },
+      {
+        id: "VIO-03",
+        orderId: "ORD-9799",
+        sellerEmail: "bao@auracraft.vn",
+        type: "late_delivery",
+        note: "Trễ tiến độ giao hàng và sản phẩm lỗi (BR45 / BR48).",
+        createdAt: "2026-09-28T08:30:00.000Z",
+        clearedAt: null
+      }
+    ],
+    messages: [],
+    changes: [],
+    adminActions: []
+  };
+
   function readState() {
     try {
-      const stored = JSON.parse(localStorage.getItem(storageKey) || "{}");
+      const raw = localStorage.getItem(storageKey);
+      if (!raw) {
+        writeState(defaultWorkflowState);
+        return defaultWorkflowState;
+      }
+      const stored = JSON.parse(raw);
+      if (!stored || !Array.isArray(stored.requests) || stored.requests.length === 0) {
+        writeState(defaultWorkflowState);
+        return defaultWorkflowState;
+      }
       return {
-        requests: Array.isArray(stored.requests) ? stored.requests : [],
-        quotes: Array.isArray(stored.quotes) ? stored.quotes : [],
-        orders: Array.isArray(stored.orders) ? stored.orders : [],
-        transactions: Array.isArray(stored.transactions) ? stored.transactions : [],
+        requests: Array.isArray(stored.requests) ? stored.requests : defaultWorkflowState.requests,
+        quotes: Array.isArray(stored.quotes) ? stored.quotes : defaultWorkflowState.quotes,
+        orders: Array.isArray(stored.orders) ? stored.orders : defaultWorkflowState.orders,
+        transactions: Array.isArray(stored.transactions) ? stored.transactions : defaultWorkflowState.transactions,
         messages: Array.isArray(stored.messages) ? stored.messages : [],
         changes: Array.isArray(stored.changes) ? stored.changes : [],
-        disputes: Array.isArray(stored.disputes) ? stored.disputes : [],
-        violations: Array.isArray(stored.violations) ? stored.violations : [],
+        disputes: Array.isArray(stored.disputes) && stored.disputes.length > 0 ? stored.disputes : defaultWorkflowState.disputes,
+        violations: Array.isArray(stored.violations) && stored.violations.length > 0 ? stored.violations : defaultWorkflowState.violations,
         adminActions: Array.isArray(stored.adminActions) ? stored.adminActions : []
       };
     } catch (error) {
-      return { requests: [], quotes: [], orders: [], transactions: [], messages: [], changes: [], disputes: [], violations: [], adminActions: [] };
+      return defaultWorkflowState;
     }
   }
 

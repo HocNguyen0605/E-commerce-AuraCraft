@@ -8,13 +8,23 @@ document.addEventListener("DOMContentLoaded", () => {
   const statusFilter = document.getElementById("disputeStatusFilter");
   const feedback = document.getElementById("disputeFeedback");
   const empty = document.getElementById("disputeEmpty");
+
   const statusLabels = {
     open: "Chờ tiếp nhận",
     investigating: "Đang điều tra",
-    awaiting_information: "Chờ bổ sung thông tin",
-    resolved_buyer: "Đã xử lý cho buyer",
-    resolved_seller: "Đã xử lý cho thợ",
+    awaiting_information: "Chờ bổ sung",
+    resolved_buyer: "Đã xử lý (Hoàn tiền)",
+    resolved_seller: "Đã xử lý (Có lợi Thợ)",
     closed: "Đã đóng"
+  };
+
+  const statusBadgeClasses = {
+    open: "pending",
+    investigating: "crafting",
+    awaiting_information: "late",
+    resolved_buyer: "done",
+    resolved_seller: "done",
+    closed: "done"
   };
 
   function formatDate(value) {
@@ -22,32 +32,36 @@ document.addEventListener("DOMContentLoaded", () => {
     return Number.isNaN(date.getTime()) ? "Không rõ" : date.toLocaleString("vi-VN");
   }
 
-  function makeButton(text, handler, variant) {
-    const button = document.createElement("button");
-    button.type = "button";
-    button.className = `btn ${variant || "btn-outline"}`;
-    button.textContent = text;
-    button.addEventListener("click", handler);
-    return button;
+  function getStatusBadge(status) {
+    const badgeClass = statusBadgeClasses[status] || "pending";
+    const label = statusLabels[status] || status;
+    return `<span class="badge ${badgeClass}">${label}</span>`;
   }
 
   function updateStats() {
-    const disputes = window.AuraCraftCustom.listDisputes();
-    const open = disputes.filter((dispute) => dispute.status === "open").length;
-    const investigating = disputes.filter((dispute) => ["investigating", "awaiting_information"].includes(dispute.status)).length;
-    const activeViolations = window.AuraCraftCustom.listViolations().filter((violation) => !violation.clearedAt).length;
-    const refundDue = window.AuraCraftCustom.listOrders().filter((order) => order.paymentStatus === "refund_due").length;
+    const disputes = window.AuraCraftCustom ? window.AuraCraftCustom.listDisputes() : [];
+    const open = disputes.filter((d) => d.status === "open").length;
+    const investigating = disputes.filter((d) => ["investigating", "awaiting_information"].includes(d.status)).length;
+    const activeViolations = window.AuraCraftCustom ? window.AuraCraftCustom.listViolations().filter((v) => !v.clearedAt).length : 0;
+    const refundDue = window.AuraCraftCustom ? window.AuraCraftCustom.listOrders().filter((o) => o.paymentStatus === "refund_due").length : 0;
+    
     document.getElementById("openDisputeCount").textContent = open;
     document.getElementById("investigatingCount").textContent = investigating;
     document.getElementById("activeViolationCount").textContent = activeViolations;
     document.getElementById("refundDueCount").textContent = refundDue;
-    document.getElementById("violationSummary").textContent = `${window.AuraCraftCustom.listViolations().length} hồ sơ`;
+    
+    const violationSummary = document.getElementById("violationSummary");
+    if (violationSummary && window.AuraCraftCustom) {
+      violationSummary.textContent = `${window.AuraCraftCustom.listViolations().length} hồ sơ`;
+    }
   }
 
   function renderOrderOptions() {
+    if (!window.AuraCraftCustom) return;
     const orders = window.AuraCraftCustom.listOrders();
     const selectedId = new URLSearchParams(window.location.search).get("orderId");
     orderSelect.replaceChildren();
+    
     orders.forEach((order) => {
       const option = document.createElement("option");
       option.value = order.id;
@@ -55,6 +69,7 @@ document.addEventListener("DOMContentLoaded", () => {
       option.selected = order.id === selectedId;
       orderSelect.append(option);
     });
+
     if (!orders.length) {
       const option = document.createElement("option");
       option.value = "";
@@ -64,13 +79,17 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function resolve(dispute, outcome) {
-    const note = prompt(outcome === "buyer" ? "Kết luận và căn cứ xử lý cho buyer:" : "Kết luận và căn cứ xử lý cho thợ:");
+    const promptText = outcome === "buyer" 
+      ? "Nhập kết luận và căn cứ giải quyết có lợi cho Người mua (hoàn tiền):"
+      : "Nhập kết luận và căn cứ giải quyết có lợi cho Thợ:";
+    const note = prompt(promptText);
     if (!note) return;
+
     try {
       const result = window.AuraCraftCustom.resolveDispute(dispute.id, outcome, note);
       feedback.textContent = result.refund
-        ? "Đã kết luận khiếu nại; đơn bị hủy và khoản tiền được đưa vào hàng chờ hoàn."
-        : "Đã lưu kết luận xử lý khiếu nại.";
+        ? `Đã kết luận hồ sơ ${dispute.id}: Đơn bị hủy và đã chuyển sang hàng chờ hoàn tiền.`
+        : `Đã kết luận hồ sơ ${dispute.id} thành công.`;
       render();
     } catch (error) {
       feedback.textContent = error.message;
@@ -78,47 +97,83 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function renderDisputes() {
+    if (!window.AuraCraftCustom) return;
     const keyword = search.value.trim().toLowerCase();
     const disputes = window.AuraCraftCustom.listDisputes().filter((dispute) => {
       const text = `${dispute.id} ${dispute.orderId} ${dispute.buyerEmail} ${dispute.sellerEmail} ${dispute.subject}`.toLowerCase();
       return (statusFilter.value === "all" || dispute.status === statusFilter.value) && text.includes(keyword);
     });
+
     disputeList.replaceChildren();
+
     disputes.forEach((dispute) => {
       const order = window.AuraCraftCustom.getOrder(dispute.orderId);
-      const card = document.createElement("article");
-      const header = document.createElement("header");
-      const title = document.createElement("h3");
-      const status = document.createElement("span");
-      const details = document.createElement("div");
-      const description = document.createElement("p");
-      const parties = document.createElement("p");
-      const orderSummary = document.createElement("p");
-      const adminNote = document.createElement("textarea");
-      const controls = document.createElement("div");
       const closed = ["resolved_buyer", "resolved_seller", "closed"].includes(dispute.status);
-      card.className = "dispute-card";
+
+      const card = document.createElement("article");
+      card.className = `dispute-card status-${dispute.status}`;
+
+      // Card Header
+      const header = document.createElement("div");
       header.className = "dispute-card-header";
-      title.textContent = `${dispute.id} · ${dispute.subject}`;
-      status.className = "dispute-status";
-      status.dataset.status = dispute.status;
-      status.textContent = statusLabels[dispute.status] || dispute.status;
-      header.append(title, status);
+      header.innerHTML = `
+        <h3>
+          <span class="dispute-id">${dispute.id}</span>
+          <span style="color: #999;">·</span>
+          <span>${dispute.subject}</span>
+        </h3>
+        <div>${getStatusBadge(dispute.status)}</div>
+      `;
+
+      // Details Box
+      const details = document.createElement("div");
       details.className = "dispute-card-details";
-      description.textContent = dispute.description;
-      parties.textContent = `Buyer: ${dispute.buyerEmail} · Thợ: ${dispute.sellerEmail}`;
-      orderSummary.textContent = `Đơn ${dispute.orderId} · ${order?.productType || ""} · ${order ? Number(order.price).toLocaleString("vi-VN") : 0} đ · ${order?.status || "Không rõ trạng thái"}`;
-      details.append(description, parties, orderSummary);
+      
+      const descBox = document.createElement("div");
+      descBox.className = "dispute-desc-box";
+      descBox.innerHTML = `<strong>Nội dung:</strong> ${dispute.description}`;
+      
+      const metaChips = document.createElement("div");
+      metaChips.className = "dispute-meta-chips";
+      metaChips.innerHTML = `
+        <span><i class="fa-solid fa-user"></i> Người mua: <strong>${dispute.buyerEmail}</strong></span>
+        <span><i class="fa-solid fa-hammer"></i> Thợ: <strong>${dispute.sellerEmail}</strong></span>
+        <span><i class="fa-solid fa-receipt"></i> Đơn: <strong>${dispute.orderId}</strong> (${order?.productType || "Custom"} · ${order ? Number(order.price).toLocaleString("vi-VN") : 0} đ)</span>
+        <span><i class="fa-solid fa-circle-info"></i> Tiến độ đơn: <strong>${order?.status || "N/A"}</strong></span>
+      `;
+      
+      details.append(descBox, metaChips);
+
+      if (closed) {
+        const resolution = document.createElement("div");
+        resolution.className = "dispute-resolution";
+        resolution.innerHTML = `<i class="fa-solid fa-circle-check"></i> <strong>Kết luận:</strong> ${dispute.resolution || dispute.adminNote || "Đã đóng hồ sơ"}`;
+        details.append(resolution);
+      }
+
+      // Admin Note Area
+      const noteWrapper = document.createElement("div");
+      noteWrapper.className = "dispute-admin-note-wrapper";
+      noteWrapper.innerHTML = `<label><i class="fa-solid fa-pen-to-square"></i> Ghi chú & Đánh giá của Admin:</label>`;
+      
+      const adminNote = document.createElement("textarea");
       adminNote.className = "dispute-admin-note";
       adminNote.rows = 2;
-      adminNote.placeholder = "Ghi chú xử lý / thông tin yêu cầu bổ sung";
+      adminNote.placeholder = "Ghi chú tiến trình xử lý, yêu cầu thợ/buyer cung cấp thêm bằng chứng...";
       adminNote.value = dispute.adminNote || "";
       adminNote.disabled = closed;
-      controls.className = "dispute-actions";
+      noteWrapper.append(adminNote);
+
+      // Actions
+      const actions = document.createElement("div");
+      actions.className = "dispute-actions";
+
+      const leftActions = document.createElement("div");
+      leftActions.className = "dispute-action-group";
 
       if (!closed) {
         const nextStatus = document.createElement("select");
-        nextStatus.className = "dispute-next-status";
+        nextStatus.className = "dispute-next-status filter-select";
         ["open", "investigating", "awaiting_information"].forEach((value) => {
           const option = document.createElement("option");
           option.value = value;
@@ -126,70 +181,120 @@ document.addEventListener("DOMContentLoaded", () => {
           option.selected = dispute.status === value;
           nextStatus.append(option);
         });
-        controls.append(nextStatus);
-        controls.append(makeButton("Lưu cập nhật", () => {
+
+        const saveBtn = document.createElement("button");
+        saveBtn.type = "button";
+        saveBtn.className = "btn btn-outline";
+        saveBtn.innerHTML = `<i class="fa-solid fa-floppy-disk"></i> Lưu cập nhật`;
+        saveBtn.addEventListener("click", () => {
           try {
             window.AuraCraftCustom.updateDispute(dispute.id, nextStatus.value, adminNote.value);
-            feedback.textContent = `Đã cập nhật hồ sơ ${dispute.id}.`;
+            feedback.textContent = `Đã cập nhật trạng thái hồ sơ ${dispute.id}.`;
             render();
-          } catch (error) { feedback.textContent = error.message; }
-        }, "btn-outline"));
-        controls.append(makeButton("Kết luận có lợi buyer", () => resolve(dispute, "buyer"), "btn-primary"));
-        controls.append(makeButton("Kết luận có lợi thợ", () => resolve(dispute, "seller"), "btn-outline"));
-      } else {
-        const resolution = document.createElement("p");
-        resolution.className = "dispute-resolution";
-        resolution.textContent = `Kết luận: ${dispute.resolution || dispute.adminNote || "Đã đóng"}`;
-        details.append(resolution);
+          } catch (error) {
+            feedback.textContent = error.message;
+          }
+        });
+
+        const buyerWinBtn = document.createElement("button");
+        buyerWinBtn.type = "button";
+        buyerWinBtn.className = "btn btn-primary";
+        buyerWinBtn.innerHTML = `<i class="fa-solid fa-rotate-left"></i> Hoàn tiền Buyer`;
+        buyerWinBtn.addEventListener("click", () => resolve(dispute, "buyer"));
+
+        const sellerWinBtn = document.createElement("button");
+        sellerWinBtn.type = "button";
+        sellerWinBtn.className = "btn btn-outline";
+        sellerWinBtn.innerHTML = `<i class="fa-solid fa-gavel"></i> Có lợi Thợ`;
+        sellerWinBtn.addEventListener("click", () => resolve(dispute, "seller"));
+
+        leftActions.append(nextStatus, saveBtn, buyerWinBtn, sellerWinBtn);
       }
 
       if (order?.paymentStatus === "refund_due") {
-        controls.append(makeButton("Ghi nhận đã hoàn tiền", () => {
-          const reference = prompt("Mã tham chiếu hoàn tiền (nếu có):", "");
-          if (reference === null || !confirm("Xác nhận cổng thanh toán đã hoàn tiền thành công?")) return;
+        const refundBtn = document.createElement("button");
+        refundBtn.type = "button";
+        refundBtn.className = "btn btn-primary";
+        refundBtn.innerHTML = `<i class="fa-solid fa-money-bill-transfer"></i> Xác nhận đã hoàn tiền`;
+        refundBtn.addEventListener("click", () => {
+          const reference = prompt("Nhập mã giao dịch cổng thanh toán hoàn tiền (VNPay/MoMo):", "");
+          if (reference === null || !confirm(`Xác nhận hoàn tiền cho đơn ${order.id}?`)) return;
           try {
             window.AuraCraftCustom.processRefund(order.id, reference);
-            feedback.textContent = `Đã ghi nhận hoàn tiền cho đơn ${order.id}.`;
+            feedback.textContent = `Đã ghi nhận hoàn tiền thành công cho đơn ${order.id}.`;
             render();
-          } catch (error) { feedback.textContent = error.message; }
-        }, "btn-primary"));
+          } catch (error) {
+            feedback.textContent = error.message;
+          }
+        });
+        leftActions.append(refundBtn);
       }
 
-      const created = document.createElement("small");
-      created.className = "dispute-created-at";
-      created.textContent = `Tiếp nhận: ${formatDate(dispute.createdAt)}`;
-      card.append(header, details, adminNote, controls, created);
+      const rightInfo = document.createElement("div");
+      rightInfo.className = "dispute-created-at";
+      rightInfo.innerHTML = `<i class="fa-regular fa-clock"></i> Tiếp nhận: ${formatDate(dispute.createdAt)}`;
+
+      actions.append(leftActions, rightInfo);
+
+      card.append(header, details, noteWrapper, actions);
       disputeList.append(card);
     });
-    empty.hidden = disputes.length > 0;
+
+    if (empty) {
+      empty.hidden = disputes.length > 0;
+    }
   }
 
   function renderViolations() {
+    if (!window.AuraCraftCustom || !violationBody) return;
     const violations = window.AuraCraftCustom.listViolations().slice().reverse();
     violationBody.replaceChildren();
+
     violations.forEach((violation) => {
       const row = document.createElement("tr");
       const order = window.AuraCraftCustom.getOrder(violation.orderId);
-      [violation.orderId, violation.sellerEmail || order?.sellerEmail || "—", violation.type === "late_delivery" ? "Trễ deadline" : violation.type, formatDate(violation.createdAt), violation.clearedAt ? "Đã xử lý" : "Còn hiệu lực"].forEach((value) => {
-        const cell = document.createElement("td");
-        cell.textContent = value;
-        row.append(cell);
-      });
-      const actionCell = document.createElement("td");
+
+      const typeLabel = violation.type === "late_delivery" 
+        ? '<span class="badge late"><i class="fa-solid fa-clock-rotate-left"></i> Trễ deadline</span>'
+        : `<span class="badge pending">${violation.type}</span>`;
+
+      const statusBadge = violation.clearedAt
+        ? '<span class="badge done"><i class="fa-solid fa-check"></i> Đã xử lý</span>'
+        : '<span class="badge late"><i class="fa-solid fa-triangle-exclamation"></i> Còn hiệu lực</span>';
+
+      row.innerHTML = `
+        <td><strong>${violation.orderId}</strong></td>
+        <td>${violation.sellerEmail || order?.sellerEmail || "—"}</td>
+        <td>${typeLabel}</td>
+        <td>${formatDate(violation.createdAt)}</td>
+        <td>${statusBadge}</td>
+        <td class="violation-action-cell"></td>
+      `;
+
+      const actionCell = row.querySelector(".violation-action-cell");
       if (!violation.clearedAt) {
-        actionCell.append(makeButton("Ghi nhận xử lý", () => {
-          const note = prompt("Ghi chú xử lý vi phạm:");
+        const clearBtn = document.createElement("button");
+        clearBtn.type = "button";
+        clearBtn.className = "btn btn-outline";
+        clearBtn.style.padding = "6px 12px";
+        clearBtn.style.fontSize = "12px";
+        clearBtn.innerHTML = `<i class="fa-solid fa-check"></i> Ghi nhận xử lý`;
+        clearBtn.addEventListener("click", () => {
+          const note = prompt("Nhập ghi chú xử lý vi phạm của Thợ:");
           if (!note) return;
           try {
             window.AuraCraftCustom.clearViolation(violation.id, note);
             feedback.textContent = "Đã cập nhật hồ sơ vi phạm.";
             render();
-          } catch (error) { feedback.textContent = error.message; }
-        }));
+          } catch (error) {
+            feedback.textContent = error.message;
+          }
+        });
+        actionCell.append(clearBtn);
       } else {
-        actionCell.textContent = violation.resolutionNote || "Đã xử lý";
+        actionCell.innerHTML = `<span style="font-size: 13px; color: var(--text-muted);">${violation.resolutionNote || "Đã xử lý"}</span>`;
       }
-      row.append(actionCell);
+
       violationBody.append(row);
     });
   }
@@ -202,43 +307,43 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function toggleIntake(show) {
-    intake.hidden = !show;
-    if (show) renderOrderOptions();
+    if (intake) {
+      intake.hidden = !show;
+      if (show) renderOrderOptions();
+    }
   }
 
-  document.getElementById("openDisputeForm").addEventListener("click", () => toggleIntake(true));
-  document.getElementById("closeDisputeForm").addEventListener("click", () => toggleIntake(false));
-  document.getElementById("cancelDisputeForm").addEventListener("click", () => toggleIntake(false));
-  form.addEventListener("submit", (event) => {
-    event.preventDefault();
-    try {
-      const dispute = window.AuraCraftCustom.createDispute({
-        orderId: orderSelect.value,
-        buyerEmail: document.getElementById("disputeBuyerEmail").value,
-        subject: document.getElementById("disputeSubject").value,
-        description: document.getElementById("disputeDescription").value
-      });
-      form.reset();
-      toggleIntake(false);
-      feedback.textContent = `Đã tiếp nhận hồ sơ ${dispute.id}.`;
-      render();
-    } catch (error) { feedback.textContent = error.message; }
-  });
+  const openBtn = document.getElementById("openDisputeForm");
+  const closeBtn = document.getElementById("closeDisputeForm");
+  const cancelBtn = document.getElementById("cancelDisputeForm");
 
-  fetch("../components/admin-sidebar.html")
-    .then((response) => {
-      if (!response.ok) throw new Error("Không tải được menu admin.");
-      return response.text();
-    })
-    .then((html) => {
-      document.getElementById("admin-sidebar-placeholder").outerHTML = html
-        .replace('href="admin-orders.html" class="menu-item active"', 'href="admin-orders.html" class="menu-item"')
-        .replace('href="admin-disputes.html" class="menu-item"', 'href="admin-disputes.html" class="menu-item active"');
-    })
-    .catch((error) => { feedback.textContent = error.message; });
+  if (openBtn) openBtn.addEventListener("click", () => toggleIntake(true));
+  if (closeBtn) closeBtn.addEventListener("click", () => toggleIntake(false));
+  if (cancelBtn) cancelBtn.addEventListener("click", () => toggleIntake(false));
 
-  document.getElementById("disputeSearch").addEventListener("input", renderDisputes);
-  statusFilter.addEventListener("change", renderDisputes);
+  if (form) {
+    form.addEventListener("submit", (event) => {
+      event.preventDefault();
+      try {
+        const dispute = window.AuraCraftCustom.createDispute({
+          orderId: orderSelect.value,
+          buyerEmail: document.getElementById("disputeBuyerEmail").value,
+          subject: document.getElementById("disputeSubject").value,
+          description: document.getElementById("disputeDescription").value
+        });
+        form.reset();
+        toggleIntake(false);
+        feedback.textContent = `Đã tiếp nhận hồ sơ ${dispute.id} thành công.`;
+        render();
+      } catch (error) {
+        feedback.textContent = error.message;
+      }
+    });
+  }
+
+  if (search) search.addEventListener("input", renderDisputes);
+  if (statusFilter) statusFilter.addEventListener("change", renderDisputes);
   window.addEventListener("storage", render);
+
   render();
 });

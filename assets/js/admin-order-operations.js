@@ -163,12 +163,6 @@ document.addEventListener("DOMContentLoaded", () => {
     });
     list.replaceChildren();
     orders.forEach((order) => list.append(buildOrderCard(order)));
-    if (!orders.length) {
-      const empty = document.createElement("p");
-      empty.className = "admin-custom-empty";
-      empty.textContent = "Chưa có đơn Custom phù hợp. Đơn sẽ xuất hiện sau khi buyer chọn thợ.";
-      list.append(empty);
-    }
   }
 
   search.addEventListener("input", render);

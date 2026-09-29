@@ -7,19 +7,41 @@
     <!-- Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;600;700&family=Mulish:wght@400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
     <link rel="stylesheet" href="../assets/css/style.css">
     <link rel="stylesheet" href="../assets/css/header-footer.css">
+    <link rel="stylesheet" href="../assets/css/pages/styleSeller.css">
     <link rel="stylesheet" href="../assets/css/pages/styleRequests.css">
 </head>
 <body>
 <div id="header-placeholder"></div>
 
-<main class="container">
-    <h1 class="page-title">
-        Chợ Yêu Cầu Custom
-        <button class="btn btn-outline" style="float: right; font-size: 14px;" onclick="window.location.href='choose-seller.html'">Xem Báo Giá Của Tôi</button>
-    </h1>
+<main class="seller-layout container">
+    <!-- Sidebar -->
+    <aside class="seller-sidebar">
+        <div class="seller-profile">
+            <img src="https://i.pravatar.cc/150?img=32" alt="Tiệm Vòng Mộc Lan" class="profile-img">
+            <h3>Tiệm Vòng Mộc Lan</h3>
+            <p class="seller-role">Thợ thủ công Trang sức</p>
+        </div>
+        <nav class="seller-nav">
+            <a href="seller-dashboard.html"><i class="bi bi-pie-chart-fill"></i> Tổng quan Doanh thu</a>
+            <a href="seller-products.html"><i class="bi bi-box-seam-fill"></i> Quản lý Sản phẩm</a>
+            <a href="chat-seller.html"><i class="bi bi-chat-dots-fill"></i> Tin nhắn <span class="noti-count">2</span></a>
+            <a href="order-management.html"><i class="bi bi-card-list"></i> Quản lý Đơn hàng</a>
+            <a href="buyer-requests.html" class="active"><i class="bi bi-shop"></i> Chợ Custom & Báo giá</a>
+            <a href="#"><i class="bi bi-gear-fill"></i> Cài đặt</a>
+        </nav>
+    </aside>
 
+    <!-- Content -->
+    <section class="seller-content">
+    <div class="content-header">
+        <h1 class="page-title">Chợ Yêu Cầu Custom</h1>
+        <button class="btn btn-outline" style="font-size: 14px;" onclick="window.location.href='choose-seller.html'">Xem Báo Giá Của Tôi</button>
+    </div>
+
+    <div class="dashboard-section table-section">
     <section class="request-grid" id="customRequestList" aria-label="Yêu cầu Custom đang mở"></section>
 
     <div class="request-grid">
@@ -162,7 +184,9 @@
         <span style="display: flex; align-items: center; color: var(--text-muted);">...</span>
         <button class="page-btn">10</button>
         <button class="page-btn"><i class="fa-solid fa-chevron-right"></i></button>
-    </div>
+    </div> <!-- end pagination -->
+    </div> <!-- end dashboard-section -->
+    </section>
 
 </main>
 
@@ -176,20 +200,24 @@
             <button class="close-btn" onclick="closeQuoteModal()"><i class="fa-solid fa-times"></i></button>
         </div>
         <form id="quoteForm">
-            <p style="margin-top:0; color: var(--text-muted); font-size: 14px;">Đang báo giá cho: <strong id="modalReqName" style="color: var(--primary-brown);"></strong></p>
+            <p style="margin-top:0; margin-bottom: 12px; color: var(--text-muted); font-size: 13px;">Đang báo giá cho: <strong id="modalReqName" style="color: var(--primary-brown);"></strong></p>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="sellerName">Tên thợ</label>
+                    <input type="text" id="sellerName" placeholder="Tên hiển thị của bạn" required>
+                </div>
+                <div class="form-group">
+                    <label for="sellerEmail">Email liên hệ</label>
+                    <input type="email" id="sellerEmail" placeholder="tho@example.com" required>
+                </div>
+            </div>
 
             <div class="form-group">
-                <label for="sellerName">Tên thợ</label>
-                <input type="text" id="sellerName" placeholder="Tên hiển thị của bạn" required>
-            </div>
-            <div class="form-group">
-                <label for="sellerEmail">Email liên hệ</label>
-                <input type="email" id="sellerEmail" placeholder="tho@example.com" required>
-            </div>
-            <div class="form-group">
-                <label for="sellerPortfolio">Portfolio</label>
+                <label for="sellerPortfolio">Portfolio (Tùy chọn)</label>
                 <input type="url" id="sellerPortfolio" placeholder="https://example.com/portfolio">
             </div>
+
             <div class="form-row">
                 <div class="form-group">
                     <label for="sellerRating">Đánh giá</label>
@@ -201,16 +229,18 @@
                 </div>
             </div>
 
-            <div class="form-group">
-                <label>Giá nhận làm thực tế (VNĐ)</label>
-                <input type="number" id="quotePrice" placeholder="VD: 110000" required>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Giá nhận làm (VNĐ)</label>
+                    <input type="number" id="quotePrice" placeholder="VD: 110000" required>
+                </div>
+                <div class="form-group">
+                    <label>Số ngày hoàn thành</label>
+                    <input type="number" id="quoteDays" placeholder="Tối đa 15 ngày" required min="1" max="15">
+                </div>
             </div>
-            <div class="form-group">
-                <label>Số ngày hoàn thành dự kiến (Tối đa 15 ngày)</label>
-                <!-- Giới hạn max="15" -->
-                <input type="number" id="quoteDays" placeholder="VD: 3" required min="1" max="15">
-            </div>
-            <div class="form-group">
+
+            <div class="form-group" style="margin-bottom: 8px;">
                 <label>Ghi chú cho khách (Tùy chọn)</label>
                 <textarea id="quoteNote" placeholder="Mô tả chất liệu bạn dùng, cam kết..."></textarea>
             </div>
@@ -295,20 +325,6 @@
             card.dataset.tags = request.materials;
             card.dataset.price = `${Number(request.budget).toLocaleString('vi-VN')} đ`;
             card.dataset.img = request.designImages[0] || request.charmImages[0] || '';
-            const body = document.createElement('div');
-            body.className = 'req-body';
-            const title = document.createElement('h3');
-            const desc = document.createElement('p');
-            const price = document.createElement('p');
-            const quoteButton = document.createElement('button');
-            title.textContent = request.productType;
-            desc.textContent = `${request.buyerName}: ${request.materials}. ${request.charmDescription}`;
-            price.textContent = `Giá dự kiến: ${Number(request.budget).toLocaleString('vi-VN')} đ`;
-            quoteButton.type = 'button';
-            quoteButton.className = 'btn btn-primary';
-            quoteButton.textContent = 'Gửi báo giá';
-            quoteButton.addEventListener('click', () => openQuoteModal(request.id, request.productType));
-            body.append(title, desc, price, quoteButton);
             const images = [...request.designImages, ...request.charmImages];
             if (images.length) {
                 const gallery = document.createElement('div');
@@ -328,7 +344,31 @@
                 });
                 card.append(gallery);
             }
-            card.append(body);
+
+            const body = document.createElement('div');
+            body.className = 'req-body';
+            const title = document.createElement('h3');
+            const desc = document.createElement('p');
+            title.textContent = request.productType;
+            title.style.cursor = 'pointer';
+            title.addEventListener('click', () => openDetailModal(card));
+            desc.className = 'req-desc';
+            desc.textContent = `${request.buyerName}: ${request.materials}. ${request.charmDescription}`;
+            body.append(title, desc);
+
+            const footer = document.createElement('div');
+            footer.className = 'req-footer';
+            const price = document.createElement('div');
+            price.className = 'req-price';
+            price.textContent = `Dự kiến: ${Number(request.budget).toLocaleString('vi-VN')} đ`;
+            const quoteButton = document.createElement('button');
+            quoteButton.type = 'button';
+            quoteButton.className = 'btn btn-primary';
+            quoteButton.textContent = 'Gửi báo giá';
+            quoteButton.addEventListener('click', () => openQuoteModal(request.id, request.productType));
+            footer.append(price, quoteButton);
+
+            card.append(body, footer);
             customRequestList.append(card);
         });
     }
