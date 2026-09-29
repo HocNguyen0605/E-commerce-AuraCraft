@@ -9,7 +9,7 @@
     <link rel="stylesheet" href="../assets/css/header-footer.css">
     <style>
         .shop-header {
-            background: linear-gradient(135deg, var(--color-tan) 0%, var(--color-tan-soft) 100%);
+            background: linear-gradient(135deg, var(--card-bg) 0%, var(--bg-cream) 100%);
             padding: 60px 0 40px;
             text-align: center;
             margin-bottom: 40px;
@@ -19,7 +19,7 @@
             width: 100px;
             height: 100px;
             border-radius: 50%;
-            background: var(--color-primary);
+            background: var(--primary-blue);
             color: white;
             font-size: 2.5rem;
             font-weight: 700;
@@ -33,12 +33,12 @@
 
         .shop-name {
             font-size: 2rem;
-            font-family: var(--font-display);
+            font-family: var(--font-title);
             margin-bottom: 10px;
         }
 
         .shop-stats {
-            color: var(--color-text-muted);
+            color: #666;
             margin-bottom: 25px;
         }
 
@@ -50,7 +50,7 @@
         }
 
         .shop-tabs {
-            border-bottom: 1px solid var(--color-border);
+            border-bottom: 1px solid var(--gray-light);
             display: flex;
             gap: 30px;
             justify-content: center;
@@ -60,13 +60,13 @@
         .shop-tab {
             padding: 10px 0;
             font-weight: 600;
-            color: var(--color-text-muted);
+            color: #666;
             cursor: pointer;
             position: relative;
         }
 
         .shop-tab.active {
-            color: var(--color-primary);
+            color: var(--primary-blue);
         }
 
         .shop-tab.active::after {
@@ -76,26 +76,26 @@
             left: 0;
             width: 100%;
             height: 2px;
-            background: var(--color-primary);
+            background: var(--primary-blue);
         }
 
         .shop-custom-banner {
             background: #fdfbf7;
-            border: 1px solid var(--color-border);
-            border-radius: var(--radius-lg);
+            border: 1px solid var(--gray-light);
+            border-radius: var(--border-radius);
             padding: 40px;
             text-align: center;
             margin-bottom: 50px;
         }
 
         .shop-custom-banner h3 {
-            font-family: var(--font-display);
+            font-family: var(--font-title);
             font-size: 1.5rem;
             margin-bottom: 10px;
         }
 
         .shop-custom-banner p {
-            color: var(--color-text-muted);
+            color: #666;
             max-width: 600px;
             margin: 0 auto 25px;
         }
@@ -116,11 +116,11 @@
                 <span>82 đơn Custom thành công</span>
                 <span style="margin: 0 10px;">•</span>
                 <span>Tham gia 2023</span>
-            </div>
+  
             <div class="shop-actions">
                 <button class="btn btn-outline"><i class="fa-regular fa-heart"></i> Theo dõi xưởng</button>
                 <button class="btn btn-outline"><i class="fa-regular fa-comment"></i> Chat với thợ</button>
-            </div>
+  
         </div>
     </div>
 
@@ -180,19 +180,17 @@
                 : '';
 
             return `
-        <div class="product-card">
-          <div class="product-image">
+        <div class="product-card has-image" onclick="window.location.href='product-detail.html?id=${p.id}'" style="cursor: pointer;">
             <img src="${p.image}" alt="${p.name}">
-            <button class="wishlist-btn" title="Thêm vào yêu thích"><i class="fa-regular fa-heart"></i></button>
-          </div>
-          <div class="product-info">
-            <div class="product-category">${AURA_TYPE_LABELS[p.type] || p.type}</div>
-            <h3 class="product-title"><a href="product-detail.html?id=${p.id}">${p.name}</a></h3>
-            <div class="product-price">
-              <span class="current-price">${priceFormatted}</span>
-              ${oldPriceHtml}
+            <div class="product-info">
+                <h3>${p.name}</h3>
+                <p class="product-shop"><i class="fa-solid fa-store"></i> ${p.shop}</p>
+                <div class="product-rating">
+                    <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star-half-stroke"></i>
+                    <span class="rating-score">4.9</span>
+                </div>
+                <p class="price">${priceFormatted} ${oldPriceHtml}</p>
             </div>
-          </div>
         </div>
       `;
         }).join('');

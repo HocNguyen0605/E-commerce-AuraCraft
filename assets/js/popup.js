@@ -39,3 +39,21 @@ window.alert = function(message) {
     popup.style.visibility = 'visible';
     popup.style.opacity = '1';
 };
+
+// Kiểm tra và cập nhật trạng thái đăng nhập cho Header
+document.addEventListener("DOMContentLoaded", () => {
+    setInterval(() => {
+        const currentUser = localStorage.getItem("currentUser");
+        const navLogin = document.getElementById("nav-login");
+        const navProfile = document.getElementById("nav-profile");
+        if (navLogin && navProfile) {
+            if (currentUser) {
+                navLogin.style.display = "none";
+                navProfile.style.display = "flex";
+            } else {
+                navLogin.style.display = "inline-block";
+                navProfile.style.display = "none";
+            }
+        }
+    }, 500); // Kiểm tra mỗi 500ms vì header được load bất đồng bộ
+});

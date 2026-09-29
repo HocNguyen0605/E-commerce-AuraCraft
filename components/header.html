@@ -17,11 +17,15 @@
             <button class="close-menu" onclick="document.getElementById('nav-menu-mobile').classList.remove('active'); document.getElementById('menu-overlay').classList.remove('active')"><i class="fa-solid fa-xmark"></i></button>
             <a href="products.html">Sản phẩm</a>
             <a href="customizer.html">Thiết kế</a>
-            <a href="buyer-requests.html">Báo Giá</a>
-            <a href="login.html" class="icon-btn"><i class="fa-regular fa-user"></i></a>
-            <a href="cart.html" class="icon-btn"><i class="fa-solid fa-cart-shopping"></i></a>
+            
+            <!-- Chưa đăng nhập -->
+            <a href="login.html" id="nav-login" class="nav-text-btn">Đăng nhập</a>
+            
+            <!-- Đã đăng nhập -->
+            <a href="profile.html" id="nav-profile" class="icon-btn" style="display: none;" title="Trang cá nhân"><i class="fa-regular fa-user"></i></a>
+            
+            <a href="cart.html" class="icon-btn" title="Giỏ hàng"><i class="fa-solid fa-cart-shopping"></i></a>
         </nav>
     </div>
-
     <div class="menu-overlay" id="menu-overlay" onclick="document.getElementById('nav-menu-mobile').classList.remove('active'); document.getElementById('menu-overlay').classList.remove('active')"></div>
 </header>

@@ -8,6 +8,7 @@
   <link rel="stylesheet" href="../assets/css/style.css">
   <link rel="stylesheet" href="../assets/css/header-footer.css">
   <link rel="stylesheet" href="../assets/css/pages/styleChoose-seller.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 
 <body>
@@ -153,7 +154,7 @@
   </main>
   <div id="footer-placeholder"></div>
   <script src="../assets/js/custom-workflow.js"></script>
-  <script src="../assets/js/main.js"></script>
+
   <script src="../assets/js/choose-seller.js"></script>
   <script>
     fetch('../components/header.html').then(response => response.text()).then(data => { let html = data.replace(/href="index\.html"/g, 'href="../index.html"'); document.getElementById('header-placeholder').innerHTML = html; }).catch(error => console.error('Error loading header:', error));
