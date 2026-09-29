@@ -172,7 +172,6 @@ ul {
     text-align: center;
     padding: 30px 20px;
     background: var(--white);
-    border-radius: 20px;
     box-shadow: var(--shadow);
     transition: transform 0.3s ease;
 }
