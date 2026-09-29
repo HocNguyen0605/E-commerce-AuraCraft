@@ -49,9 +49,27 @@ document.addEventListener("DOMContentLoaded", () => {
     return element;
   }
 
+  const statusBadgeMap = {
+    open: "badge shipping",
+    quoted: "badge pending",
+    awarded: "badge crafting",
+    cancelled: "badge rejected",
+    pending_payment: "badge pending",
+    crafting: "badge crafting",
+    unpaid: "badge rejected",
+    paid: "badge done",
+    adjustment_due: "badge late",
+    refund_due: "badge late",
+    success: "badge done",
+    failure: "badge rejected",
+    pending: "badge pending"
+  };
+
   function statusCell(row, status) {
-    const element = cell(row, labels[status] || status, "custom-status");
-    element.dataset.status = status;
+    const badge = document.createElement("span");
+    badge.className = statusBadgeMap[status] || "badge pending";
+    badge.textContent = labels[status] || status;
+    return cell(row, badge);
   }
 
   function quoteDetails(request, quotes) {
@@ -223,18 +241,7 @@ document.addEventListener("DOMContentLoaded", () => {
     render();
   }
 
-  fetch("../components/admin-sidebar.html")
-    .then((response) => {
-      if (!response.ok) throw new Error("Không tải được menu admin.");
-      return response.text();
-    })
-    .then((html) => {
-      const sidebar = document.getElementById("admin-sidebar-placeholder");
-      sidebar.outerHTML = html
-        .replace('href="admin-orders.html" class="menu-item active"', 'href="admin-orders.html" class="menu-item"')
-        .replace('href="admin-custom-workflow.html" class="menu-item"', 'href="admin-custom-workflow.html" class="menu-item active"');
-    })
-    .catch((error) => { feedback.textContent = error.message; });
+
 
   tabs.forEach((tab) => tab.addEventListener("click", () => setView(tab.dataset.view)));
   search.addEventListener("input", render);
