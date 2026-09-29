@@ -12,25 +12,6 @@ document.addEventListener("DOMContentLoaded", () => {
     suspended: "Tạm khóa"
   };
 
-  fetch("../components/admin-sidebar.html")
-    .then((response) => {
-      if (!response.ok) throw new Error("Không tải được menu admin.");
-      return response.text();
-    })
-    .then((html) => {
-      const sidebar = document.getElementById("admin-sidebar-placeholder");
-      sidebar.outerHTML = html.replace(
-        'href="admin-users.html" class="menu-item"',
-        'href="admin-users.html" class="menu-item active"'
-      ).replace(
-        'href="admin-orders.html" class="menu-item active"',
-        'href="admin-orders.html" class="menu-item"'
-      );
-    })
-    .catch((error) => {
-      feedback.textContent = error.message;
-    });
-
   function createCell(content, className) {
     const cell = document.createElement("td");
     if (className) cell.className = className;
@@ -78,7 +59,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function createStatusSelect(user) {
     const select = document.createElement("select");
-    select.className = "user-status-select";
+    select.className = "filter-select";
+    select.style.padding = "6px 12px";
+    select.style.fontSize = "13px";
+    select.style.borderRadius = "6px";
     select.setAttribute("aria-label", `Trạng thái tài khoản ${user.email}`);
 
     Object.entries(statusLabels).forEach(([value, label]) => {
@@ -131,7 +115,7 @@ document.addEventListener("DOMContentLoaded", () => {
     visibleUsers.forEach((user) => {
       const row = document.createElement("tr");
       const role = document.createElement("span");
-      role.className = "user-role";
+      role.className = user.role === "artisan" ? "badge crafting" : "badge shipping";
       role.textContent = roleLabels[user.role] || "Không xác định";
       const createdAt = user.createdAt
         ? new Intl.DateTimeFormat("vi-VN", { dateStyle: "medium" }).format(new Date(user.createdAt))

@@ -26,7 +26,8 @@
                 <a href="seller-dashboard.html"><i class="bi bi-pie-chart-fill"></i> Tổng quan Doanh thu</a>
                 <a href="seller-products.html" class="active"><i class="bi bi-box-seam-fill"></i> Quản lý Sản phẩm</a>
                 <a href="chat-seller.html"><i class="bi bi-chat-dots-fill"></i> Tin nhắn <span class="noti-count">2</span></a>
-                <a href="#"><i class="bi bi-card-list"></i> Đơn hàng</a>
+                <a href="order-management.html"><i class="bi bi-card-list"></i> Quản lý Đơn hàng</a>
+                <a href="buyer-requests.html"><i class="bi bi-shop"></i> Chợ Custom & Báo giá</a>
                 <a href="#"><i class="bi bi-gear-fill"></i> Cài đặt</a>
             </nav>
         </aside>
@@ -151,13 +152,9 @@
     <div id="footer-placeholder"></div>
 
     <script>
-        fetch('../components/header.html')
-            .then(r => r.text())
-            .then(html => document.getElementById('header-placeholder').innerHTML = html);
+        fetch('../components/header.html').then(response => response.text()).then(data => { let html = data.replace(/href="index\.html"/g, 'href="../index.html"'); document.getElementById('header-placeholder').innerHTML = html; }).catch(error => console.error('Error loading header:', error));
 
-        fetch('../components/footer.html')
-            .then(r => r.text())
-            .then(html => document.getElementById('footer-placeholder').innerHTML = html);
+        fetch('../components/footer.html').then(response => response.text()).then(data => { let html = data.replace(/href="index\.html"/g, 'href="../index.html"'); document.getElementById('footer-placeholder').innerHTML = html; }).catch(error => console.error('Error loading footer:', error));
     </script>
 </body>
 </html>

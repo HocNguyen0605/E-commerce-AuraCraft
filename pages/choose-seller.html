@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Chọn thợ thực hiện — AuraCraft</title>
 <link rel="stylesheet" href="../assets/css/style.css">
+<link rel="stylesheet" href="../assets/css/header-footer.css">
 <link rel="stylesheet" href="../assets/css/pages/styleChoose-seller.css">
 </head>
 <body>
@@ -41,7 +42,7 @@
       <div class="seller-quote">
         <div class="quote-price">110.000 ₫</div>
         <button type="button" class="btn btn-primary btn-sm quote-choose-btn">Chọn thợ này</button>
-        <button type="button" class="btn btn-outline btn-sm quote-chat-btn">💬 Nhắn tin với thợ</button>
+        <a href="chat-buyer.html" class="btn btn-outline btn-sm quote-chat-btn" style="text-decoration:none; display:inline-block; text-align:center; padding: 0.25rem 0.5rem; line-height: 1.5;">💬 Nhắn tin với thợ</a>
       </div>
     </article>
 
@@ -63,7 +64,7 @@
       <div class="seller-quote">
         <div class="quote-price">125.000 ₫</div>
         <button type="button" class="btn btn-primary btn-sm quote-choose-btn">Chọn thợ này</button>
-        <button type="button" class="btn btn-outline btn-sm quote-chat-btn">💬 Nhắn tin với thợ</button>
+        <a href="chat-buyer.html" class="btn btn-outline btn-sm quote-chat-btn" style="text-decoration:none; display:inline-block; text-align:center; padding: 0.25rem 0.5rem; line-height: 1.5;">💬 Nhắn tin với thợ</a>
       </div>
     </article>
 
@@ -85,7 +86,7 @@
       <div class="seller-quote">
         <div class="quote-price">105.000 ₫</div>
         <button type="button" class="btn btn-primary btn-sm quote-choose-btn">Chọn thợ này</button>
-        <button type="button" class="btn btn-outline btn-sm quote-chat-btn">💬 Nhắn tin với thợ</button>
+        <a href="chat-buyer.html" class="btn btn-outline btn-sm quote-chat-btn" style="text-decoration:none; display:inline-block; text-align:center; padding: 0.25rem 0.5rem; line-height: 1.5;">💬 Nhắn tin với thợ</a>
       </div>
     </article>
 
@@ -107,7 +108,7 @@
       <div class="seller-quote">
         <div class="quote-price">118.000 ₫</div>
         <button type="button" class="btn btn-primary btn-sm quote-choose-btn">Chọn thợ này</button>
-        <button type="button" class="btn btn-outline btn-sm quote-chat-btn">💬 Nhắn tin với thợ</button>
+        <a href="chat-buyer.html" class="btn btn-outline btn-sm quote-chat-btn" style="text-decoration:none; display:inline-block; text-align:center; padding: 0.25rem 0.5rem; line-height: 1.5;">💬 Nhắn tin với thợ</a>
       </div>
     </article>
 
@@ -137,13 +138,9 @@
 <script src="../assets/js/main.js"></script>
 <script src="../assets/js/choose-seller.js"></script>
 <script>
-        fetch('../components/header.html')
-            .then(r => r.text())
-            .then(html => document.getElementById('header-placeholder').innerHTML = html);
+        fetch('../components/header.html').then(response => response.text()).then(data => { let html = data.replace(/href="index\.html"/g, 'href="../index.html"'); document.getElementById('header-placeholder').innerHTML = html; }).catch(error => console.error('Error loading header:', error));
 
-        fetch('../components/footer.html')
-            .then(r => r.text())
-            .then(html => document.getElementById('footer-placeholder').innerHTML = html);
+        fetch('../components/footer.html').then(response => response.text()).then(data => { let html = data.replace(/href="index\.html"/g, 'href="../index.html"'); document.getElementById('footer-placeholder').innerHTML = html; }).catch(error => console.error('Error loading footer:', error));
 </script>
 </body>
 </html>

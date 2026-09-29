@@ -4,8 +4,10 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Thiết kế Custom — AuraCraft</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <link rel="stylesheet" href="../assets/css/style.css">
-<link rel="stylesheet" href="../assets/css/customizer.css">
+<link rel="stylesheet" href="../assets/css/header-footer.css">
+<link rel="stylesheet" href="../assets/css/pages/styleCustomizer.css">
 </head>
 <body>
 
@@ -25,6 +27,30 @@
 
     <section class="cz-canvas-panel card">
       <h3>Bản thiết kế</h3>
+
+      <div class="cz-tools">
+        <div class="cz-size-selector card">
+          <label for="czSlotSize">Kích thước vòng:</label>
+          <select id="czSlotSize" class="form-control">
+            <option value="14" selected>14 vị trí (Cơ bản)</option>
+            <option value="16">16 vị trí (Lớn)</option>
+            <option value="18">18 vị trí (Rất lớn)</option>
+            <option value="20">20 vị trí (Đặc biệt)</option>
+          </select>
+        </div>
+
+        <div class="cz-text-autofill card">
+          <label>Xếp chữ tự động:</label>
+          <div class="cz-text-inputs">
+            <input type="text" id="czTextInput" placeholder="Nhập tên (Vd: THUONG)" class="form-control cz-uppercase">
+            <select id="czTextFont" class="form-control cz-font-select">
+              <option value="Chữ Đen">Chữ Đen (10k)</option>
+              <option value="Chữ Vàng">Chữ Vàng (15k)</option>
+            </select>
+            <button type="button" class="btn btn-primary" id="czAutoFillBtn">Xếp chữ</button>
+          </div>
+        </div>
+      </div>
 
       <p class="cz-slot-counter" id="czSlotCounter"></p>
 
@@ -74,13 +100,9 @@
 <script src="../assets/js/products-data.js"></script>
 <script src="../assets/js/customizer.js"></script>
 <script>
-        fetch('../components/header.html')
-            .then(r => r.text())
-            .then(html => document.getElementById('header-placeholder').innerHTML = html);
+        fetch('../components/header.html').then(response => response.text()).then(data => { let html = data.replace(/href="index\.html"/g, 'href="../index.html"'); document.getElementById('header-placeholder').innerHTML = html; }).catch(error => console.error('Error loading header:', error));
 
-        fetch('../components/footer.html')
-            .then(r => r.text())
-            .then(html => document.getElementById('footer-placeholder').innerHTML = html);
+        fetch('../components/footer.html').then(response => response.text()).then(data => { let html = data.replace(/href="index\.html"/g, 'href="../index.html"'); document.getElementById('footer-placeholder').innerHTML = html; }).catch(error => console.error('Error loading footer:', error));
     </script>
 </body>
 </html>

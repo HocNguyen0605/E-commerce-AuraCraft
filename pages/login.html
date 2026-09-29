@@ -12,8 +12,6 @@
 </head>
 
 <body>
-    <div id="header-placeholder"></div>
-
     <main class="form-page">
         <div class="container">
             <div class="auth-wrapper">
@@ -92,24 +90,8 @@
         </div>
     </main>
 
-    <div id="footer-placeholder"></div>
-
     <script src="../assets/js/auth.js"></script>
-    <script>
-        fetch('../components/header.html')
-            .then(r => r.text())
-            .then(html => {
-                document.getElementById('header-placeholder').innerHTML = html.replace(/href="index\.html"/g, 'href="../index.html"');
-            })
-            .catch(err => console.error('Lỗi tải Header:', err));
 
-        fetch('../components/footer.html')
-            .then(r => r.text())
-            .then(html => {
-                document.getElementById('footer-placeholder').innerHTML = html.replace(/href="index\.html"/g, 'href="../index.html"');
-            })
-            .catch(err => console.error('Lỗi tải Footer:', err));
-    </script>
 </body>
 
 </html>
