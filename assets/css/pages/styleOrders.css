@@ -1,11 +1,4 @@
 :root {
-    --primary-blue: #425B9A;
-    --primary-brown: #432F2E;
-    --bg-cream: #FFF6E5;
-    --white: #FFFFFF;
-    --gray-light: #E5E5E5;
-    --text-muted: #777777;
-
     /* Trạng thái */
     --status-pending: #9B59B6;  /* Tím */
     --status-crafting: #F39C12; /* Vàng cam */
@@ -13,18 +6,9 @@
     --status-shipping: #3498DB; /* Xanh dương */
     --status-done: #2ECC71;     /* Xanh lá */
 }
-
-body { font-family: 'Mulish', sans-serif; background-color: var(--bg-cream); color: var(--primary-brown); margin: 0; }
-h1, h2, h3 { font-family: 'Baloo 2', cursive; }
-.container { max-width: 1000px; margin: 0 auto; padding: 24px; }
-.btn { padding: 8px 16px; border-radius: 6px; border: none; font-family: 'Baloo 2', cursive; font-size: 14px; cursor: pointer; transition: 0.3s; }
-.btn-primary { background-color: var(--primary-blue); color: var(--white); }
-.btn-primary:hover { background-color: #314475; }
-.btn-outline { background-color: transparent; border: 1px solid var(--primary-brown); color: var(--primary-brown); }
-.btn-outline:hover { background-color: var(--gray-light); }
-
+/* Header chung cho trang (Dùng trong Admin) */
 .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
-.page-title { margin: 0; font-size: 32px; color: var(--primary-blue); }
+.page-title { margin: 0; font-size: 32px; color: var(--primary-blue); font-family: var(--font-title); }
 
 /* --- TABS --- */
 .tabs { display: flex; gap: 10px; border-bottom: 2px solid var(--gray-light); margin-bottom: 24px; overflow-x: auto; padding-bottom: 10px; }

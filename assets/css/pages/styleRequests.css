@@ -1,27 +1,7 @@
-:root {
-    --primary-blue: #425B9A;
-    --primary-brown: #432F2E;
-    --bg-cream: #FFF6E5;
-    --card-bg: #FFFFFF;
-    --accent-gold: #D4AF37;
-    --white: #FFFFFF;
-    --gray-light: #E5E5E5;
-    --text-muted: #777777;
-}
-
-body { font-family: 'Mulish', sans-serif; background-color: var(--bg-cream); color: var(--primary-brown); margin: 0; }
-h1, h2, h3 { font-family: 'Baloo 2', cursive; }
-.container { max-width: 1200px; margin: 0 auto; padding: 24px; }
-.btn { padding: 10px 20px; border-radius: 8px; border: none; font-family: 'Baloo 2', cursive; font-size: 16px; cursor: pointer; transition: all 0.3s ease; text-decoration: none; display: inline-block; }
-.btn-primary { background-color: var(--primary-blue); color: var(--white); }
-.btn-primary:hover { background-color: #314475; transform: translateY(-2px); }
-.btn-outline { background-color: transparent; border: 2px solid var(--primary-brown); color: var(--primary-brown); }
-
 /* --- REQUEST CARDS --- */
-.page-title { text-align: center; margin-bottom: 40px; font-size: 32px; color: var(--primary-blue); }
 .request-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 24px; align-items: stretch; }
 .request-card { 
-    background: var(--card-bg); 
+    background: var(--white); 
     border-radius: 12px; 
     padding: 20px; 
     box-shadow: 0 4px 12px rgba(0,0,0,0.05); 
