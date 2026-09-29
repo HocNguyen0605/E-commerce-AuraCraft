@@ -1,3 +1,25 @@
+// Dữ liệu tài khoản mặc định phục vụ kiểm thử phân quyền
+const MOCK_USERS = [
+  {
+    email: "admin@auracraft.com",
+    password: "password123",
+    role: "admin",
+    fullName: "Quản Trị Viên",
+  },
+  {
+    email: "artisan@auracraft.com",
+    password: "password123",
+    role: "artisan",
+    fullName: "Thợ Thủ Công",
+  },
+  {
+    email: "buyer@auracraft.com",
+    password: "password123",
+    role: "buyer",
+    fullName: "Khách Hàng",
+  },
+];
+
 function togglePass(inputId, btn) {
   const input = document.getElementById(inputId);
   if (!input) return;
@@ -12,7 +34,6 @@ function togglePass(inputId, btn) {
   }
 }
 
-// Kiểm tra định dạng Email
 function isValidEmail(email) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 }
@@ -22,43 +43,116 @@ document.addEventListener("DOMContentLoaded", () => {
   if (loginForm) {
     loginForm.addEventListener("submit", (e) => {
       e.preventDefault();
-      const email = document.getElementById("email");
-      const pass = document.getElementById("password");
+      const emailInput = document.getElementById("email");
+      const passInput = document.getElementById("password");
       let isValid = true;
 
-      if (!email.value.trim()) {
-        email.closest(".input-group").classList.add("invalid");
+      const emailVal = emailInput.value.trim();
+      const passVal = passInput.value;
+
+      // Validate email/username
+      if (!emailVal) {
+        emailInput.closest(".input-group").classList.add("invalid");
         isValid = false;
       } else {
-        email.closest(".input-group").classList.remove("invalid");
+        emailInput.closest(".input-group").classList.remove("invalid");
       }
 
-      if (pass.value.length < 6) {
-        pass.closest(".input-group").classList.add("invalid");
+      // Validate password length
+      if (passVal.length < 6) {
+        passInput.closest(".input-group").classList.add("invalid");
         isValid = false;
       } else {
-        pass.closest(".input-group").classList.remove("invalid");
+        passInput.closest(".input-group").classList.remove("invalid");
       }
 
-      if (isValid) {
-        alert("Đăng nhập thành công vào AuraCraft!");
-        window.location.href = "../index.html";
+      if (!isValid) return;
+
+      // Lấy danh sách user đã đăng ký (từ localStorage) kết hợp với tài khoản mặc định
+      const registeredUsers =
+        JSON.parse(localStorage.getItem("AuraCraftUsers")) || [];
+      const allUsers = [...MOCK_USERS, ...registeredUsers];
+
+      // Tìm kiếm user phù hợp
+      const matchedUser = allUsers.find(
+        (u) =>
+          u.email.toLowerCase() === emailVal.toLowerCase() &&
+          u.password === passVal,
+      );
+
+      if (!matchedUser) {
+        emailInput.closest(".input-group").classList.add("invalid");
+        const errorMsg = emailInput
+          .closest(".input-group")
+          .querySelector(".error-msg");
+        if (errorMsg)
+          errorMsg.textContent = "Tài khoản hoặc mật khẩu không chính xác.";
+        return;
+      }
+
+      // Lưu thông tin phiên đăng nhập (Session)
+      const currentUser = {
+        fullName: matchedUser.fullName,
+        email: matchedUser.email,
+        role: matchedUser.role,
+      };
+      localStorage.setItem("currentUser", JSON.stringify(currentUser));
+
+      alert(`Đăng nhập thành công! Chào mừng ${currentUser.fullName}.`);
+
+      // Điều hướng dựa trên vai trò (Role-based Routing)
+      switch (currentUser.role) {
+        case "admin":
+          window.location.href = "../pages/admin-orders.html";
+          break;
+        case "artisan":
+          window.location.href = "../pages/seller-dashboard.html";
+          break;
+        case "buyer":
+        default:
+          window.location.href = "../index.html";
+          break;
       }
     });
   }
+
+  // Khởi tạo hệ thống quản lý user giả lập cho trang đăng ký
+  window.AuraCraftUsers = {
+    create: (newUser) => {
+      const existingUsers =
+        JSON.parse(localStorage.getItem("AuraCraftUsers")) || [];
+      const isExist = [...MOCK_USERS, ...existingUsers].some(
+        (u) => u.email.toLowerCase() === newUser.email.toLowerCase(),
+      );
+
+      if (isExist) {
+        throw new Error("Email này đã được sử dụng.");
+      }
+
+      existingUsers.push(newUser);
+      localStorage.setItem("AuraCraftUsers", JSON.stringify(existingUsers));
+      return newUser;
+    },
+  };
 
   const registerForm = document.getElementById("registerForm");
   if (registerForm) {
     const accountRole = document.getElementById("accountRole");
     const artisanFields = document.getElementById("artisanFields");
     const updateArtisanFields = () => {
+      if (!accountRole || !artisanFields) return;
       const isArtisan = accountRole.value === "artisan";
       artisanFields.hidden = !isArtisan;
-      document.getElementById("introduction").required = isArtisan;
-      document.getElementById("portfolio").required = isArtisan;
+      const intro = document.getElementById("introduction");
+      const port = document.getElementById("portfolio");
+      if (intro) intro.required = isArtisan;
+      if (port) port.required = isArtisan;
     };
-    accountRole.addEventListener("change", updateArtisanFields);
-    updateArtisanFields();
+
+    if (accountRole) {
+      accountRole.addEventListener("change", updateArtisanFields);
+      updateArtisanFields();
+    }
 
     registerForm.addEventListener("submit", (e) => {
       e.preventDefault();
@@ -66,11 +160,11 @@ document.addEventListener("DOMContentLoaded", () => {
       const email = document.getElementById("email");
       const password = document.getElementById("password");
       const confirmPassword = document.getElementById("confirmPassword");
+      const accountRole = document.getElementById("accountRole");
       const introduction = document.getElementById("introduction");
       const portfolio = document.getElementById("portfolio");
       let isValid = true;
 
-      // Kiểm tra họ và tên
       if (!fullName.value.trim()) {
         fullName.closest(".input-group").classList.add("invalid");
         isValid = false;
@@ -78,7 +172,6 @@ document.addEventListener("DOMContentLoaded", () => {
         fullName.closest(".input-group").classList.remove("invalid");
       }
 
-      // Kiểm tra email
       if (!isValidEmail(email.value.trim())) {
         email.closest(".input-group").classList.add("invalid");
         isValid = false;
@@ -87,7 +180,6 @@ document.addEventListener("DOMContentLoaded", () => {
         email.closest(".input-group").querySelector(".error-msg").textContent = "Vui lòng nhập email hợp lệ.";
       }
 
-      // Kiểm tra độ dài mật khẩu
       if (password.value.length < 6) {
         password.closest(".input-group").classList.add("invalid");
         isValid = false;
@@ -95,7 +187,6 @@ document.addEventListener("DOMContentLoaded", () => {
         password.closest(".input-group").classList.remove("invalid");
       }
 
-      // Kiểm tra mật khẩu xác nhận trùng khớp
       if (!confirmPassword.value || confirmPassword.value !== password.value) {
         confirmPassword.closest(".input-group").classList.add("invalid");
         isValid = false;
@@ -103,13 +194,17 @@ document.addEventListener("DOMContentLoaded", () => {
         confirmPassword.closest(".input-group").classList.remove("invalid");
       }
 
-      if (accountRole.value === "artisan") {
+      if (accountRole && accountRole.value === "artisan") {
         const introductionGroup = introduction.closest(".input-group");
         const portfolioGroup = portfolio.closest(".input-group");
         const validPortfolio = portfolio.checkValidity();
-        introductionGroup.classList.toggle("invalid", !introduction.value.trim());
+        introductionGroup.classList.toggle(
+          "invalid",
+          !introduction.value.trim(),
+        );
         portfolioGroup.classList.toggle("invalid", !validPortfolio);
-        isValid = Boolean(introduction.value.trim()) && validPortfolio && isValid;
+        isValid =
+          Boolean(introduction.value.trim()) && validPortfolio && isValid;
       }
 
       if (isValid) {
@@ -117,19 +212,22 @@ document.addEventListener("DOMContentLoaded", () => {
           const user = window.AuraCraftUsers.create({
             fullName: fullName.value,
             email: email.value,
+            password: password.value,
             role: accountRole ? accountRole.value : "buyer",
             introduction: introduction ? introduction.value : "",
-            portfolio: portfolio ? portfolio.value : ""
+            portfolio: portfolio ? portfolio.value : "",
           });
-          const successMessage = user.role === "artisan"
-            ? "Đăng ký thành công. Tài khoản thợ đang chờ admin duyệt trước khi nhận đơn."
-            : "Đăng ký thành công. Vui lòng đăng nhập.";
+          const successMessage =
+            user.role === "artisan"
+              ? "Đăng ký thành công. Tài khoản thợ đang chờ admin duyệt trước khi nhận đơn."
+              : "Đăng ký thành công. Vui lòng đăng nhập.";
           alert(successMessage);
           window.location.href = "login.html";
         } catch (error) {
           const emailGroup = email.closest(".input-group");
           emailGroup.classList.add("invalid");
-          emailGroup.querySelector(".error-msg").textContent = error.message;
+          const errEl = emailGroup.querySelector(".error-msg");
+          if (errEl) errEl.textContent = error.message;
           email.focus();
         }
       }
