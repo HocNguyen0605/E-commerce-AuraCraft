@@ -16,21 +16,23 @@ document.addEventListener('DOMContentLoaded', () => {
   const product = (typeof AURA_PRODUCTS !== 'undefined') ? AURA_PRODUCTS.find(p => p.id === productId) : null;
   const type = product ? product.type : (TYPE_CONFIG[params.get('type')] ? params.get('type') : 'bracelet');
   const cfg = TYPE_CONFIG[type];
-  const shopName = product ? product.shop : 'AuraCraft Workshop';
+  const shopName = product ? product.shop : 'Xưởng Mộc An';
 
-  const backHref = product ? `product-detail.html?id=${product.id}` : 'list-product.html';
+  const backHref = 'shop-profile.html';
   document.getElementById('czBackLink').href = backHref;
+  document.getElementById('czBackLink').textContent = `← Quay lại cửa hàng (${shopName})`;
   document.getElementById('czCancelLink').href = backHref;
+  document.getElementById('czCancelLink').textContent = `Không muốn custom nữa? Quay lại cửa hàng`;
 
   document.getElementById('czTag').textContent = `Thiết kế Custom · ${cfg.label}`;
   document.getElementById('czHeading').textContent = product ? `Custom: ${product.name}` : cfg.heading;
   document.getElementById('czShopInfo').innerHTML =
     `Yêu cầu Custom này sẽ gửi trực tiếp đến <strong>${shopName}</strong> — shop sẽ báo giá thực tế cho riêng bạn.`;
   const LIBRARY_ITEMS = [
-    { name: 'Hạt chữ', price: 10000, color: '#C9A24B' },
-    { name: 'Charm hoa', price: 40000, image: CHARM_IMAGES['Charm hoa'] },
-    { name: 'Charm tim', price: 35000, image: CHARM_IMAGES['Charm tim'] },
-    { name: 'Charm cỏ 4 lá', price: 38000, image: CHARM_IMAGES['Charm cỏ 4 lá'] },
+    { name: 'Hạt chữ', price: 10000, image: 'https://myumemories.com/wp-content/uploads/2025/11/3-65-300x300.png' },
+    { name: 'Charm hoa', price: 40000, image: 'https://myumemories.com/wp-content/uploads/2026/01/3-10-300x300.png' },
+    { name: 'Charm tim', price: 35000, image: 'https://myumemories.com/wp-content/uploads/2026/01/8-10-300x300.png' },
+    { name: 'Charm cỏ 4 lá', price: 38000, image: 'https://myumemories.com/wp-content/uploads/2025/11/8-28-300x300.png' },
     ...EXTRA_CHARMS.map(c => ({ name: c.name, price: c.price, image: c.image }))
   ];
 
@@ -40,8 +42,64 @@ document.addEventListener('DOMContentLoaded', () => {
   const priceList = document.getElementById('czPriceList');
   const totalEl = document.getElementById('czTotal');
 
-  const totalSlots = cfg.slotCount;
+  let totalSlots = cfg.slotCount;
   let slots = new Array(totalSlots).fill(null);
+
+  const sizeSelect = document.getElementById('czSlotSize');
+  if (sizeSelect) {
+    if ([14, 16, 18, 20].includes(totalSlots)) {
+      sizeSelect.value = totalSlots;
+    }
+    sizeSelect.addEventListener('change', (e) => {
+      const newSize = parseInt(e.target.value, 10);
+      if (newSize > totalSlots) {
+        slots = slots.concat(new Array(newSize - totalSlots).fill(null));
+      } else if (newSize < totalSlots) {
+        slots = slots.slice(0, newSize);
+      }
+      totalSlots = newSize;
+      refreshAll();
+    });
+  }
+
+  const autoFillBtn = document.getElementById('czAutoFillBtn');
+  const textInput = document.getElementById('czTextInput');
+  const textFontSelect = document.getElementById('czTextFont');
+
+  if (autoFillBtn && textInput && textFontSelect) {
+    autoFillBtn.addEventListener('click', () => {
+      const text = textInput.value.trim().toUpperCase();
+      if (!text) {
+        alert('Vui lòng nhập chữ cần xếp.');
+        return;
+      }
+      const font = textFontSelect.value;
+      const price = font === 'Chữ Đen' ? 10000 : 15000;
+      const color = font === 'Chữ Đen' ? '#333333' : '#E5C158';
+      let charIndex = 0;
+      for (let i = 0; i < totalSlots; i++) {
+        if (slots[i] === null) {
+          if (charIndex < text.length) {
+            const char = text[charIndex];
+            const charImage = `../assets/img/products/letter_${char}.png`;
+            slots[i] = {
+              name: `${font} - ${char}`,
+              price: price,
+              color: color,
+              image: charImage
+            };
+            charIndex++;
+          } else {
+            break;
+          }
+        }
+      }
+      if (charIndex < text.length) {
+        alert(`Không đủ ô trống! Chỉ xếp được ${charIndex}/${text.length} chữ. Hãy đổi sang cỡ vòng lớn hơn.`);
+      }
+      refreshAll();
+    });
+  }
 
   const formatVND = n => n.toLocaleString('vi-VN') + ' ₫';
 
@@ -123,7 +181,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
       if (piece) {
         if (piece.image) {
-          slot.style.background = `url('${piece.image}') center/cover no-repeat`;
+          slot.style.background = `url('${piece.image}') center/cover no-repeat, ${piece.color || pieceColor(piece.name)}`;
         } else {
           slot.style.background = piece.color || pieceColor(piece.name);
           slot.textContent = piece.name.charAt(0);
@@ -185,7 +243,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const photo = document.createElement('div');
       photo.className = 'cz-lib-strip-photo';
       photo.style.background = item.image
-        ? `url('${item.image}') center/cover no-repeat`
+        ? `url('${item.image}') center/cover no-repeat, ${item.color || pieceColor(item.name)}`
         : (item.color || pieceColor(item.name));
 
       const name = document.createElement('span');

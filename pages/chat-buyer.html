@@ -25,7 +25,7 @@
                         <li class="chat-item active">
                             <img src="https://i.pravatar.cc/150?img=32" alt="Avatar" class="avatar">
                             <div class="chat-info">
-                                <h4>Tiệm Vòng Mộc Lan</h4>
+                                <h4>Thợ Minh Quân</h4>
                                 <p>Bạn chốt đơn luôn trên web giúp mình nha.</p>
                             </div>
                             <span class="chat-time">10:32</span>
@@ -47,7 +47,7 @@
                         <div class="user-info">
                             <img src="https://i.pravatar.cc/150?img=32" alt="Avatar" class="avatar">
                             <div>
-                                <h3>Tiệm Vòng Mộc Lan</h3>
+                                <h3>Thợ Minh Quân</h3>
                                 <span class="status online">Đang hoạt động</span>
                             </div>
                         </div>
@@ -114,8 +114,8 @@
     <script src="../assets/js/custom-workflow.js"></script>
     <script src="../assets/js/custom-chat.js"></script>
     <script>
-        fetch('../components/header.html').then(r => r.text()).then(html => document.getElementById('header-placeholder').innerHTML = html);
-        fetch('../components/footer.html').then(r => r.text()).then(html => document.getElementById('footer-placeholder').innerHTML = html);
+        fetch('../components/header.html').then(response => response.text()).then(data => { let html = data.replace(/href="index\.html"/g, 'href="../index.html"'); document.getElementById('header-placeholder').innerHTML = html; }).catch(error => console.error('Error loading header:', error));
+        fetch('../components/footer.html').then(response => response.text()).then(data => { let html = data.replace(/href="index\.html"/g, 'href="../index.html"'); document.getElementById('footer-placeholder').innerHTML = html; }).catch(error => console.error('Error loading footer:', error));
     </script>
 </body>
 </html>

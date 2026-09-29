@@ -12,24 +12,7 @@ document.addEventListener("DOMContentLoaded", () => {
     suspended: "Tạm khóa"
   };
 
-  fetch("../components/admin-sidebar.html")
-    .then((response) => {
-      if (!response.ok) throw new Error("Không tải được menu admin.");
-      return response.text();
-    })
-    .then((html) => {
-      const sidebar = document.getElementById("admin-sidebar-placeholder");
-      sidebar.outerHTML = html.replace(
-        'href="admin-users.html" class="menu-item"',
-        'href="admin-users.html" class="menu-item active"'
-      ).replace(
-        'href="admin-orders.html" class="menu-item active"',
-        'href="admin-orders.html" class="menu-item"'
-      );
-    })
-    .catch((error) => {
-      feedback.textContent = error.message;
-    });
+
 
   function createCell(content, className) {
     const cell = document.createElement("td");
