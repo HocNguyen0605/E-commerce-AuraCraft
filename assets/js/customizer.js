@@ -45,6 +45,13 @@ document.addEventListener('DOMContentLoaded', () => {
   let totalSlots = cfg.slotCount;
   let slots = new Array(totalSlots).fill(null);
 
+  // Demo: Tự động fill đầy charm nếu người dùng click từ product detail (có productId)
+  if (productId) {
+    for (let i = 0; i < totalSlots; i++) {
+      slots[i] = LIBRARY_ITEMS[i % Math.min(4, LIBRARY_ITEMS.length)];
+    }
+  }
+
   const sizeSelect = document.getElementById('czSlotSize');
   if (sizeSelect) {
     if ([14, 16, 18, 20].includes(totalSlots)) {
