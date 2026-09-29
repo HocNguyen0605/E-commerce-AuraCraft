@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Khiếu nại & Tranh chấp - AuraCraft Admin</title>
+    <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;600;700&family=Mulish:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <link rel="stylesheet" href="../assets/css/admin-layout.css">
+    <link rel="stylesheet" href="../assets/css/pages/styleAdminDisputes.css">
+</head>
+<body>
+    <div class="admin-wrapper">
+        <div id="admin-sidebar-placeholder"></div>
+        <main class="admin-main-content">
+            <header class="disputes-header">
+                <div>
+                    <p class="disputes-eyebrow">AURACRAFT / ADMIN</p>
+                    <h1><i class="fa-solid fa-scale-balanced" aria-hidden="true"></i> Khiếu nại &amp; Tranh chấp</h1>
+                    <p>Tiếp nhận hồ sơ, theo dõi điều tra, ghi kết luận và xử lý refund liên quan.</p>
+                </div>
+                <button type="button" class="btn btn-primary" id="openDisputeForm"><i class="fa-solid fa-plus" aria-hidden="true"></i> Ghi nhận khiếu nại</button>
+            </header>
+
+            <section class="dispute-stats" aria-label="Tổng quan rủi ro">
+                <article><span>Chờ tiếp nhận</span><strong id="openDisputeCount">0</strong></article>
+                <article><span>Đang điều tra</span><strong id="investigatingCount">0</strong></article>
+                <article><span>Vi phạm deadline còn hiệu lực</span><strong id="activeViolationCount">0</strong></article>
+                <article class="dispute-stat-alert"><span>Hoàn tiền chờ xử lý</span><strong id="refundDueCount">0</strong></article>
+            </section>
+
+            <section class="dispute-intake" id="disputeIntake" hidden>
+                <div class="dispute-intake-header">
+                    <h2>Tiếp nhận khiếu nại</h2>
+                    <button type="button" class="icon-button" id="closeDisputeForm" aria-label="Đóng"><i class="fa-solid fa-xmark"></i></button>
+                </div>
+                <form id="disputeForm" class="dispute-form">
+                    <label for="disputeOrder">Đơn hàng liên quan</label>
+                    <select id="disputeOrder" required></select>
+                    <label for="disputeBuyerEmail">Email người khiếu nại</label>
+                    <input id="disputeBuyerEmail" type="email" placeholder="Mặc định lấy email buyer trong đơn">
+                    <label for="disputeSubject">Tiêu đề</label>
+                    <input id="disputeSubject" type="text" maxlength="120" required>
+                    <label for="disputeDescription">Nội dung và bằng chứng cần xác minh</label>
+                    <textarea id="disputeDescription" rows="4" required></textarea>
+                    <div class="dispute-form-actions">
+                        <button type="button" class="btn btn-outline" id="cancelDisputeForm">Đóng</button>
+                        <button type="submit" class="btn btn-primary">Lưu hồ sơ</button>
+                    </div>
+                </form>
+            </section>
+
+            <section class="dispute-queue" aria-label="Danh sách khiếu nại">
+                <div class="dispute-toolbar">
+                    <label class="dispute-search">
+                        <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+                        <span class="visually-hidden">Tìm mã hồ sơ, đơn hàng, email</span>
+                        <input id="disputeSearch" type="search" placeholder="Tìm mã hồ sơ, đơn hàng, email">
+                    </label>
+                    <label class="visually-hidden" for="disputeStatusFilter">Lọc trạng thái khiếu nại</label>
+                    <select id="disputeStatusFilter">
+                        <option value="all">Tất cả trạng thái</option>
+                        <option value="open">Chờ tiếp nhận</option>
+                        <option value="investigating">Đang điều tra</option>
+                        <option value="awaiting_information">Chờ bổ sung thông tin</option>
+                        <option value="resolved_buyer">Đã xử lý cho buyer</option>
+                        <option value="resolved_seller">Đã xử lý cho thợ</option>
+                        <option value="closed">Đã đóng</option>
+                    </select>
+                </div>
+                <p id="disputeFeedback" class="dispute-feedback" role="status" aria-live="polite"></p>
+                <div id="disputeList" class="dispute-list"></div>
+                <div id="disputeEmpty" class="dispute-empty" hidden>
+                    <i class="fa-regular fa-folder-open" aria-hidden="true"></i>
+                    <p>Chưa có hồ sơ khiếu nại phù hợp.</p>
+                </div>
+            </section>
+
+            <section class="violation-section" aria-label="Vi phạm vận hành">
+                <div class="violation-heading">
+                    <h2>Vi phạm vận hành</h2>
+                    <span id="violationSummary">0 hồ sơ</span>
+                </div>
+                <div class="violation-table-wrap">
+                    <table class="violation-table">
+                        <thead><tr><th>Mã đơn</th><th>Thợ</th><th>Loại vi phạm</th><th>Ghi nhận</th><th>Trạng thái</th><th>Thao tác</th></tr></thead>
+                        <tbody id="violationTableBody"></tbody>
+                    </table>
+                </div>
+            </section>
+        </main>
+    </div>
+    <script src="../assets/js/custom-workflow.js"></script>
+    <script src="../assets/js/admin-disputes.js"></script>
+</body>
+</html>
