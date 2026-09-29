@@ -12,8 +12,6 @@ document.addEventListener("DOMContentLoaded", () => {
     suspended: "Tạm khóa"
   };
 
-
-
   function createCell(content, className) {
     const cell = document.createElement("td");
     if (className) cell.className = className;
@@ -61,7 +59,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function createStatusSelect(user) {
     const select = document.createElement("select");
-    select.className = "user-status-select";
+    select.className = "filter-select";
+    select.style.padding = "6px 12px";
+    select.style.fontSize = "13px";
+    select.style.borderRadius = "6px";
     select.setAttribute("aria-label", `Trạng thái tài khoản ${user.email}`);
 
     Object.entries(statusLabels).forEach(([value, label]) => {
@@ -114,7 +115,7 @@ document.addEventListener("DOMContentLoaded", () => {
     visibleUsers.forEach((user) => {
       const row = document.createElement("tr");
       const role = document.createElement("span");
-      role.className = "user-role";
+      role.className = user.role === "artisan" ? "badge crafting" : "badge shipping";
       role.textContent = roleLabels[user.role] || "Không xác định";
       const createdAt = user.createdAt
         ? new Intl.DateTimeFormat("vi-VN", { dateStyle: "medium" }).format(new Date(user.createdAt))
