@@ -1,0 +1,252 @@
+:root {
+  --color-primary: var(--primary-blue);
+  --color-dark: var(--text-dark);
+  --color-white: var(--white);
+  --color-border: var(--gray-light);
+  --color-text: var(--text-dark);
+  --color-text-muted: #7A6F6E;
+  --color-tan-soft: #F5ECDA;
+  --color-cream: #FBF6ED;
+  --radius-sm: 8px;
+  --radius-md: 14px;
+  --radius-pill: var(--border-radius);
+  --shadow-card: var(--shadow);
+  --quote-approved-bg: #DCEEE1;
+  --quote-approved-text: #2F6B45;
+  --quote-declined-bg: #F6DEDA;
+  --quote-declined-text: #8A3B2C;
+  --quote-chip-bg: var(--color-tan-soft);
+}
+
+.cs-wrap {
+  max-width: 1000px;
+  margin: 30px auto;
+  padding: 20px;
+}
+
+.request-summary {
+  background: var(--color-white);
+  padding: 20px;
+  border-radius: var(--radius-md);
+  border-left: 5px solid var(--color-primary);
+  box-shadow: var(--shadow-card);
+  margin-bottom: 30px;
+}
+
+.request-summary h2 {
+  color: var(--color-dark);
+  margin-bottom: 10px;
+  font-size: 20px;
+}
+
+.request-summary p {
+  margin-bottom: 5px;
+  color: var(--color-text);
+  line-height: 1.5;
+}
+
+.seller-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.seller-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-white);
+  transition: all .3s ease;
+}
+
+.seller-info h3 {
+  color: var(--color-primary);
+  font-size: 18px;
+  margin-bottom: 8px;
+}
+
+.seller-name-btn {
+  display: inline-block;
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  text-align: left;
+}
+
+.seller-name-btn h3 {
+  transition: color .15s ease;
+}
+
+.seller-name-btn:hover h3 {
+  color: var(--color-dark);
+  text-decoration: underline;
+}
+
+.cs-info-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(43, 35, 32, .5);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+  padding: 20px;
+}
+
+.cs-info-overlay.cs-open {
+  display: flex;
+}
+
+.cs-info-modal {
+  position: relative;
+  background: var(--color-white);
+  padding: 32px;
+  max-width: 380px;
+  width: 100%;
+}
+
+.cs-info-modal h3 {
+  color: var(--color-primary);
+  font-size: 20px;
+  margin-bottom: 18px;
+  padding-right: 20px;
+}
+
+.cs-info-close {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--color-cream);
+  border: none;
+  color: var(--color-text-muted);
+  font-size: 1rem;
+  line-height: 1;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background .15s ease, color .15s ease;
+}
+
+.cs-info-close:hover {
+  background: var(--quote-declined-bg);
+  color: var(--quote-declined-text);
+}
+
+.cs-info-row {
+  margin-bottom: 16px;
+}
+
+.cs-info-row:last-child {
+  margin-bottom: 0;
+}
+
+.cs-info-label {
+  display: block;
+  font-weight: 700;
+  font-size: .8rem;
+  color: var(--color-text-muted);
+  margin-bottom: 4px;
+}
+
+.cs-info-row p {
+  color: var(--color-text);
+  font-size: .92rem;
+  line-height: 1.5;
+  margin: 0;
+}
+
+.seller-info .meta-info {
+  font-size: 13px;
+  color: var(--color-text-muted);
+  margin-bottom: 10px;
+}
+
+.seller-info .meta-info span {
+  background: var(--quote-chip-bg);
+  padding: 3px 8px;
+  border-radius: var(--radius-sm);
+  margin-right: 10px;
+  border: 1px solid var(--color-border);
+}
+
+.seller-quote {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+.quote-price {
+  color: var(--color-primary);
+  font-size: 18px;
+  font-weight: bold;
+}
+
+.quote-details {
+  margin-top: 10px;
+  background: var(--color-cream);
+  padding: 10px;
+  border-radius: var(--radius-sm);
+  font-size: 14px;
+  border-left: 3px solid var(--color-border);
+}
+
+.quote-chat-btn {
+  display: none;
+}
+
+.selected .quote-chat-btn {
+  display: inline-flex;
+}
+
+.seller-card.rejected {
+  opacity: .5;
+  filter: grayscale(80%);
+  pointer-events: none;
+  background: var(--color-cream);
+}
+
+.seller-card.selected {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 15px rgba(66, 91, 154, .2);
+  border-width: 2px;
+}
+
+.status-badge {
+  display: none;
+  font-size: 12px;
+  font-weight: bold;
+  padding: 4px 10px;
+  border-radius: var(--radius-pill);
+  text-transform: uppercase;
+  margin-bottom: 5px;
+}
+
+.selected .status-badge.approved {
+  display: inline-block;
+  background: var(--quote-approved-bg);
+  color: var(--quote-approved-text);
+}
+
+.rejected .status-badge.declined {
+  display: inline-block;
+  background: var(--quote-declined-bg);
+  color: var(--quote-declined-text);
+}
+
+@media (max-width:760px) {
+  .seller-card {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 14px;
+  }
+}
