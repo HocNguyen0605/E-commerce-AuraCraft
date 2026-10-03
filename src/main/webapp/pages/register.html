@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đăng ký tài khoản - AuraCraft</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <link rel="stylesheet" href="../assets/css/header-footer.css">
+    <link rel="stylesheet" href="../assets/css/pages/styleLogin.css">
+</head>
+
+<body>
+    <main class="form-page">
+        <div class="container">
+            <div class="auth-wrapper">
+
+                <div class="banner-side">
+                    <div class="banner-overlay"></div>
+                    <img src="https://i.pinimg.com/736x/97/fb/75/97fb75451a18c257802dac4efab0065b.jpg"
+                        alt="AuraCraft Handmade" class="banner-img">
+                    <div class="banner-content">
+                        <h3>Bắt đầu sáng tạo</h3>
+                        <p>Tham gia AuraCraft để sở hữu những bộ sưu tập vòng tay mang dấu ấn cá nhân.</p>
+                    </div>
+                </div>
+
+                <div class="form-side">
+                    <div class="top-header">
+                        <a href="../index.html" class="brand-logo">
+                            <span class="logo-icon">A</span>
+                            <span class="logo-text">uraCraft</span>
+                        </a>
+                        <a href="login.html" class="auth-nav-back">Đã có tài khoản? Đăng nhập</a>
+                    </div>
+
+                    <div class="form-header">
+                        <h2>Tạo tài khoản mới</h2>
+                        <p class="auth-subtitle">Điền thông tin bên dưới để đăng ký tài khoản nhanh chóng</p>
+                    </div>
+
+                    <form id="registerForm" novalidate>
+                        <div class="input-group">
+                            <label for="fullName">Họ và tên</label>
+                            <div class="input-wrapper">
+                                <i class="fa-regular fa-user field-icon"></i>
+                                <input type="text" id="fullName" placeholder="Ví dụ: Nguyễn Văn A" required>
+                            </div>
+                            <span class="error-msg">Vui lòng nhập họ và tên.</span>
+                        </div>
+
+                        <div class="input-group">
+                            <label for="email">Địa chỉ Email</label>
+                            <div class="input-wrapper">
+                                <i class="fa-regular fa-envelope field-icon"></i>
+                                <input type="email" id="email" placeholder="name@example.com" required>
+                            </div>
+                            <span class="error-msg">Vui lòng nhập email hợp lệ.</span>
+                        </div>
+
+                        <div class="input-group">
+                            <label for="accountRole">Loại tài khoản</label>
+                            <select id="accountRole" class="auth-select">
+                                <option value="buyer">Người mua</option>
+                                <option value="artisan">Thợ thủ công</option>
+                            </select>
+                        </div>
+
+                        <div class="artisan-fields" id="artisanFields" hidden>
+                            <div class="input-group">
+                                <label for="introduction">Giới thiệu về bạn</label>
+                                <textarea id="introduction" class="auth-textarea" rows="3" placeholder="Kinh nghiệm và phong cách chế tác của bạn"></textarea>
+                                <span class="error-msg">Vui lòng giới thiệu về bạn.</span>
+                            </div>
+                            <div class="input-group">
+                                <label for="portfolio">Portfolio (đường dẫn)</label>
+                                <input type="url" id="portfolio" class="auth-field" placeholder="https://example.com/portfolio">
+                                <span class="error-msg">Vui lòng nhập đường dẫn portfolio hợp lệ.</span>
+                            </div>
+                        </div>
+
+                        <div class="input-group">
+                            <label for="password">Mật khẩu</label>
+                            <div class="input-wrapper">
+                                <i class="fa-solid fa-lock field-icon"></i>
+                                <input type="password" id="password" placeholder="Tối thiểu 6 ký tự" required>
+                                <button type="button" class="btn-toggle-pass" onclick="togglePass('password', this)"
+                                    aria-label="Hiện/ẩn mật khẩu">
+                                    <i class="fa-regular fa-eye"></i>
+                                </button>
+                            </div>
+                            <span class="error-msg">Mật khẩu phải từ 6 ký tự trở lên.</span>
+                        </div>
+
+                        <div class="input-group">
+                            <label for="confirmPassword">Xác nhận mật khẩu</label>
+                            <div class="input-wrapper">
+                                <i class="fa-solid fa-circle-check field-icon"></i>
+                                <input type="password" id="confirmPassword" placeholder="Nhập lại mật khẩu" required>
+                                <button type="button" class="btn-toggle-pass"
+                                    onclick="togglePass('confirmPassword', this)" aria-label="Hiện/ẩn mật khẩu">
+                                    <i class="fa-regular fa-eye"></i>
+                                </button>
+                            </div>
+                            <span class="error-msg">Mật khẩu xác nhận không trùng khớp.</span>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary btn-submit" id="btnSubmit">
+                            <span class="btn-text">Đăng Ký Tài Khoản</span>
+                            <div class="spinner" id="btnSpinner"></div>
+                        </button>
+                    </form>
+
+                    <div class="terms-text">
+                        Bằng việc đăng ký, bạn đồng ý với <a href="#">Điều khoản & Chính sách</a> của AuraCraft.
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </main>
+
+    <script src="../assets/js/user-store.js"></script>
+    <script src="../assets/js/auth.js"></script>
+
+<script src="../assets/js/popup.js"></script>
+</body>
+
+</html>
+

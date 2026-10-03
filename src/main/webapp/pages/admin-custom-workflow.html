@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Giám sát Custom &amp; Giao dịch - AuraCraft Admin</title>
+    <!-- Fonts & Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;600;700&family=Mulish:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Styles -->
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <link rel="stylesheet" href="../assets/css/admin-layout.css">
+    <link rel="stylesheet" href="../assets/css/pages/styleOrders.css">
+    <link rel="stylesheet" href="../assets/css/pages/styleAdminOrders.css">
+    <link rel="stylesheet" href="../assets/css/pages/styleAdminCustom.css">
+</head>
+<body>
+    <div class="admin-wrapper">
+        <div id="admin-sidebar-placeholder"></div>
+
+        <main class="admin-main-content">
+            <div class="page-header">
+                <h1 class="page-title"><i class="fa-solid fa-wand-magic-sparkles"></i> Giám sát Custom &amp; Giao dịch</h1>
+            </div>
+
+            <!-- Thống kê tổng quan -->
+            <div class="custom-stats">
+                <div class="stat-card">
+                    <div class="stat-icon"><i class="fa-solid fa-file-lines"></i></div>
+                    <div class="stat-info">
+                        <h3>Tổng Yêu Cầu</h3>
+                        <div class="amount" id="requestCount">0</div>
+                    </div>
+                </div>
+                <div class="stat-card gold">
+                    <div class="stat-icon"><i class="fa-solid fa-handshake"></i></div>
+                    <div class="stat-info">
+                        <h3>Chờ Chọn Thợ</h3>
+                        <div class="amount" id="quoteCount">0</div>
+                    </div>
+                </div>
+                <div class="stat-card green">
+                    <div class="stat-icon"><i class="fa-solid fa-boxes-stacked"></i></div>
+                    <div class="stat-info">
+                        <h3>Đơn Custom</h3>
+                        <div class="amount" id="orderCount">0</div>
+                    </div>
+                </div>
+                <div class="stat-card red">
+                    <div class="stat-icon"><i class="fa-solid fa-triangle-exclamation"></i></div>
+                    <div class="stat-info">
+                        <h3>Cần Theo Dõi</h3>
+                        <div class="amount" id="attentionCount">0</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bộ lọc Tabs -->
+            <div class="tabs">
+                <div class="tab-item custom-admin-tab active" data-view="requests">Yêu cầu &amp; Báo giá</div>
+                <div class="tab-item custom-admin-tab" data-view="orders">Đơn Custom</div>
+                <div class="tab-item custom-admin-tab" data-view="transactions">Lịch sử Giao dịch</div>
+            </div>
+
+            <!-- Thanh công cụ Admin -->
+            <div class="admin-toolbar">
+                <div class="search-box">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                    <input id="customSearch" type="text" placeholder="Tìm kiếm theo mã, tên khách hàng, email...">
+                </div>
+                <select class="filter-select" id="customStatusFilter">
+                    <option value="all">Tất cả trạng thái</option>
+                </select>
+            </div>
+
+            <p id="customAdminFeedback" class="custom-admin-feedback" role="status" aria-live="polite"></p>
+
+            <!-- Bảng dữ liệu -->
+            <div class="chart-card">
+                <div style="overflow-x: auto;">
+                    <table class="admin-table">
+                        <thead id="customTableHead"></thead>
+                        <tbody id="customTableBody"></tbody>
+                    </table>
+                </div>
+                <div id="customAdminEmpty" class="empty-users" hidden>
+                    <i class="fa-regular fa-folder-open"></i>
+                    <p>Chưa có dữ liệu phù hợp với bộ lọc.</p>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Scripts -->
+    <script src="../assets/js/admin/admin-common.js"></script>
+    <script src="../assets/js/custom-workflow.js"></script>
+    <script src="../assets/js/admin-custom-workflow.js"></script>
+<script src="../assets/js/popup.js"></script>
+</body>
+</html>

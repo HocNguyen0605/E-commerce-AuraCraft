@@ -41,32 +41,32 @@ Mọi nội dung căn giữa trang phải bọc trong class `.container`:
 ```
 
 Vui lòng đọc kỹ style guide này và sử dụng các biến CSS có sẵn thay vì tự định nghĩa mới để tránh conflict!
-
-## 5. Cấu trúc thư mục (Directory Structure)
-Để tránh code bị phân tán và khó quản lý, tất cả các thành viên trong nhóm phải tuân thủ nghiêm ngặt cấu trúc thư mục sau đây. Tuyệt đối **KHÔNG** vứt file CSS, JS hay HTML lung tung ở thư mục gốc.
-
-```text
-/
-├── index.html                 # Trang chủ DUY NHẤT nằm ở thư mục gốc
-├── STYLEGUIDE.md              # File tài liệu hướng dẫn (bạn đang đọc)
-├── /pages/                    # CHỈ CHỨA các file giao diện HTML (trừ index)
-│   ├── cart.html              # Trang giỏ hàng
-│   ├── products.html          # Trang danh sách sản phẩm
-│   ├── customizer.html        # v.v...
-│   └── ...
-├── /components/               # CHỈ CHỨA các HTML component dùng chung (dùng fetch load vào)
-│   ├── header.html            
-│   └── footer.html
-└── /assets/                   # CHỨA TÀI NGUYÊN TĨNH (CSS, JS, Images, Fonts)
-    ├── /css/                  # CHỈ CHỨA file .css
-    │   ├── style.css          # CSS toàn cục (Global) chứa biến và style chung nhất
-    │   ├── header-footer.css  # CSS riêng cho component Header và Footer
-    │   └── /pages/            # CSS cụ thể riêng cho TỪNG trang (tránh phình to style.css)
-    │       ├── styleCart.css
-    │       └── styleProducts.css
-    ├── /img/                  # CHỈ CHỨA hình ảnh
-    └── /js/                   # CHỈ CHỨA mã Javascript (nếu có)
-```
+    
+    ## 5. Cấu trúc thư mục (Directory Structure)
+    Để tránh code bị phân tán và khó quản lý, tất cả các thành viên trong nhóm phải tuân thủ nghiêm ngặt cấu trúc thư mục sau đây. Tuyệt đối **KHÔNG** vứt file CSS, JS hay HTML lung tung ở thư mục gốc.
+    
+    ```text
+    /
+    ├── index.html                 # Trang chủ DUY NHẤT nằm ở thư mục gốc
+    ├── STYLEGUIDE.md              # File tài liệu hướng dẫn (bạn đang đọc)
+    ├── /pages/                    # CHỈ CHỨA các file giao diện HTML (trừ index)
+    │   ├── cart.html              # Trang giỏ hàng
+    │   ├── products.html          # Trang danh sách sản phẩm
+    │   ├── customizer.html        # v.v...
+    │   └── ...
+    ├── /components/               # CHỈ CHỨA các HTML component dùng chung (dùng fetch load vào)
+    │   ├── header.html            
+    │   └── footer.html
+    └── /assets/                   # CHỨA TÀI NGUYÊN TĨNH (CSS, JS, Images, Fonts)
+        ├── /css/                  # CHỈ CHỨA file .css
+        │   ├── style.css          # CSS toàn cục (Global) chứa biến và style chung nhất
+        │   ├── header-footer.css  # CSS riêng cho component Header và Footer
+        │   └── /pages/            # CSS cụ thể riêng cho TỪNG trang (tránh phình to style.css)
+        │       ├── styleCart.css
+        │       └── styleProducts.css
+        ├── /img/                  # CHỈ CHỨA hình ảnh
+        └── /js/                   # CHỈ CHỨA mã Javascript (nếu có)
+    ```
 
 **Quy tắc bắt buộc:**
 - Khi code 1 trang mới (ví dụ: `checkout.html`), hãy bỏ nó vào thư mục `/pages/`.

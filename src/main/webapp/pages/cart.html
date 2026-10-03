@@ -1,0 +1,141 @@
+﻿<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Giỏ hàng – AuraCraft</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <link rel="stylesheet" href="../assets/css/header-footer.css">
+    <link rel="stylesheet" href="../assets/css/pages/styleCart.css">
+</head>
+<body>
+    <div id="header-placeholder"></div>
+
+    <main class="cart-page">
+        <div class="container">
+            <h1 class="section-title">Giỏ hàng của bạn</h1>
+
+            <div class="cart-items">
+                <div class="cart-item">
+                    <div class="cart-shop-header">
+                        <input type="checkbox" class="shop-checkbox" checked>
+                        <i class="fa-solid fa-store"></i> <span>Xưởng Mộc An</span>
+                    </div>
+                    <div class="cart-item-content">
+                        <div class="cart-item-left">
+                            <input type="checkbox" class="item-checkbox" checked>
+                            <img src="https://myumemories.com/wp-content/uploads/2026/01/z7461915860226_00fb3ad756b0b24c78c89caf38ad44ba-768x512.jpg" alt="Vòng tay hạt gỗ thơm & Charm bạc">
+                            <div class="item-info">
+                                <h3>Vòng tay hạt gỗ thơm & Charm bạc</h3>
+                                <p class="item-category">Phân loại: Hạt thạch anh 8mm</p>
+                                <p class="item-price">150.000đ</p>
+                            </div>
+                        </div>
+                        <div class="cart-item-right">
+                            <div class="item-quantity">
+                                <button class="qty-btn" data-action="decrease">‑</button>
+                                <span class="qty-value">1</span>
+                                <button class="qty-btn" data-action="increase">+</button>
+                            </div>
+                            <div class="item-actions">
+                                <button class="action-btn find-similar">Tìm kiếm tương tự</button>
+                                <button class="action-btn remove-btn">Xóa</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="cart-item">
+                    <div class="cart-shop-header">
+                        <input type="checkbox" class="shop-checkbox" checked>
+                        <i class="fa-solid fa-store"></i> <span>Handmade By My</span>
+                    </div>
+                    <div class="cart-item-content">
+                        <div class="cart-item-left">
+                            <input type="checkbox" class="item-checkbox" checked>
+                            <img src="../assets/img/products/necklace_02.jpg" alt="Dây chuyền Custom">
+                            <div class="item-info">
+                                <h3>Dây chuyền mặt trăng (Custom mẫu có sẵn)</h3>
+                                <div class="item-category custom-details">
+                                    <p>- Giá cơ sở: 120.000đ</p>
+                                    <p>- Dây da thay thế: 30.000đ</p>
+                                    <p>- 5 hạt chữ: 50.000đ</p>
+                                    <p>- Charm hoa (x1): 40.000đ</p>
+                                </div>
+                                <p class="item-price">240.000đ</p>
+                            </div>
+                        </div>
+                        <div class="cart-item-right">
+                            <div class="item-quantity">
+                                <button class="qty-btn" data-action="decrease">‑</button>
+                                <span class="qty-value">1</span>
+                                <button class="qty-btn" data-action="increase">+</button>
+                            </div>
+                            <div class="item-actions">
+                                <button class="action-btn find-similar">Tìm kiếm tương tự</button>
+                                <button class="action-btn remove-btn">Xóa</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Thiết kế đã lưu -->
+            <div style="margin-top: 40px; margin-bottom: 20px;">
+                <h2 style="font-size: 20px; color: var(--primary-blue); font-family: 'Baloo 2', cursive; border-bottom: 1px solid var(--gray-light); padding-bottom: 10px;">Thiết kế đã lưu của bạn</h2>
+                <div class="cart-items" style="margin-top: 15px;">
+                    <div class="cart-item" style="opacity: 0.8;">
+                        <div class="cart-shop-header">
+                            <i class="fa-solid fa-bookmark" style="color: var(--accent-gold);"></i> <span>Bản nháp thiết kế</span>
+                        </div>
+                        <div class="cart-item-content">
+                            <div class="cart-item-left">
+                                <img src="../assets/img/products/bracelet_02.jpg" alt="Vòng tay thiết kế lưu" style="filter: grayscale(20%);">
+                                <div class="item-info">
+                                    <h3 style="color: var(--text-dark);">Vòng tay Custom (Bản lưu nháp)</h3>
+                                    <div class="item-category custom-details">
+                                        <p>- Charm cỏ 4 lá (x1): 38.000đ</p>
+                                        <p>- Hạt chữ "A": 10.000đ</p>
+                                    </div>
+                                    <p class="item-price" style="color: var(--text-muted);">~ 200.000đ</p>
+                                </div>
+                            </div>
+                            <div class="cart-item-right" style="flex-direction: row; align-items: center; justify-content: center; width: auto; min-width: 150px;">
+                                <div class="item-actions">
+                                    <button class="btn btn-outline" style="padding: 6px 12px; font-size: 13px;" onclick="window.location.href='customizer.html?type=bracelet&id=1'">Tiếp tục thiết kế</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="cart-summary">
+                <p>Tổng cộng: <strong class="total-price">390.000đ</strong></p>
+                <button class="btn btn-primary checkout-btn" onclick="window.location.href='checkout.html'">Tiến hành thanh toán</button>
+            </div>
+        </div>
+    </main>
+
+    <div id="footer-placeholder"></div>
+
+    <script>
+        fetch('../components/header.html')
+            .then(response => response.text())
+            .then(data => {
+                let html = data.replace(/href="index\.html"/g, 'href="../index.html"');
+                document.getElementById('header-placeholder').innerHTML = html;
+            })
+            .catch(error => console.error('Error loading header:', error));
+
+        fetch('../components/footer.html')
+            .then(response => response.text())
+            .then(data => {
+                let html = data.replace(/href="index\.html"/g, 'href="../index.html"');
+                document.getElementById('footer-placeholder').innerHTML = html;
+            })
+            .catch(error => console.error('Error loading footer:', error));
+    </script>
+<script src="../assets/js/popup.js"></script>
+</body>
+</html>

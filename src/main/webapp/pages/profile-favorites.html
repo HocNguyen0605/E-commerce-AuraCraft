@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Sản phẩm yêu thích</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <link rel="stylesheet" href="../assets/css/header-footer.css">
+    <link rel="stylesheet" href="../assets/css/pages/profile.css">
+    <link rel="stylesheet" href="../assets/css/pages/profile-content.css">
+</head>
+<body>
+<div id="header-placeholder"></div>
+
+<main>
+    <div class="container">
+        <img class="avatar" src="../assets/img/profile/avatar.png" alt="Avatar">
+        <p class="info_name"><b>Họ và tên</b>  <a href="profile-info.html"><i class="fa-solid fa-pencil"></i></a></p>
+        <p class="email">CongchuaBongBong@gmail.com</p>
+        <div class="row body">
+            <!--Thanh menu -->
+            <div class="col-3 over_content">
+                <ul class="menu_function">
+                    <li class="funciton_item"><a href="profile-info.html">Thông tin cá nhân</a></li>
+                    <li class="funciton_item"><a href="profile.html">Đơn hàng</a></li>
+                    <li class="funciton_item active"><a href="profile-favorites.html">Yêu thích</a></li>
+                    <li class="funciton_item"><a href="profile-quotes.html">Báo giá</a></li>
+                </ul>
+            </div>
+            <!--Màn hình hiển thị thông tin -->
+            <div class="col-9 over_content">
+                <div class="col-12 panel">
+                    <h2 class="panel-title">Sản phẩm yêu thích</h2>
+                    <div class="fav-grid">
+                        <div class="fav-card">
+                            <button class="fav-remove" title="Bỏ yêu thích"><i class="fa-solid fa-heart"></i></button>
+                            <img src="../assets/img/products/belly_02.jpg" alt="Sản phẩm">
+                            <div class="product-info">
+                                <h3>Tên sản phẩm</h3>
+                                <p class="product-shop">TÊN SHOP</p>
+                                <p class="price">45.000 VND</p>
+                                <a href="#" class="btn btn-primary btn-sm">Thêm vào giỏ</a>
+                            </div>
+                        </div>
+                        <div class="fav-card">
+                            <button class="fav-remove" title="Bỏ yêu thích"><i class="fa-solid fa-heart"></i></button>
+                            <img src="../assets/img/products/belly_02.jpg" alt="Sản phẩm">
+                            <div class="product-info">
+                                <h3>Tên sản phẩm</h3>
+                                <p class="product-shop">TÊN SHOP</p>
+                                <p class="price">45.000 VND</p>
+                                <a href="#" class="btn btn-primary btn-sm">Thêm vào giỏ</a>
+                            </div>
+                        </div>
+                        <div class="fav-card">
+                            <button class="fav-remove" title="Bỏ yêu thích"><i class="fa-solid fa-heart"></i></button>
+                            <img src="../assets/img/products/belly_02.jpg" alt="Sản phẩm">
+                            <div class="product-info">
+                                <h3>Tên sản phẩm</h3>
+                                <p class="product-shop">TÊN SHOP</p>
+                                <p class="price">45.000 VND</p>
+                                <a href="#" class="btn btn-primary btn-sm">Thêm vào giỏ</a>
+                            </div>
+                        </div>
+                        <div class="fav-card">
+                            <button class="fav-remove" title="Bỏ yêu thích"><i class="fa-solid fa-heart"></i></button>
+                            <img src="../assets/img/products/belly_02.jpg" alt="Sản phẩm">
+                            <div class="product-info">
+                                <h3>Tên sản phẩm</h3>
+                                <p class="product-shop">TÊN SHOP</p>
+                                <p class="price">45.000 VND</p>
+                                <a href="#" class="btn btn-primary btn-sm">Thêm vào giỏ</a>
+                            </div>
+                        </div>
+                        <div class="fav-card">
+                            <button class="fav-remove" title="Bỏ yêu thích"><i class="fa-solid fa-heart"></i></button>
+                            <img src="../assets/img/products/belly_02.jpg" alt="Sản phẩm">
+                            <div class="product-info">
+                                <h3>Tên sản phẩm</h3>
+                                <p class="product-shop">TÊN SHOP</p>
+                                <p class="price">45.000 VND</p>
+                                <a href="#" class="btn btn-primary btn-sm">Thêm vào giỏ</a>
+                            </div>
+                        </div>
+                        <div class="fav-card">
+                            <button class="fav-remove" title="Bỏ yêu thích"><i class="fa-solid fa-heart"></i></button>
+                            <img src="../assets/img/products/belly_02.jpg" alt="Sản phẩm">
+                            <div class="product-info">
+                                <h3>Tên sản phẩm</h3>
+                                <p class="product-shop">TÊN SHOP</p>
+                                <p class="price">45.000 VND</p>
+                                <a href="#" class="btn btn-primary btn-sm">Thêm vào giỏ</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<div id="footer-placeholder"></div>
+
+<script>
+    fetch('../components/header.html')
+        .then(r => r.text())
+        .then(html => document.getElementById('header-placeholder').innerHTML = html);
+
+    fetch('../components/footer.html')
+        .then(r => r.text())
+        .then(html => document.getElementById('footer-placeholder').innerHTML = html);
+</script>
+<script>
+    // Bỏ yêu thích
+    document.querySelectorAll('.fav-remove').forEach(b => b.addEventListener('click', () => b.closest('.fav-card').remove()));
+</script>
+<script src="../assets/js/popup.js"></script>
+</body>
+</html>
+

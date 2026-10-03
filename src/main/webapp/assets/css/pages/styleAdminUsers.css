@@ -1,0 +1,142 @@
+/* --- ADMIN USERS STYLES --- */
+.user-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 20px;
+    margin-bottom: 25px;
+}
+
+.stat-card {
+    background: var(--white);
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    border-left: 5px solid var(--primary-blue);
+}
+.stat-card.gold { border-left-color: var(--accent-gold); }
+.stat-card.green { border-left-color: #2ECC71; }
+.stat-card.red { border-left-color: #E74C3C; }
+
+.stat-icon {
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    background-color: rgba(66, 91, 154, 0.1);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 22px;
+    color: var(--primary-blue);
+    flex-shrink: 0;
+}
+.stat-card.gold .stat-icon { background-color: rgba(212, 175, 55, 0.1); color: var(--accent-gold); }
+.stat-card.green .stat-icon { background-color: rgba(46, 204, 113, 0.1); color: #2ECC71; }
+.stat-card.red .stat-icon { background-color: rgba(231, 76, 60, 0.1); color: #E74C3C; }
+
+.stat-info h3 {
+    margin: 0 0 4px 0;
+    font-size: 14px;
+    color: var(--text-muted);
+}
+.stat-info .amount {
+    font-size: 24px;
+    font-weight: bold;
+    color: var(--text-dark);
+    font-family: 'Baloo 2', cursive;
+}
+
+.chart-card {
+    background: var(--white);
+    border-radius: 12px;
+    padding: 24px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+}
+
+.admin-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+}
+.admin-table th, .admin-table td {
+    padding: 14px 16px;
+    text-align: left;
+    border-bottom: 1px solid var(--gray-light);
+    font-size: 14px;
+}
+.admin-table th {
+    background-color: #F8F9FA;
+    color: var(--text-muted);
+    font-weight: 600;
+    white-space: nowrap;
+}
+.admin-table tbody tr:hover {
+    background-color: rgba(66, 91, 154, 0.03);
+}
+
+.user-name {
+    display: block;
+    margin-bottom: 2px;
+    font-weight: bold;
+    color: var(--text-dark);
+}
+.user-email {
+    color: var(--primary-blue);
+    font-size: 13px;
+    display: block;
+}
+.user-profile-summary {
+    max-width: 280px;
+    color: var(--text-dark);
+    font-size: 13px;
+    line-height: 1.4;
+}
+.user-portfolio {
+    display: inline-block;
+    margin-top: 4px;
+    color: var(--primary-blue);
+    text-decoration: underline;
+    font-size: 12px;
+}
+
+.user-feedback {
+    min-height: 20px;
+    color: var(--primary-blue);
+    font-size: 14px;
+    margin-bottom: 10px;
+    font-style: italic;
+}
+
+.empty-users {
+    padding: 40px 16px;
+    color: var(--text-muted);
+    text-align: center;
+}
+.empty-users i {
+    color: var(--accent-gold);
+    font-size: 32px;
+}
+.empty-users p {
+    margin-top: 8px;
+}
+.empty-users[hidden] {
+    display: none;
+}
+
+/* Badges */
+.badge {
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: bold;
+    color: var(--white);
+    display: inline-block;
+}
+.badge.pending { background-color: var(--status-pending, #9B59B6); }
+.badge.crafting { background-color: var(--status-crafting, #F39C12); }
+.badge.late { background-color: var(--status-late, #E74C3C); }
+.badge.shipping { background-color: var(--status-shipping, #3498DB); }
+.badge.done, .badge.active { background-color: var(--status-done, #2ECC71); }
+.badge.suspended, .badge.rejected { background-color: #E74C3C; }

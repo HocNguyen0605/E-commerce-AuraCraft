@@ -1,0 +1,160 @@
+    <!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quản lý Tài chính (Admin) - AuraCraft</title>
+    <!-- Fonts & Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;600;700&family=Mulish:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <!-- Styles -->
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <link rel="stylesheet" href="../assets/css/admin-layout.css">
+    <link rel="stylesheet" href="../assets/css/pages/styleAdminFinance.css">
+</head>
+<body>
+<div class="admin-wrapper">
+    <div id="admin-sidebar-placeholder"></div>
+
+    <main class="admin-main-content">
+        <div class="page-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+            <h1 class="page-title"><i class="fa-solid fa-wallet"></i> Quản lý Tài chính & Đối soát</h1>
+            <button class="btn btn-primary" onclick="openConfigModal()"><i class="fa-solid fa-gear"></i> Cấu hình % Phí Sàn</button>
+        </div>
+
+        <!-- Thống kê tổng quan -->
+        <div class="finance-stats">
+            <div class="stat-card">
+                <div class="stat-icon"><i class="fa-solid fa-money-bill-trend-up"></i></div>
+                <div class="stat-info">
+                    <h3>Tổng Giá Trị Giao Dịch (GMV)</h3>
+                    <div class="amount">150.500.000 đ</div>
+                </div>
+            </div>
+            <div class="stat-card gold">
+                <div class="stat-icon"><i class="fa-solid fa-coins"></i></div>
+                <div class="stat-info">
+                    <h3>Tổng Phí Sàn Thu Được</h3>
+                    <div class="amount" id="totalFeeAmount">15.050.000 đ</div>
+                </div>
+            </div>
+            <div class="stat-card green">
+                <div class="stat-icon"><i class="fa-solid fa-building-columns"></i></div>
+                <div class="stat-info">
+                    <h3>Đã Thanh Toán Cho Thợ</h3>
+                    <div class="amount">120.000.000 đ</div>
+                </div>
+            </div>
+            <div class="stat-card red">
+                <div class="stat-icon"><i class="fa-solid fa-hand-holding-dollar"></i></div>
+                <div class="stat-info">
+                    <h3>Chờ Rút (Số Dư Thợ)</h3>
+                    <div class="amount">15.450.000 đ</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Biểu đồ -->
+        <div class="charts-container">
+            <div class="chart-card">
+                <h3>Biểu Đồ Doanh Thu Tổng & Phí Sàn (Tháng)</h3>
+                <canvas id="revenueBarChart" height="100"></canvas>
+            </div>
+            <div class="chart-card">
+                <h3>Tỷ Trọng Doanh Thu Theo Danh Mục</h3>
+                <canvas id="revenuePieChart" height="200"></canvas>
+            </div>
+        </div>
+
+        <!-- Yêu cầu rút tiền -->
+        <div class="chart-card">
+            <h3 style="margin-bottom: 5px;">Yêu Cầu Rút Tiền Từ Thợ (UC 3.11)</h3>
+            <p style="color: var(--text-muted); font-size: 14px; margin-bottom: 15px;">Duyệt yêu cầu rút tiền sau khi trừ phí sàn và thuế.</p>
+            
+            <div style="overflow-x: auto;">
+                <table class="finance-table">
+                    <thead>
+                        <tr>
+                            <th>Mã YC</th>
+                            <th>Thợ Yêu Cầu</th>
+                            <th>Ngân Hàng</th>
+                            <th>Số Tiền Yêu Cầu</th>
+                            <th>Trạng Thái</th>
+                            <th>Ngày Tạo</th>
+                            <th>Hành Động</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>#WD-1092</td>
+                            <td><strong>Anna Nguyễn</strong></td>
+                            <td>Vietcombank - 0123456789</td>
+                            <td style="font-weight: bold; color: var(--primary-blue);">3.500.000 đ</td>
+                            <td><span class="badge pending">Chờ duyệt</span></td>
+                            <td>27/09/2026</td>
+                            <td>
+                                <button class="btn btn-primary" style="padding: 6px 12px; font-size: 12px;" onclick="approveWithdrawal('#WD-1092')">Duyệt Payout</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>#WD-1088</td>
+                            <td><strong>Trần Bảo</strong></td>
+                            <td>MB Bank - 987654321</td>
+                            <td style="font-weight: bold; color: var(--primary-blue);">1.200.000 đ</td>
+                            <td><span class="badge pending">Chờ duyệt</span></td>
+                            <td>26/09/2026</td>
+                            <td>
+                                <button class="btn btn-primary" style="padding: 6px 12px; font-size: 12px;" onclick="approveWithdrawal('#WD-1088')">Duyệt Payout</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>#WD-1070</td>
+                            <td><strong>Lê Vy</strong></td>
+                            <td>Techcombank - 1122334455</td>
+                            <td style="font-weight: bold; color: var(--text-muted);">5.000.000 đ</td>
+                            <td><span class="badge done">Đã chuyển khoản</span></td>
+                            <td>25/09/2026</td>
+                            <td>
+                                <button class="btn btn-outline" style="padding: 6px 12px; font-size: 12px; color: var(--text-muted); border-color: var(--gray-light);">Xem biên lai</button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </main>
+</div>
+
+<!-- Modal Cấu Hình Phí Sàn -->
+<div class="modal-overlay" id="configModal">
+    <div class="modal-content" style="max-width: 400px; padding: 30px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+            <h2 style="margin: 0; color: var(--primary-blue);">Cấu Hình Phí Sàn</h2>
+            <button class="close-btn" style="background: none; border: none; font-size: 20px; cursor: pointer; color: var(--text-muted);" onclick="closeConfigModal()"><i class="fa-solid fa-times"></i></button>
+        </div>
+        
+        <p style="font-size: 14px; color: var(--text-muted); margin-bottom: 20px;">
+            Hệ thống sẽ tự động trừ % phí sàn này vào doanh thu của thợ cho mỗi giao dịch thành công (BR49).
+        </p>
+
+        <div class="input-group">
+            <label for="feePercentage">Tỷ lệ Phí Sàn Hiện Tại (%)</label>
+            <input type="number" id="feePercentage" value="10" min="0" max="100" step="1">
+        </div>
+        
+        <button class="btn btn-primary" style="width: 100%; margin-top: 10px;" onclick="saveConfig()">Lưu Thay Đổi</button>
+    </div>
+</div>
+
+<!-- Scripts -->
+<script src="../assets/js/admin/admin-common.js"></script>
+<script src="../assets/js/admin/admin-finance.js"></script>
+<script src="../assets/js/popup.js"></script>
+</body>
+</html>
+

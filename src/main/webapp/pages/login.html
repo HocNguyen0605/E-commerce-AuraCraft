@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đăng nhập - AuraCraft</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <link rel="stylesheet" href="../assets/css/header-footer.css">
+    <link rel="stylesheet" href="../assets/css/pages/styleLogin.css">
+</head>
+
+<body>
+    <main class="form-page">
+        <div class="container">
+            <div class="auth-wrapper">
+
+                <div class="banner-side">
+                    <div class="banner-overlay"></div>
+                    <img src="https://i.pinimg.com/736x/0a/57/18/0a571878c98d882e140d54d302010359.jpg"
+                        alt="AuraCraft Crafting" class="banner-img">
+                    <div class="banner-content">
+                        <h3>AuraCraft</h3>
+                        <p>Mỗi món đồ là một câu chuyện được tạo nên từ sự tỉ mỉ và tình yêu.</p>
+                    </div>
+                </div>
+
+                <div class="form-side">
+                    <div class="top-header">
+                        <a href="../index.html" class="brand-logo">
+                            <span class="logo-icon">A</span>
+                            <span class="logo-text">uraCraft</span>
+                        </a>
+                        <a href="../index.html" class="auth-nav-back">← Trang chủ</a>
+                    </div>
+
+                    <div class="form-header">
+                        <h2>Chào mừng trở lại!</h2>
+                        <p class="auth-subtitle">Đăng nhập để tiếp tục khám phá và sáng tạo các mẫu vòng tay độc bản.
+                        </p>
+                    </div>
+
+                    <form id="loginForm" novalidate>
+                        <div class="input-group">
+                            <label for="email">Tên đăng nhập hoặc Email</label>
+                            <div class="input-wrapper">
+                                <i class="fa-regular fa-envelope field-icon"></i>
+                                <input type="text" id="email" placeholder="Nhập email hoặc tên tài khoản" required>
+                            </div>
+                            <span class="error-msg">Vui lòng nhập email hoặc tên đăng nhập.</span>
+                        </div>
+
+                        <div class="input-group">
+                            <div class="form-label-row">
+                                <label for="password">Mật khẩu</label>
+                                <a href="forgot.html" class="forgot-pass-link">Quên mật khẩu?</a>
+                            </div>
+                            <div class="input-wrapper">
+                                <i class="fa-solid fa-lock field-icon"></i>
+                                <input type="password" id="password" placeholder="••••••••" required>
+                                <button type="button" class="btn-toggle-pass" onclick="togglePass('password', this)"
+                                    aria-label="Hiện/ẩn mật khẩu">
+                                    <i class="fa-regular fa-eye"></i>
+                                </button>
+                            </div>
+                            <span class="error-msg">Mật khẩu phải từ 6 ký tự trở lên.</span>
+                        </div>
+
+                        <div class="form-options">
+                            <label class="checkbox-container">
+                                <input type="checkbox" id="rememberMe">
+                                <span class="checkmark"></span>
+                                Ghi nhớ đăng nhập
+                            </label>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary btn-submit" id="btnSubmit">
+                            <span class="btn-text">Đăng nhập</span>
+                            <div class="spinner" id="btnSpinner"></div>
+                        </button>
+                    </form>
+
+                    <div class="auth-footer-text">
+                        Chưa có tài khoản? <a href="register.html">Tạo tài khoản mới</a>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </main>
+
+    <script src="../assets/js/auth.js"></script>
+
+<script src="../assets/js/popup.js"></script>
+</body>
+
+</html>
+

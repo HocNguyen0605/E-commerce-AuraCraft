@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Thông tin cá nhân</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <link rel="stylesheet" href="../assets/css/header-footer.css">
+    <link rel="stylesheet" href="../assets/css/pages/profile.css">
+    <link rel="stylesheet" href="../assets/css/pages/profile-content.css">
+</head>
+<body>
+<div id="header-placeholder"></div>
+
+<main>
+    <div class="container">
+        <img class="avatar" src="../assets/img/profile/avatar.png" alt="Avatar">
+        <p class="info_name"><b>Họ và tên</b>  <a href="profile-info.html"><i class="fa-solid fa-pencil"></i></a></p>
+        <p class="email">CongchuaBongBong@gmail.com</p>
+        <div class="row body">
+            <!--Thanh menu -->
+            <div class="col-3 over_content">
+                <ul class="menu_function">
+                    <li class="funciton_item active"><a href="profile-info.html">Thông tin cá nhân</a></li>
+                    <li class="funciton_item"><a href="profile.html">Đơn hàng</a></li>
+                    <li class="funciton_item"><a href="profile-favorites.html">Yêu thích</a></li>
+                    <li class="funciton_item"><a href="profile-quotes.html">Báo giá</a></li>
+                </ul>
+            </div>
+            <!--Màn hình hiển thị thông tin -->
+            <div class="col-9 over_content">
+                <div class="col-12 panel">
+                    <h2 class="panel-title">Thông tin cá nhân</h2>
+                    <div class="form-grid">
+                        <div class="form-group"><label for="fullname">Họ và tên</label><input class="form-input" id="fullname" type="text" value="Họ và tên"></div>
+                        <div class="form-group"><label for="phone">Số điện thoại</label><input class="form-input" id="phone" type="tel" placeholder="0901 234 567"></div>
+                        <div class="form-group"><label for="email">Email</label><input class="form-input" id="email" type="email" value="CongchuaBongBong@gmail.com" readonly></div>
+                        <div class="form-group"><label for="dob">Ngày sinh</label><input class="form-input" id="dob" type="date"></div>
+                        <div class="form-group full"><label for="gender">Giới tính</label>
+                            <select class="form-input" id="gender"><option>Nữ</option><option>Nam</option><option>Khác</option></select></div>
+                    </div>
+                    <div class="form-actions"><button class="btn btn-primary btn-sm">Lưu thay đổi</button></div>
+                </div>
+
+                <div class="col-12 panel">
+                    <h2 class="panel-title">Địa chỉ nhận hàng</h2>
+                    <div class="address-item">
+                        <div><b>Họ và tên</b> | 0901 234 567 <span class="tag">Mặc định</span>
+                            <p>123 Nguyễn Huệ, Phường Bến Nghé, Quận 1, TP. Hồ Chí Minh</p></div>
+                        <div><a href="#">Sửa</a> · <a href="#">Xóa</a></div>
+                    </div>
+                    <div class="address-item">
+                        <div><b>Họ và tên</b> | 0901 234 567
+                            <p>45 Lê Lợi, Phường 4, Quận Gò Vấp, TP. Hồ Chí Minh</p></div>
+                        <div><a href="#">Sửa</a> · <a href="#">Xóa</a></div>
+                    </div>
+                    <div class="form-actions"><a href="#" class="btn btn-outline btn-sm">Thêm địa chỉ mới</a></div>
+                </div>
+
+                <div class="col-12 panel">
+                    <h2 class="panel-title">Đổi mật khẩu</h2>
+                    <div class="form-grid">
+                        <div class="form-group full"><label for="old-pw">Mật khẩu hiện tại</label><input class="form-input" id="old-pw" type="password"></div>
+                        <div class="form-group"><label for="new-pw">Mật khẩu mới</label><input class="form-input" id="new-pw" type="password"></div>
+                        <div class="form-group"><label for="re-pw">Nhập lại mật khẩu mới</label><input class="form-input" id="re-pw" type="password"></div>
+                    </div>
+                    <div class="form-actions"><button class="btn btn-primary btn-sm">Đổi mật khẩu</button></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<div id="footer-placeholder"></div>
+
+<script>
+    fetch('../components/header.html')
+        .then(r => r.text())
+        .then(html => document.getElementById('header-placeholder').innerHTML = html);
+
+    fetch('../components/footer.html')
+        .then(r => r.text())
+        .then(html => document.getElementById('footer-placeholder').innerHTML = html);
+</script>
+<script src="../assets/js/popup.js"></script>
+</body>
+</html>
+

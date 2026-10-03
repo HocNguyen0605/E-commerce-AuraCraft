@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quản lý Thợ & Tài khoản - AuraCraft Admin</title>
+    <!-- Fonts & Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;600;700&family=Mulish:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Styles -->
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <link rel="stylesheet" href="../assets/css/admin-layout.css">
+    <link rel="stylesheet" href="../assets/css/pages/styleOrders.css">
+    <link rel="stylesheet" href="../assets/css/pages/styleAdminOrders.css">
+    <link rel="stylesheet" href="../assets/css/pages/styleAdminUsers.css">
+</head>
+<body>
+    <div class="admin-wrapper">
+        <div id="admin-sidebar-placeholder"></div>
+
+        <main class="admin-main-content">
+            <div class="page-header">
+                <h1 class="page-title"><i class="fa-solid fa-users"></i> Quản lý Thợ &amp; Tài khoản</h1>
+            </div>
+
+            <!-- Thống kê tổng quan -->
+            <div class="user-stats">
+                <div class="stat-card">
+                    <div class="stat-icon"><i class="fa-solid fa-users"></i></div>
+                    <div class="stat-info">
+                        <h3>Tổng Tài Khoản</h3>
+                        <div class="amount" id="totalUsers">0</div>
+                    </div>
+                </div>
+                <div class="stat-card green">
+                    <div class="stat-icon"><i class="fa-solid fa-user-check"></i></div>
+                    <div class="stat-info">
+                        <h3>Người Mua</h3>
+                        <div class="amount" id="buyerUsers">0</div>
+                    </div>
+                </div>
+                <div class="stat-card gold">
+                    <div class="stat-icon"><i class="fa-solid fa-user-clock"></i></div>
+                    <div class="stat-info">
+                        <h3>Thợ Chờ Duyệt</h3>
+                        <div class="amount" id="pendingArtisans">0</div>
+                    </div>
+                </div>
+                <div class="stat-card red">
+                    <div class="stat-icon"><i class="fa-solid fa-user-slash"></i></div>
+                    <div class="stat-info">
+                        <h3>Tài Khoản Tạm Khóa</h3>
+                        <div class="amount" id="suspendedUsers">0</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Thanh công cụ Admin -->
+            <div class="admin-toolbar">
+                <div class="search-box">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                    <input id="userSearch" type="text" placeholder="Tìm kiếm theo tên, email...">
+                </div>
+                <select class="filter-select" id="roleFilter">
+                    <option value="all">Tất cả vai trò</option>
+                    <option value="buyer">Người mua</option>
+                    <option value="artisan">Thợ thủ công</option>
+                </select>
+                <select class="filter-select" id="statusFilter">
+                    <option value="all">Tất cả trạng thái</option>
+                    <option value="active">Đang hoạt động</option>
+                    <option value="pending">Chờ duyệt</option>
+                    <option value="suspended">Tạm khóa</option>
+                </select>
+            </div>
+
+            <p id="userFeedback" class="user-feedback" role="status" aria-live="polite"></p>
+
+            <!-- Bảng danh sách người dùng -->
+            <div class="chart-card">
+                <div style="overflow-x: auto;">
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>Tài khoản</th>
+                                <th>Vai trò</th>
+                                <th>Hồ sơ / Giới thiệu</th>
+                                <th>Ngày tạo</th>
+                                <th>Trạng thái hoạt động</th>
+                            </tr>
+                        </thead>
+                        <tbody id="userTableBody"></tbody>
+                    </table>
+                </div>
+                <div id="emptyUsers" class="empty-users" hidden>
+                    <i class="fa-regular fa-folder-open"></i>
+                    <p>Chưa có tài khoản phù hợp với bộ lọc.</p>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Scripts -->
+    <script src="../assets/js/admin/admin-common.js"></script>
+    <script src="../assets/js/user-store.js"></script>
+    <script src="../assets/js/admin-users.js"></script>
+<script src="../assets/js/popup.js"></script>
+</body>
+</html>

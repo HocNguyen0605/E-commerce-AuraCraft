@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Chat với Khách hàng - Kênh Thợ</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <link rel="stylesheet" href="../assets/css/header-footer.css">
+    <link rel="stylesheet" href="../assets/css/pages/styleChat.css">
+    <link rel="stylesheet" href="../assets/css/pages/styleSeller.css">
+</head>
+<body>
+    <div id="header-placeholder"></div>
+
+    <main class="seller-layout container">
+        <aside class="seller-sidebar">
+            <div class="seller-profile">
+                <img src="https://i.pravatar.cc/150?img=32" alt="Tiệm Vòng Mộc Lan" class="profile-img">
+                <h3>Tiệm Vòng Mộc Lan</h3>
+                <p class="seller-role">Thợ thủ công Trang sức</p>
+            </div>
+            <nav class="seller-nav">
+                <a href="seller-dashboard.html"><i class="bi bi-pie-chart-fill"></i> Tổng quan Doanh thu</a>
+                <a href="seller-products.html"><i class="bi bi-box-seam-fill"></i> Quản lý Sản phẩm</a>
+                <a href="chat-seller.html" class="active"><i class="bi bi-chat-dots-fill"></i> Tin nhắn <span class="noti-count">1</span></a>
+                <a href="order-management.html"><i class="bi bi-card-list"></i> Quản lý Đơn hàng</a>
+                <a href="buyer-requests.html"><i class="bi bi-shop"></i> Chợ Custom & Báo giá</a>
+                <a href="#"><i class="bi bi-gear-fill"></i> Cài đặt</a>
+            </nav>
+        </aside>
+
+        <section class="seller-content">
+            <div class="chat-layout" style="height: 75vh; min-height: 600px; border-radius: 20px; overflow: hidden; box-shadow: var(--shadow);">
+                <!-- Sidebar -->
+                <aside class="chat-sidebar" style="border-right: 1px solid var(--gray-light);">
+                    <div class="chat-search">
+                        <i class="bi bi-search"></i>
+                        <input type="text" placeholder="Tìm tên khách hàng...">
+                    </div>
+                    <ul class="chat-list">
+                        <li class="chat-item active">
+                            <img src="https://i.pravatar.cc/150?img=47" alt="Avatar" class="avatar">
+                            <div class="chat-info">
+                                <h4>Ngọc Lan (Khách hàng)</h4>
+                                <p>Bạn chốt đơn luôn trên web giúp mình nha.</p>
+                            </div>
+                            <span class="chat-time">10:32</span>
+                        </li>
+                        <li class="chat-item">
+                            <img src="https://i.pravatar.cc/150?img=12" alt="Avatar" class="avatar">
+                            <div class="chat-info">
+                                <h4>Minh Quân</h4>
+                                <p>Cảm ơn shop ạ.</p>
+                            </div>
+                            <span class="chat-time">Hôm qua</span>
+                        </li>
+                    </ul>
+                </aside>
+
+                <!-- Main Chat -->
+                <section class="chat-main">
+                    <div class="chat-header">
+                        <div class="user-info">
+                            <img src="https://i.pravatar.cc/150?img=47" alt="Avatar" class="avatar">
+                            <div>
+                                <h3>Ngọc Lan</h3>
+                                <span class="status online">Đang hoạt động</span>
+                            </div>
+                        </div>
+                        <div class="chat-actions">
+                            <!-- Bỏ nút gọi theo yêu cầu -->
+                            <button class="icon-btn-ghost"><i class="bi bi-three-dots-vertical"></i></button>
+                        </div>
+                    </div>
+
+                    <div class="chat-messages" id="customMessages">
+                        <div class="message received">
+                            <img src="https://i.pravatar.cc/150?img=47" alt="Avatar" class="avatar-sm">
+                            <div class="msg-bubble">
+                                Chào shop, mình vừa tự kéo thả mix một mẫu vòng tay trên tính năng Thiết kế của web. Shop xem giúp mình thiết kế này có làm được không ạ?
+                                <span class="msg-time">10:25</span>
+                            </div>
+                        </div>
+                        
+                        <div class="message sent">
+                            <div class="msg-bubble">
+                                Chào bạn Ngọc Lan, bạn gửi mã thiết kế hoặc hình ảnh chụp màn hình để bên mình kiểm tra nhé!
+                                <span class="msg-time">10:28</span>
+                            </div>
+                        </div>
+
+                        <div class="message received">
+                            <img src="https://i.pravatar.cc/150?img=47" alt="Avatar" class="avatar-sm">
+                            <div class="msg-bubble">
+                                Đây ạ (Đã gửi 1 hình ảnh). Mình mix đá thạch anh hồng với mặt trăng bạc. Kích thước cổ tay mình là 15cm.
+                                <span class="msg-time">10:29</span>
+                            </div>
+                        </div>
+
+                        <div class="message sent">
+                            <div class="msg-bubble">
+                                Thiết kế này hoàn toàn làm được nhé bạn. Mẫu này phối thạch anh hồng rất hợp mệnh Hỏa/Thổ. Thời gian đan khoảng 2 ngày. Bạn chốt đơn luôn trên web giúp mình nha.
+                                <span class="msg-time">10:32</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="chat-input-area">
+                        <button class="icon-btn-ghost"><i class="bi bi-paperclip"></i></button>
+                        <button class="icon-btn-ghost"><i class="bi bi-emoji-smile"></i></button>
+                        <input type="text" placeholder="Nhập tin nhắn tư vấn..." class="chat-input" id="customMessageInput">
+                        <button type="button" class="btn-send" id="sendCustomMessage" aria-label="Gửi tin nhắn"><i class="bi bi-send-fill"></i></button>
+                    </div>
+                    <section class="custom-change-requests" id="customChangeRequests" aria-live="polite"></section>
+                </section>
+            </div>
+        </section>
+    </main>
+
+    <div id="footer-placeholder"></div>
+    <script src="../assets/js/custom-workflow.js"></script>
+    <script src="../assets/js/custom-chat.js"></script>
+    <script>
+        fetch('../components/header.html').then(response => response.text()).then(data => { let html = data.replace(/href="index\.html"/g, 'href="../index.html"'); document.getElementById('header-placeholder').innerHTML = html; }).catch(error => console.error('Error loading header:', error));
+        fetch('../components/footer.html').then(response => response.text()).then(data => { let html = data.replace(/href="index\.html"/g, 'href="../index.html"'); document.getElementById('footer-placeholder').innerHTML = html; }).catch(error => console.error('Error loading footer:', error));
+    </script>
+<script src="../assets/js/popup.js"></script>
+</body>
+</html>
+

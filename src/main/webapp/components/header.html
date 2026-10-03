@@ -1,0 +1,31 @@
+<header class="site-header">
+    <div class="container header-inner">
+        <a href="index.html" class="logo">
+            <span class="logo-icon">A</span>uraCraft
+        </a>
+
+        <div class="search-box">
+            <input type="text" placeholder="Tìm kiếm vật liệu, sản phẩm...">
+            <button class="btn-search">Tìm</button>
+        </div>
+
+        <button class="menu-toggle" onclick="document.getElementById('nav-menu-mobile').classList.add('active'); document.getElementById('menu-overlay').classList.add('active')">
+            <i class="fa-solid fa-bars"></i>
+        </button>
+
+        <nav class="nav-menu" id="nav-menu-mobile">
+            <button class="close-menu" onclick="document.getElementById('nav-menu-mobile').classList.remove('active'); document.getElementById('menu-overlay').classList.remove('active')"><i class="fa-solid fa-xmark"></i></button>
+            <a href="products.html">Sản phẩm</a>
+            <a href="customizer.html">Thiết kế</a>
+            
+            <!-- Chưa đăng nhập -->
+            <a href="login.html" id="nav-login" class="nav-text-btn">Đăng nhập</a>
+            
+            <!-- Đã đăng nhập -->
+            <a href="profile.html" id="nav-profile" class="icon-btn" style="display: none;" title="Trang cá nhân"><i class="fa-regular fa-user"></i></a>
+            
+            <a href="cart.html" class="icon-btn" title="Giỏ hàng"><i class="fa-solid fa-cart-shopping"></i></a>
+        </nav>
+    </div>
+    <div class="menu-overlay" id="menu-overlay" onclick="document.getElementById('nav-menu-mobile').classList.remove('active'); document.getElementById('menu-overlay').classList.remove('active')"></div>
+</header>

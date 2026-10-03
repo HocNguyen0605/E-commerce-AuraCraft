@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chợ Yêu Cầu Custom - AuraCraft</title>
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;600;700&family=Mulish:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <link rel="stylesheet" href="../assets/css/header-footer.css">
+    <link rel="stylesheet" href="../assets/css/pages/styleSeller.css">
+    <link rel="stylesheet" href="../assets/css/pages/styleRequests.css">
+</head>
+<body>
+<div id="header-placeholder"></div>
+
+<main class="seller-layout container">
+    <!-- Sidebar -->
+    <aside class="seller-sidebar">
+        <div class="seller-profile">
+            <img src="https://i.pravatar.cc/150?img=32" alt="Tiệm Vòng Mộc Lan" class="profile-img">
+            <h3>Tiệm Vòng Mộc Lan</h3>
+            <p class="seller-role">Thợ thủ công Trang sức</p>
+        </div>
+        <nav class="seller-nav">
+            <a href="seller-dashboard.html"><i class="bi bi-pie-chart-fill"></i> Tổng quan Doanh thu</a>
+            <a href="seller-products.html"><i class="bi bi-box-seam-fill"></i> Quản lý Sản phẩm</a>
+            <a href="chat-seller.html"><i class="bi bi-chat-dots-fill"></i> Tin nhắn <span class="noti-count">2</span></a>
+            <a href="order-management.html"><i class="bi bi-card-list"></i> Quản lý Đơn hàng</a>
+            <a href="buyer-requests.html" class="active"><i class="bi bi-shop"></i> Chợ Custom & Báo giá</a>
+            <a href="#"><i class="bi bi-gear-fill"></i> Cài đặt</a>
+        </nav>
+    </aside>
+
+    <!-- Content -->
+    <section class="seller-content">
+    <div class="content-header">
+        <h1 class="page-title">Chợ Yêu Cầu Custom</h1>
+        <button class="btn btn-outline" style="font-size: 14px;" onclick="window.location.href='choose-seller.html'">Xem Báo Giá Của Tôi</button>
+    </div>
+
+    <div class="dashboard-section table-section">
+    <section class="request-grid" id="customRequestList" aria-label="Yêu cầu Custom đang mở"></section>
+
+    <div class="request-grid">
+        <!-- Card 1 -->
+        <div class="request-card"
+             data-req-id="REQ-001"
+             data-buyer="Anna Nguyễn"
+             data-date="2 giờ trước"
+             data-title="Vòng tay Macrame phối Charm"
+             data-desc="Mình cần một vòng tay dây đan Macrame màu be, có 2 charm hoa hồng bạc và 1 hạt chữ 'A'."
+             data-tags="Vòng tay, Charm Bạc"
+             data-price="120.000 đ"
+             data-img="../assets/img/products/bracelet_01.jpg">
+            <div class="req-header">
+                <span class="req-buyer"><i class="fa-solid fa-user-circle"></i> Anna Nguyễn</span>
+                <span class="req-date">2 giờ trước</span>
+            </div>
+            <div class="req-image" onclick="openDetailModal(this.parentElement)" title="Nhấn để xem chi tiết">
+                <!-- Hình ảnh custom -->
+                <img src="../assets/img/products/bracelet_01.jpg" alt="Vòng tay Macrame">
+                <div class="overlay-text"><i class="fa-solid fa-eye"></i> Xem chi tiết</div>
+            </div>
+            <div class="req-body">
+                <h3 onclick="openDetailModal(this.parentElement.parentElement)" style="cursor: pointer;">Vòng tay Macrame phối Charm</h3>
+                <p class="req-desc">Mình cần một vòng tay dây đan Macrame màu be, có 2 charm hoa hồng bạc và 1 hạt chữ "A".</p>
+                <div class="req-tags">
+                    <span>Vòng tay</span>
+                    <span>Charm Bạc</span>
+                </div>
+            </div>
+            <div class="req-footer">
+                <div class="req-price">Dự kiến: 120.000 đ</div>
+                <button class="btn btn-primary" onclick="openQuoteModal('REQ-001', 'Vòng tay Macrame phối Charm')">Nhận làm</button>
+            </div>
+        </div>
+
+        <!-- Card 2 -->
+        <div class="request-card"
+             data-req-id="REQ-002"
+             data-buyer="Trần Bảo"
+             data-date="5 giờ trước"
+             data-title="Dây chuyền mặt Resin đại dương"
+             data-desc="Muốn custom một mặt dây chuyền đổ keo Resin chủ đề biển cả, màu xanh dương đậm, dây da đen."
+             data-tags="Dây chuyền, Resin"
+             data-price="250.000 đ"
+             data-img="../assets/img/products/necklace_02.jpg">
+            <div class="req-header">
+                <span class="req-buyer"><i class="fa-solid fa-user-circle"></i> Trần Bảo</span>
+                <span class="req-date">5 giờ trước</span>
+            </div>
+            <div class="req-image" onclick="openDetailModal(this.parentElement)" title="Nhấn để xem chi tiết">
+                <img src="../assets/img/products/necklace_02.jpg" alt="Dây chuyền Resin">
+                <div class="overlay-text"><i class="fa-solid fa-eye"></i> Xem chi tiết</div>
+            </div>
+            <div class="req-body">
+                <h3 onclick="openDetailModal(this.parentElement.parentElement)" style="cursor: pointer;">Dây chuyền mặt Resin đại dương</h3>
+                <p class="req-desc">Muốn custom một mặt dây chuyền đổ keo Resin chủ đề biển cả, màu xanh dương đậm, dây da đen.</p>
+                <div class="req-tags">
+                    <span>Dây chuyền</span>
+                    <span>Resin</span>
+                </div>
+            </div>
+            <div class="req-footer">
+                <div class="req-price">Dự kiến: 250.000 đ</div>
+                <button class="btn btn-primary" onclick="openQuoteModal('REQ-002', 'Dây chuyền mặt Resin đại dương')">Nhận làm</button>
+            </div>
+        </div>
+
+        <!-- Card 3 -->
+        <div class="request-card"
+             data-req-id="REQ-003"
+             data-buyer="Lê Vy"
+             data-date="1 ngày trước"
+             data-title="Lắc chân đính đá Aquamarine"
+             data-desc="Mình muốn làm một chiếc lắc chân sợi mảnh bằng bạc thật, đính 3 viên đá Aquamarine thiên nhiên ở giữa. Cổ chân mình 21cm."
+             data-tags="Lắc chân, Bạc 925, Đá phong thủy"
+             data-price="350.000 đ"
+             data-img="../assets/img/products/anket_01.jpg">
+            <div class="req-header">
+                <span class="req-buyer"><i class="fa-solid fa-user-circle"></i> Lê Vy</span>
+                <span class="req-date">1 ngày trước</span>
+            </div>
+            <div class="req-image" onclick="openDetailModal(this.parentElement)" title="Nhấn để xem chi tiết">
+                <img src="../assets/img/products/anket_01.jpg" alt="Lắc chân Aquamarine">
+                <div class="overlay-text"><i class="fa-solid fa-eye"></i> Xem chi tiết</div>
+            </div>
+            <div class="req-body">
+                <h3 onclick="openDetailModal(this.parentElement.parentElement)" style="cursor: pointer;">Lắc chân đính đá Aquamarine</h3>
+                <p class="req-desc">Mình muốn làm một chiếc lắc chân sợi mảnh bằng bạc thật, đính 3 viên đá Aquamarine thiên nhiên ở giữa.</p>
+                <div class="req-tags">
+                    <span>Lắc chân</span>
+                    <span>Bạc 925</span>
+                </div>
+            </div>
+            <div class="req-footer">
+                <div class="req-price">Dự kiến: 350.000 đ</div>
+                <button class="btn btn-primary" onclick="openQuoteModal('REQ-003', 'Lắc chân đính đá Aquamarine')">Nhận làm</button>
+            </div>
+        </div>
+
+        <!-- Card 4 -->
+        <div class="request-card"
+             data-req-id="REQ-004"
+             data-buyer="Hải Nam"
+             data-date="2 ngày trước"
+             data-title="Dây đeo điện thoại ngọc trai"
+             data-desc="Cần làm một dây đeo điện thoại đính ngọc trai nhân tạo xen kẽ hạt cườm mặt cười. Độ dài dây khoảng 15cm."
+             data-tags="Dây đeo điện thoại, Ngọc trai"
+             data-price="80.000 đ"
+             data-img="../assets/img/products/phoneStrap_01.jpg">
+            <div class="req-header">
+                <span class="req-buyer"><i class="fa-solid fa-user-circle"></i> Hải Nam</span>
+                <span class="req-date">2 ngày trước</span>
+            </div>
+            <div class="req-image" onclick="openDetailModal(this.parentElement)" title="Nhấn để xem chi tiết">
+                <img src="../assets/img/products/phoneStrap_01.jpg" alt="Dây đeo điện thoại">
+                <div class="overlay-text"><i class="fa-solid fa-eye"></i> Xem chi tiết</div>
+            </div>
+            <div class="req-body">
+                <h3 onclick="openDetailModal(this.parentElement.parentElement)" style="cursor: pointer;">Dây đeo điện thoại ngọc trai</h3>
+                <p class="req-desc">Cần làm một dây đeo điện thoại đính ngọc trai nhân tạo xen kẽ hạt cườm mặt cười. Độ dài 15cm.</p>
+                <div class="req-tags">
+                    <span>Dây đeo</span>
+                    <span>Ngọc trai</span>
+                </div>
+            </div>
+            <div class="req-footer">
+                <div class="req-price">Dự kiến: 80.000 đ</div>
+                <button class="btn btn-primary" onclick="openQuoteModal('REQ-004', 'Dây đeo điện thoại ngọc trai')">Nhận làm</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Phân trang -->
+    <div class="pagination">
+        <button class="page-btn"><i class="fa-solid fa-chevron-left"></i></button>
+        <button class="page-btn active">1</button>
+        <button class="page-btn">2</button>
+        <button class="page-btn">3</button>
+        <span style="display: flex; align-items: center; color: var(--text-muted);">...</span>
+        <button class="page-btn">10</button>
+        <button class="page-btn"><i class="fa-solid fa-chevron-right"></i></button>
+    </div> <!-- end pagination -->
+    </div> <!-- end dashboard-section -->
+    </section>
+
+</main>
+
+<div id="footer-placeholder"></div>
+
+<!-- Popup Form Báo Giá -->
+<div class="modal-overlay" id="quoteModal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2>Gửi Báo Giá</h2>
+            <button class="close-btn" onclick="closeQuoteModal()"><i class="fa-solid fa-times"></i></button>
+        </div>
+        <form id="quoteForm">
+            <p style="margin-top:0; margin-bottom: 12px; color: var(--text-muted); font-size: 13px;">Đang báo giá cho: <strong id="modalReqName" style="color: var(--primary-brown);"></strong></p>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="sellerName">Tên thợ</label>
+                    <input type="text" id="sellerName" placeholder="Tên hiển thị của bạn" required>
+                </div>
+                <div class="form-group">
+                    <label for="sellerEmail">Email liên hệ</label>
+                    <input type="email" id="sellerEmail" placeholder="tho@example.com" required>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="sellerPortfolio">Portfolio (Tùy chọn)</label>
+                <input type="url" id="sellerPortfolio" placeholder="https://example.com/portfolio">
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="sellerRating">Đánh giá</label>
+                    <input type="number" id="sellerRating" min="1" max="5" step="0.1" value="5" required>
+                </div>
+                <div class="form-group">
+                    <label for="sellerCompletedOrders">Đơn hoàn thành</label>
+                    <input type="number" id="sellerCompletedOrders" min="0" value="0" required>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Giá nhận làm (VNĐ)</label>
+                    <input type="number" id="quotePrice" placeholder="VD: 110000" required>
+                </div>
+                <div class="form-group">
+                    <label>Số ngày hoàn thành</label>
+                    <input type="number" id="quoteDays" placeholder="Tối đa 15 ngày" required min="1" max="15">
+                </div>
+            </div>
+
+            <div class="form-group" style="margin-bottom: 8px;">
+                <label>Ghi chú cho khách (Tùy chọn)</label>
+                <textarea id="quoteNote" placeholder="Mô tả chất liệu bạn dùng, cam kết..."></textarea>
+            </div>
+            <div class="modal-actions">
+                <button type="button" class="btn btn-outline" onclick="closeQuoteModal()">Hủy</button>
+                <button type="submit" class="btn btn-primary">Gửi báo giá</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Popup Chi tiết Yêu cầu -->
+<div class="modal-overlay" id="detailModal">
+    <div class="modal-content detail-content">
+        <div class="modal-header">
+            <h2>Chi tiết thiết kế Custom</h2>
+            <button class="close-btn" onclick="closeDetailModal()"><i class="fa-solid fa-times"></i></button>
+        </div>
+        <div class="detail-body">
+            <div class="detail-img">
+                <img id="detailImg" src="" alt="Sản phẩm custom">
+            </div>
+            <div class="detail-info">
+                <h3 id="detailTitle" style="color: var(--primary-blue); margin-top: 0;"></h3>
+                <div style="margin-bottom: 15px; font-size: 14px; color: var(--text-muted);">
+                    <span><i class="fa-solid fa-user"></i> Người đặt: <strong id="detailBuyer" style="color: var(--primary-brown);"></strong></span>
+                    <span style="margin-left: 15px;"><i class="fa-regular fa-clock"></i> <span id="detailDate"></span></span>
+                </div>
+                <div style="margin-bottom: 15px;">
+                    <strong style="display: block; margin-bottom: 5px;">Mô tả chi tiết:</strong>
+                    <p id="detailDesc" style="margin: 0; line-height: 1.6; font-size: 15px;"></p>
+                </div>
+                <div style="margin-bottom: 20px;">
+                    <strong style="display: block; margin-bottom: 5px;">Thành phần yêu cầu:</strong>
+                    <div id="detailTags" class="req-tags" style="margin-bottom: 0;"></div>
+                </div>
+                <div style="font-size: 20px; font-weight: bold; color: var(--accent-gold); margin-bottom: 20px;">
+                    Giá dự kiến: <span id="detailPrice"></span>
+                </div>
+                <button class="btn btn-primary" id="detailQuoteBtn" style="width: 100%;">Báo giá ngay cho đơn này</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Scripts -->
+<script src="../assets/js/custom-workflow.js"></script>
+<script>
+    fetch('../components/header.html')
+        .then(response => response.text())
+        .then(data => {
+            let html = data.replace(/href="index\.html"/g, 'href="../index.html"');
+            document.getElementById('header-placeholder').innerHTML = html;
+        })
+        .catch(error => console.error('Error loading header:', error));
+
+    fetch('../components/footer.html')
+        .then(response => response.text())
+        .then(data => {
+            let html = data.replace(/href="index\.html"/g, 'href="../index.html"');
+            document.getElementById('footer-placeholder').innerHTML = html;
+        })
+        .catch(error => console.error('Error loading footer:', error));
+
+    /* --- QUẢN LÝ POPUP BÁO GIÁ --- */
+    const quoteModal = document.getElementById('quoteModal');
+    const quoteForm = document.getElementById('quoteForm');
+    const customRequestList = document.getElementById('customRequestList');
+    let currentReqId = null;
+
+    function renderCustomRequests() {
+        const requests = window.AuraCraftCustom.listOpenRequests();
+        customRequestList.replaceChildren();
+        requests.forEach(request => {
+            const card = document.createElement('article');
+            card.className = 'request-card';
+            card.dataset.reqId = request.id;
+            card.dataset.buyer = request.buyerName;
+            card.dataset.date = new Date(request.createdAt).toLocaleString('vi-VN');
+            card.dataset.title = request.productType;
+            card.dataset.desc = `${request.materials}. ${request.charmDescription}`;
+            card.dataset.tags = request.materials;
+            card.dataset.price = `${Number(request.budget).toLocaleString('vi-VN')} đ`;
+            card.dataset.img = request.designImages[0] || request.charmImages[0] || '';
+            const images = [...request.designImages, ...request.charmImages];
+            if (images.length) {
+                const gallery = document.createElement('div');
+                gallery.className = 'custom-request-images';
+                images.forEach((imageUrl, index) => {
+                    const imageButton = document.createElement('button');
+                    const image = document.createElement('img');
+                    imageButton.type = 'button';
+                    imageButton.className = 'custom-request-image';
+                    imageButton.setAttribute('aria-label', `Xem ảnh thiết kế ${index + 1}`);
+                    image.src = imageUrl;
+                    image.alt = `Ảnh thiết kế tham khảo ${index + 1}`;
+                    image.loading = 'lazy';
+                    imageButton.append(image);
+                    imageButton.addEventListener('click', () => openDetailModal(card));
+                    gallery.append(imageButton);
+                });
+                card.append(gallery);
+            }
+
+            const body = document.createElement('div');
+            body.className = 'req-body';
+            const title = document.createElement('h3');
+            const desc = document.createElement('p');
+            title.textContent = request.productType;
+            title.style.cursor = 'pointer';
+            title.addEventListener('click', () => openDetailModal(card));
+            desc.className = 'req-desc';
+            desc.textContent = `${request.buyerName}: ${request.materials}. ${request.charmDescription}`;
+            body.append(title, desc);
+
+            const footer = document.createElement('div');
+            footer.className = 'req-footer';
+            const price = document.createElement('div');
+            price.className = 'req-price';
+            price.textContent = `Dự kiến: ${Number(request.budget).toLocaleString('vi-VN')} đ`;
+            const quoteButton = document.createElement('button');
+            quoteButton.type = 'button';
+            quoteButton.className = 'btn btn-primary';
+            quoteButton.textContent = 'Gửi báo giá';
+            quoteButton.addEventListener('click', () => openQuoteModal(request.id, request.productType));
+            footer.append(price, quoteButton);
+
+            card.append(body, footer);
+            customRequestList.append(card);
+        });
+    }
+
+    function renderMyRequest() {
+        const requestId = new URLSearchParams(window.location.search).get('mine');
+        const request = requestId && window.AuraCraftCustom.getRequest(requestId);
+        document.getElementById('myCustomRequest')?.remove();
+        if (!request) return;
+        const section = document.createElement('section');
+        section.className = 'request-summary';
+        section.id = 'myCustomRequest';
+        const heading = document.createElement('h2');
+        const details = document.createElement('p');
+        const status = document.createElement('p');
+        const quoteLink = document.createElement('a');
+        const statusLabels = { open: 'Đang mở', quoted: 'Đã có báo giá', awarded: 'Đã chọn thợ', cancelled: 'Đã hủy' };
+        heading.textContent = 'Yêu cầu của bạn';
+        details.textContent = `${request.productType} · ${Number(request.budget).toLocaleString('vi-VN')} đ`;
+        status.textContent = `Trạng thái: ${statusLabels[request.status] || request.status}`;
+        quoteLink.className = 'btn btn-outline';
+        quoteLink.href = `choose-seller.html?requestId=${encodeURIComponent(request.id)}`;
+        quoteLink.textContent = `Xem ${window.AuraCraftCustom.listQuotes(request.id).length} báo giá`;
+        section.append(heading, details, status, quoteLink);
+        if (['open', 'quoted'].includes(request.status)) {
+            const editButton = document.createElement('button');
+            const cancelButton = document.createElement('button');
+            editButton.type = 'button';
+            editButton.className = 'btn btn-outline';
+            editButton.textContent = 'Sửa yêu cầu';
+            editButton.addEventListener('click', () => {
+                const productType = prompt('Loại sản phẩm:', request.productType);
+                if (productType === null) return;
+                const materials = prompt('Vật liệu:', request.materials);
+                if (materials === null) return;
+                const description = prompt('Mô tả charm/thiết kế:', request.charmDescription);
+                if (description === null) return;
+                const budget = prompt('Giá dự kiến (VNĐ):', request.budget);
+                if (budget === null) return;
+                try {
+                    window.AuraCraftCustom.updateRequest(request.id, { productType, materials, charmDescription: description, budget });
+                    window.location.reload();
+                } catch (error) {
+                    alert(error.message);
+                }
+            });
+            cancelButton.type = 'button';
+            cancelButton.className = 'btn btn-outline';
+            cancelButton.textContent = 'Hủy yêu cầu';
+            cancelButton.addEventListener('click', () => {
+                if (!confirm('Hủy yêu cầu Custom này?')) return;
+                try {
+                    window.AuraCraftCustom.cancelRequest(request.id);
+                    window.location.reload();
+                } catch (error) {
+                    alert(error.message);
+                }
+            });
+            section.append(editButton, cancelButton);
+        }
+        customRequestList.before(section);
+    }
+
+    renderCustomRequests();
+    renderMyRequest();
+    window.addEventListener('storage', () => {
+        renderCustomRequests();
+        renderMyRequest();
+    });
+
+    function openQuoteModal(reqId, reqName) {
+        const storedRequest = window.AuraCraftCustom.getRequest(reqId)
+            || window.AuraCraftCustom.listRequests().find(request => request.sourceId === reqId);
+        currentReqId = storedRequest ? storedRequest.id : reqId;
+        if (!storedRequest) {
+            const sourceCard = Array.from(document.querySelectorAll('.request-card'))
+                .find(card => card.dataset.reqId === reqId);
+            if (!sourceCard) return;
+            const legacyRequest = window.AuraCraftCustom.createRequest({
+                buyerName: sourceCard.dataset.buyer,
+                buyerEmail: `${reqId.toLowerCase()}@example.local`,
+                sourceId: reqId,
+                productType: sourceCard.dataset.title,
+                materials: sourceCard.dataset.tags,
+                charmDescription: sourceCard.dataset.desc,
+                budget: sourceCard.dataset.price.replace(/[^\d]/g, '')
+            });
+            currentReqId = legacyRequest.id;
+        }
+        document.getElementById('modalReqName').innerText = reqName;
+
+        // Đóng detail modal nếu đang mở
+        closeDetailModal();
+        quoteModal.classList.add('active');
+    }
+
+    function closeQuoteModal() {
+        quoteModal.classList.remove('active');
+        quoteForm.reset();
+    }
+
+    quoteModal.addEventListener('click', function(e) {
+        if (e.target === quoteModal) closeQuoteModal();
+    });
+
+    // Xử lý gửi báo giá
+    quoteForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        const days = document.getElementById('quoteDays').value;
+
+        // Bẫy lỗi Javascript dự phòng trường hợp thẻ HTML bị bypass
+        if(days > 15) {
+            alert("Lỗi: Số ngày hoàn thành không được vượt quá 15 ngày theo quy định của sàn.");
+            return;
+        }
+
+        try {
+            window.AuraCraftCustom.addQuote(currentReqId, {
+                sellerName: document.getElementById('sellerName').value,
+                sellerEmail: document.getElementById('sellerEmail').value,
+                portfolio: document.getElementById('sellerPortfolio').value,
+                rating: document.getElementById('sellerRating').value,
+                completedOrders: document.getElementById('sellerCompletedOrders').value,
+                price: document.getElementById('quotePrice').value,
+                days,
+                note: document.getElementById('quoteNote').value
+            });
+            alert('Đã lưu báo giá. Người mua có thể xem và so sánh.');
+            renderCustomRequests();
+        } catch (error) {
+            alert(error.message);
+            return;
+        }
+        closeQuoteModal();
+    });
+
+    /* --- QUẢN LÝ POPUP CHI TIẾT --- */
+    const detailModal = document.getElementById('detailModal');
+
+    function openDetailModal(cardElement) {
+        // Lấy dữ liệu từ các thuộc tính data-* của thẻ card
+        const reqId = cardElement.getAttribute('data-req-id');
+        const buyer = cardElement.getAttribute('data-buyer');
+        const date = cardElement.getAttribute('data-date');
+        const title = cardElement.getAttribute('data-title');
+        const desc = cardElement.getAttribute('data-desc');
+        const tags = cardElement.getAttribute('data-tags');
+        const price = cardElement.getAttribute('data-price');
+        const img = cardElement.getAttribute('data-img');
+
+        // Đổ dữ liệu vào Modal chi tiết
+        const detailImg = document.getElementById('detailImg');
+        detailImg.src = img || '../assets/img/products/bracelet_01.jpg';
+        document.getElementById('detailTitle').innerText = title;
+        document.getElementById('detailBuyer').innerText = buyer;
+        document.getElementById('detailDate').innerText = date;
+        document.getElementById('detailDesc').innerText = desc;
+        document.getElementById('detailPrice').innerText = price;
+
+        // Render tags
+        const detailTags = document.getElementById('detailTags');
+        detailTags.replaceChildren(...tags.split(',').map(tag => {
+            const element = document.createElement('span');
+            element.textContent = tag.trim();
+            return element;
+        }));
+
+        // Gắn event cho nút Báo giá bên trong modal chi tiết
+        document.getElementById('detailQuoteBtn').onclick = () => openQuoteModal(reqId, title);
+
+        detailModal.classList.add('active');
+    }
+
+    function closeDetailModal() {
+        detailModal.classList.remove('active');
+    }
+
+    detailModal.addEventListener('click', function(e) {
+        if (e.target === detailModal) closeDetailModal();
+    });
+</script>
+<script src="../assets/js/popup.js"></script>
+</body>
+</html>

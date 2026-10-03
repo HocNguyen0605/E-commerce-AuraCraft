@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quản lý Đơn hàng - AuraCraft</title>
+    <!-- Fonts & Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;600;700&family=Mulish:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+
+    <!-- Styles -->
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <link rel="stylesheet" href="../assets/css/header-footer.css">
+    <link rel="stylesheet" href="../assets/css/pages/styleSeller.css">
+    <link rel="stylesheet" href="../assets/css/pages/styleOrders.css">
+</head>
+<body>
+<div id="header-placeholder"></div>
+
+<main class="seller-layout container">
+    <!-- Sidebar -->
+    <aside class="seller-sidebar">
+        <div class="seller-profile">
+            <img src="https://i.pravatar.cc/150?img=32" alt="Tiệm Vòng Mộc Lan" class="profile-img">
+            <h3>Tiệm Vòng Mộc Lan</h3>
+            <p class="seller-role">Thợ thủ công Trang sức</p>
+        </div>
+        <nav class="seller-nav">
+            <a href="seller-dashboard.html"><i class="bi bi-pie-chart-fill"></i> Tổng quan Doanh thu</a>
+            <a href="seller-products.html"><i class="bi bi-box-seam-fill"></i> Quản lý Sản phẩm</a>
+            <a href="chat-seller.html"><i class="bi bi-chat-dots-fill"></i> Tin nhắn <span class="noti-count">2</span></a>
+            <a href="order-management.html" class="active"><i class="bi bi-card-list"></i> Quản lý Đơn hàng</a>
+            <a href="buyer-requests.html"><i class="bi bi-shop"></i> Chợ Custom & Báo giá</a>
+            <a href="#"><i class="bi bi-gear-fill"></i> Cài đặt</a>
+        </nav>
+    </aside>
+
+    <!-- Content -->
+    <section class="seller-content">
+    <div class="content-header">
+        <h1 class="page-title"><i class="fa-solid fa-box-open"></i> Quản lý đơn hàng</h1>
+    </div>
+
+    <div class="dashboard-section table-section">
+    <!-- Bộ lọc Tabs (Đã thêm data-tab) -->
+    <div class="tabs">
+        <div class="tab-item active" data-tab="all">Tất cả</div>
+        <div class="tab-item" data-tab="pending">Chờ xử lý</div>
+        <div class="tab-item" data-tab="crafting">Đang chế tác</div>
+        <div class="tab-item" data-tab="late" style="color: var(--status-late); font-weight: bold;">Trễ hạn (1)</div>
+        <div class="tab-item" data-tab="shipping">Đang giao</div>
+        <div class="tab-item" data-tab="done">Đã hoàn thành</div>
+    </div>
+
+    <section class="custom-orders-section" aria-label="Đơn hàng Custom">
+        <h2>Đơn hàng Custom</h2>
+        <div class="order-list" id="customOrderList"></div>
+    </section>
+
+    <!-- Danh sách đơn hàng -->
+    <div class="order-list">
+
+        <!-- Đơn hàng 1: Chờ xử lý -->
+        <div class="order-card" data-status="pending"
+             data-id="#ORD-9830" data-buyer="Hoàng Khang" data-product="Vòng tay Macrame phối Charm"
+             data-price="120.000 đ" data-date="10/09/2026 - 08:30 AM" data-address="Quận 1, TP. Hồ Chí Minh"
+             data-note="Đơn vừa thanh toán, đang chờ bạn xác nhận nguyên liệu.">
+            <div class="order-header">
+                <span class="order-id">Mã ĐH: #ORD-9830</span>
+                <span class="badge pending">Chờ xử lý</span>
+            </div>
+            <div class="order-body" onclick="openOrderDetail(this.parentElement)" style="cursor: pointer;" title="Nhấn để xem chi tiết">
+                <div class="order-info">
+                    <h3 class="hover-title">Vòng tay Macrame phối Charm</h3>
+                    <p class="req-desc" style="margin: 0; color: var(--text-muted); font-size: 14px;">Khách hàng: <strong>Hoàng Khang</strong></p>
+                    <span class="deadline" style="color: var(--text-muted); background: var(--gray-light);"><i class="fa-regular fa-clock"></i> Khách vừa thanh toán</span>
+                </div>
+            </div>
+            <div class="order-footer">
+                <div class="total-price">120.000 đ</div>
+                <div class="order-actions">
+                    <button class="btn btn-outline" onclick="openChat('Hoàng Khang')"><i class="fa-solid fa-comments"></i> Chat</button>
+                    <button class="btn btn-primary" onclick="confirmOrder('#ORD-9830')">Bắt đầu chế tác</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Đơn hàng 2: Đang chế tác -->
+        <div class="order-card" data-status="crafting"
+             data-id="#ORD-9821" data-buyer="Anna Nguyễn" data-product="Lắc chân Custom - Charm Cỏ 4 lá"
+             data-price="180.000 đ" data-date="08/09/2026 - 10:00 AM" data-address="Quận Cầu Giấy, Hà Nội"
+             data-note="Đã thắt xong dây, đang chờ keo khô để đính charm.">
+            <div class="order-header">
+                <span class="order-id">Mã ĐH: #ORD-9821</span>
+                <span class="badge crafting">Đang chế tác</span>
+            </div>
+            <div class="order-body" onclick="openOrderDetail(this.parentElement)" style="cursor: pointer;" title="Nhấn để xem chi tiết">
+                <div class="order-info">
+                    <h3 class="hover-title">Lắc chân Custom - Charm Cỏ 4 lá</h3>
+                    <p class="req-desc" style="margin: 0; color: var(--text-muted); font-size: 14px;">Khách hàng: <strong>Anna Nguyễn</strong></p>
+                    <span class="deadline"><i class="fa-regular fa-clock"></i> Deadline: 13/09/2026 - 10:00 AM</span>
+                </div>
+            </div>
+            <div class="order-footer">
+                <div class="total-price">180.000 đ</div>
+                <div class="order-actions">
+                    <button class="btn btn-outline" onclick="openChat('Anna Nguyễn')"><i class="fa-solid fa-comments"></i> Chat</button>
+                    <button class="btn btn-primary" onclick="updateProgress('#ORD-9821')">Cập nhật tiến độ</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Đơn hàng 3: Bị trễ -->
+        <div class="order-card" data-status="late" style="border-left: 4px solid var(--status-late);"
+             data-id="#ORD-9805" data-buyer="Trần Bảo" data-product="Dây chuyền mặt Resin đại dương"
+             data-price="250.000 đ" data-date="05/09/2026 - 14:00 PM" data-address="Hải Châu, Đà Nẵng"
+             data-note="Khuôn resin bị hỏng phải làm lại, dẫn đến trễ hạn giao.">
+            <div class="order-header">
+                <span class="order-id" style="color: var(--status-late);">Mã ĐH: #ORD-9805</span>
+                <span class="badge late">Trễ hạn chế tác</span>
+            </div>
+            <div class="order-body" onclick="openOrderDetail(this.parentElement)" style="cursor: pointer;" title="Nhấn để xem chi tiết">
+                <div class="order-info">
+                    <h3 class="hover-title">Dây chuyền mặt Resin đại dương</h3>
+                    <p class="req-desc" style="margin: 0; color: var(--text-muted); font-size: 14px;">Khách hàng: <strong>Trần Bảo</strong></p>
+                    <span class="deadline late-alert"><i class="fa-solid fa-triangle-exclamation"></i> Quá hạn 1 ngày!</span>
+                </div>
+            </div>
+            <div class="order-footer">
+                <div class="total-price">250.000 đ</div>
+                <div class="order-actions">
+                    <button class="btn btn-outline" style="color:var(--status-late); border-color:var(--status-late);" onclick="requestExtension('#ORD-9805')">Xin gia hạn</button>
+                    <button class="btn btn-primary" onclick="deliverNow('#ORD-9805')">Bàn giao ngay</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Đơn hàng 4: Đang giao -->
+        <div class="order-card" data-status="shipping"
+             data-id="#ORD-9755" data-buyer="Lê Vy" data-product="Nến thơm hoa khô Custom"
+             data-price="320.000 đ" data-date="01/09/2026 - 09:15 AM" data-address="Ninh Kiều, Cần Thơ"
+             data-note="Đã bàn giao cho Giao Hàng Tiết Kiệm.">
+            <div class="order-header">
+                <span class="order-id">Mã ĐH: #ORD-9755</span>
+                <span class="badge shipping">Đang giao hàng</span>
+            </div>
+            <div class="order-body" onclick="openOrderDetail(this.parentElement)" style="cursor: pointer;" title="Nhấn để xem chi tiết">
+                <div class="order-info">
+                    <h3 class="hover-title">Nến thơm hoa khô Custom</h3>
+                    <p class="req-desc" style="margin: 0; color: var(--text-muted); font-size: 14px;">Khách hàng: <strong>Lê Vy</strong></p>
+                    <p style="margin: 5px 0 0 0; font-size: 13px; color: var(--primary-blue);"><i class="fa-solid fa-truck"></i> GHTK: S29381023</p>
+                </div>
+            </div>
+            <div class="order-footer">
+                <div class="total-price">320.000 đ</div>
+                <div class="order-actions">
+                    <button class="btn btn-outline" onclick="openChat('Lê Vy')"><i class="fa-solid fa-comments"></i> Chat</button>
+                    <button class="btn btn-outline" onclick="trackShipping('#ORD-9755')">Theo dõi vận chuyển</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Đơn hàng 5: Đã hoàn thành -->
+        <div class="order-card" data-status="done" style="opacity: 0.8;"
+             data-id="#ORD-9610" data-buyer="Minh Hằng" data-product="Dây đeo điện thoại ngọc trai"
+             data-price="80.000 đ" data-date="25/08/2026 - 16:45 PM" data-address="Quận 3, TP. Hồ Chí Minh"
+             data-note="Khách đã nhận hàng và đánh giá 5 sao.">
+            <div class="order-header">
+                <span class="order-id">Mã ĐH: #ORD-9610</span>
+                <span class="badge done">Đã hoàn thành</span>
+            </div>
+            <div class="order-body" onclick="openOrderDetail(this.parentElement)" style="cursor: pointer;" title="Nhấn để xem chi tiết">
+                <div class="order-info">
+                    <h3 class="hover-title" style="color: var(--text-muted);">Dây đeo điện thoại ngọc trai</h3>
+                    <p class="req-desc" style="margin: 0; color: var(--text-muted); font-size: 14px;">Khách hàng: <strong>Minh Hằng</strong></p>
+                    <span style="display: block; margin-top: 8px; color: var(--accent-gold); font-size: 14px;"><i class="fa-solid fa-star"></i> Khách đã đánh giá</span>
+                </div>
+            </div>
+            <div class="order-footer">
+                <div class="total-price">80.000 đ</div>
+                <div class="order-actions">
+                    <button class="btn btn-outline" onclick="alert('Đang mở trang xem đánh giá...')">Xem đánh giá</button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Phân trang -->
+    <div class="pagination">
+        <button class="page-btn"><i class="fa-solid fa-chevron-left"></i></button>
+        <button class="page-btn active">1</button>
+        <button class="page-btn">2</button>
+        <span style="display: flex; align-items: center; color: var(--text-muted);">...</span>
+        <button class="page-btn"><i class="fa-solid fa-chevron-right"></i></button>
+    </div> <!-- end pagination -->
+    </div> <!-- end dashboard-section -->
+    </section>
+</main>
+
+<div id="footer-placeholder"></div>
+
+<!-- Modal Chi Tiết Đơn Hàng -->
+<div class="modal-overlay" id="orderModal">
+    <div class="modal-content" style="max-width: 600px;">
+        <div class="modal-header">
+            <h2>Chi Tiết Đơn Hàng <span id="modalOrderId" style="color: var(--primary-brown);"></span></h2>
+            <button class="close-btn" onclick="closeOrderDetail()"><i class="fa-solid fa-times"></i></button>
+        </div>
+        <div class="detail-body">
+            <h3 id="modalProduct" style="margin-top: 0; color: var(--primary-blue);"></h3>
+
+            <div class="info-row">
+                <strong>Khách hàng:</strong> <span id="modalBuyer"></span>
+            </div>
+            <div class="info-row">
+                <strong>Ngày đặt:</strong> <span id="modalDate"></span>
+            </div>
+            <div class="info-row">
+                <strong>Địa chỉ giao hàng:</strong> <span id="modalAddress"></span>
+            </div>
+            <div class="info-row" style="margin-top: 15px; padding: 15px; background: var(--bg-cream); border-radius: 8px;">
+                <strong style="display: block; margin-bottom: 5px;">Ghi chú / Tiến độ nội bộ:</strong>
+                <span id="modalNote" style="color: var(--text-muted); font-size: 14px; line-height: 1.5;"></span>
+            </div>
+
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 24px; border-top: 1px dashed var(--gray-light); padding-top: 16px;">
+                <span style="font-size: 16px;">Tổng thanh toán:</span>
+                <span id="modalPrice" class="total-price"></span>
+            </div>
+        </div>
+        <div class="modal-actions">
+            <button type="button" class="btn btn-primary" onclick="closeOrderDetail()" style="width: 100%;">Đóng</button>
+        </div>
+    </div>
+</div>
+
+<!-- Scripts -->
+<script src="../assets/js/custom-workflow.js"></script>
+<script src="../assets/js/custom-order-management.js"></script>
+<script>
+    // Load Header & Footer
+    fetch('../components/header.html')
+        .then(response => response.text())
+        .then(data => {
+            let html = data.replace(/href="index\.html"/g, 'href="../index.html"');
+            document.getElementById('header-placeholder').innerHTML = html;
+        }).catch(e => console.log(e));
+
+    fetch('../components/footer.html')
+        .then(response => response.text())
+        .then(data => {
+            let html = data.replace(/href="index\.html"/g, 'href="../index.html"');
+            document.getElementById('footer-placeholder').innerHTML = html;
+        }).catch(e => console.log(e));
+
+    // --- CHỨC NĂNG LỌC THEO TAB ---
+    const tabs = document.querySelectorAll('.tab-item');
+    const orders = document.querySelectorAll('.order-card');
+
+    tabs.forEach(tab => {
+        tab.addEventListener('click', () => {
+            // Xóa active cũ, gắn active mới
+            tabs.forEach(t => t.classList.remove('active'));
+            tab.classList.add('active');
+
+            // Lấy giá trị data-tab để lọc
+            const filter = tab.getAttribute('data-tab');
+
+            orders.forEach(order => {
+                const status = order.getAttribute('data-status');
+                if (filter === 'all' || filter === status) {
+                    order.style.display = 'block';
+                } else {
+                    order.style.display = 'none';
+                }
+            });
+        });
+    });
+
+    // --- CHỨC NĂNG XEM CHI TIẾT MODAL ---
+    const orderModal = document.getElementById('orderModal');
+
+    function openOrderDetail(cardElement) {
+        document.getElementById('modalOrderId').innerText = cardElement.getAttribute('data-id');
+        document.getElementById('modalProduct').innerText = cardElement.getAttribute('data-product');
+        document.getElementById('modalBuyer').innerText = cardElement.getAttribute('data-buyer');
+        document.getElementById('modalDate').innerText = cardElement.getAttribute('data-date');
+        document.getElementById('modalAddress').innerText = cardElement.getAttribute('data-address');
+        document.getElementById('modalNote').innerText = cardElement.getAttribute('data-note');
+        document.getElementById('modalPrice').innerText = cardElement.getAttribute('data-price');
+
+        orderModal.classList.add('active');
+    }
+
+    function closeOrderDetail() {
+        orderModal.classList.remove('active');
+    }
+
+    orderModal.addEventListener('click', function(e) {
+        if (e.target === orderModal) closeOrderDetail();
+    });
+
+    // --- CÁC HÀM XỬ LÝ BUTTON (Mô phỏng) ---
+    function openChat(buyerName) {
+        alert("Mở giao diện Chat với khách hàng: " + buyerName);
+    }
+
+    function confirmOrder(orderId) {
+        if(confirm("Bạn đã chuẩn bị đủ nguyên liệu và muốn chuyển đơn " + orderId + " sang trạng thái Đang Chế Tác?")) {
+            alert("Cập nhật thành công!");
+        }
+    }
+
+    function updateProgress(orderId) {
+        let progress = prompt("Nhập tiến độ mới cho đơn " + orderId + "\n(Ví dụ: Đang đính charm, Đang đổ keo...):");
+        if(progress) {
+            alert("Đã lưu tiến độ: " + progress);
+        }
+    }
+
+    function requestExtension(orderId) {
+        let reason = prompt("Nhập lý do xin gia hạn và số ngày cần thêm cho đơn " + orderId + ":");
+        if(reason) {
+            alert("Yêu cầu gia hạn đã được gửi đến Admin và Người mua duyệt.");
+        }
+    }
+
+    function deliverNow(orderId) {
+        if(confirm("Xác nhận đóng gói hoàn tất và báo Đơn vị vận chuyển đến lấy đơn " + orderId + "?")) {
+            alert("Đã chuyển trạng thái sang Chờ lấy hàng!");
+        }
+    }
+
+    function trackShipping(orderId) {
+        alert("Đang kết nối đến cổng tra cứu vận đơn của Giao Hàng Tiết Kiệm cho đơn " + orderId + "...");
+    }
+</script>
+<script src="../assets/js/popup.js"></script>
+</body>
+</html>

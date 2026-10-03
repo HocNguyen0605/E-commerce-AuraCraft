@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Khôi phục mật khẩu - AuraCraft</title>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- CSS Hệ thống chuẩn cấu trúc lùi 1 cấp -->
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <link rel="stylesheet" href="../assets/css/header-footer.css">
+    <link rel="stylesheet" href="../assets/css/pages/styleLogin.css">
+</head>
+
+<body>
+    <!-- <div id="header-placeholder"></div> -->
+
+    <main class="form-page">
+        <div class="container">
+            <div class="auth-wrapper">
+
+                <div class="banner-side">
+                    <div class="banner-overlay"></div>
+                    <img src="https://i.pinimg.com/1200x/c0/95/08/c095086cdb736e0df54ad2bbe1831360.jpg"
+                        alt="AuraCraft Security" class="banner-img">
+                    <div class="banner-content">
+                        <h3>An toàn & Bảo mật</h3>
+                        <p>Hỗ trợ khôi phục quyền truy cập tài khoản của bạn nhanh chóng.</p>
+                    </div>
+                </div>
+
+                <div class="form-side">
+                    <div class="top-header">
+                        <a href="../index.html" class="brand-logo">
+                            <span class="logo-icon">A</span>
+                            <span class="logo-text">uraCraft</span>
+                        </a>
+                        <a href="login.html" class="auth-nav-back">← Quay lại Đăng nhập</a>
+                    </div>
+
+                    <div id="requestState">
+                        <div class="form-header">
+                            <div class="icon-box">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                    stroke-linejoin="round">
+                                    <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                                    <path d="M7 11V7a5 5 0 0 1 9.9-1"></path>
+                                </svg>
+                            </div>
+                            <h2>Quên mật khẩu?</h2>
+                            <p class="auth-subtitle">Đừng lo lắng! Hãy nhập địa chỉ email đã đăng ký. AuraCraft sẽ gửi
+                                cho bạn liên kết để thiết lập lại mật khẩu.</p>
+                        </div>
+
+                        <form id="forgotForm" novalidate>
+                            <div class="input-group" id="emailGroup">
+                                <label for="recoveryEmail">Địa chỉ Email</label>
+                                <div class="input-wrapper">
+                                    <i class="fa-regular fa-envelope field-icon"></i>
+                                    <input type="email" id="recoveryEmail" placeholder="example@auracraft.com" required>
+                                </div>
+                                <span class="error-msg">Vui lòng nhập địa chỉ email hợp lệ.</span>
+                            </div>
+
+                            <button type="submit" class="btn btn-primary btn-submit" id="submitBtn">
+                                <span class="btn-text">Gửi liên kết khôi phục</span>
+                                <div class="spinner" id="btnSpinner"></div>
+                            </button>
+                        </form>
+                    </div>
+
+                    <div id="successState" class="success-state" style="display:none;">
+                        <i class="fa-solid fa-circle-check success-icon"></i>
+                        <h2>Kiểm tra hộp thư!</h2>
+                        <p class="auth-subtitle">Liên kết khôi phục đã được gửi tới địa chỉ email của bạn.</p>
+                    </div>
+
+                    <div class="auth-footer-text">
+                        Bạn gặp khó khăn? <a href="#">Liên hệ Bộ phận hỗ trợ AuraCraft</a>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </main>
+
+    <!-- <div id="footer-placeholder"></div> -->
+
+    <script src="../assets/js/auth.js"></script>
+
+<script src="../assets/js/popup.js"></script>
+</body>
+
+</html>
+
