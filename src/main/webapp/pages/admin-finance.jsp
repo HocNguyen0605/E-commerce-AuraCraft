@@ -1,4 +1,5 @@
-    <!DOCTYPE html>
+<%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<!DOCTYPE html>
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
@@ -23,7 +24,15 @@
     <main class="admin-main-content">
         <div class="page-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
             <h1 class="page-title"><i class="fa-solid fa-wallet"></i> Quản lý Tài chính & Đối soát</h1>
-            <button class="btn btn-primary" onclick="openConfigModal()"><i class="fa-solid fa-gear"></i> Cấu hình % Phí Sàn</button>
+            <div class="header-actions" style="display: flex; gap: 15px; align-items: center;">
+                <div class="date-filter" style="display: flex; gap: 10px; align-items: center;">
+                    <input type="date" id="startDate" class="form-control" style="padding: 6px 12px; border: 1px solid var(--gray-light); border-radius: 4px;">
+                    <span>-</span>
+                    <input type="date" id="endDate" class="form-control" style="padding: 6px 12px; border: 1px solid var(--gray-light); border-radius: 4px;">
+                    <button class="btn btn-outline" onclick="loadChartsData()" style="padding: 6px 12px;"><i class="fa-solid fa-filter"></i> Lọc</button>
+                </div>
+                <button class="btn btn-primary" onclick="openConfigModal()"><i class="fa-solid fa-gear"></i> Cấu hình % Phí Sàn</button>
+            </div>
         </div>
 
         <!-- Thống kê tổng quan -->
@@ -32,28 +41,28 @@
                 <div class="stat-icon"><i class="fa-solid fa-money-bill-trend-up"></i></div>
                 <div class="stat-info">
                     <h3>Tổng Giá Trị Giao Dịch (GMV)</h3>
-                    <div class="amount">150.500.000 đ</div>
+                    <div class="amount" id="statTotalGmv">Đang tải...</div>
                 </div>
             </div>
             <div class="stat-card gold">
                 <div class="stat-icon"><i class="fa-solid fa-coins"></i></div>
                 <div class="stat-info">
                     <h3>Tổng Phí Sàn Thu Được</h3>
-                    <div class="amount" id="totalFeeAmount">15.050.000 đ</div>
+                    <div class="amount" id="statTotalFee">Đang tải...</div>
                 </div>
             </div>
             <div class="stat-card green">
                 <div class="stat-icon"><i class="fa-solid fa-building-columns"></i></div>
                 <div class="stat-info">
                     <h3>Đã Thanh Toán Cho Thợ</h3>
-                    <div class="amount">120.000.000 đ</div>
+                    <div class="amount" id="statTotalPaid">Đang tải...</div>
                 </div>
             </div>
             <div class="stat-card red">
                 <div class="stat-icon"><i class="fa-solid fa-hand-holding-dollar"></i></div>
                 <div class="stat-info">
                     <h3>Chờ Rút (Số Dư Thợ)</h3>
-                    <div class="amount">15.450.000 đ</div>
+                    <div class="amount" id="statTotalPending">Đang tải...</div>
                 </div>
             </div>
         </div>
@@ -72,7 +81,7 @@
 
         <!-- Yêu cầu rút tiền -->
         <div class="chart-card">
-            <h3 style="margin-bottom: 5px;">Yêu Cầu Rút Tiền Từ Thợ (UC 3.11)</h3>
+            <h3 style="margin-bottom: 5px;">Yêu Cầu Rút Tiền Từ Thợ</h3>
             <p style="color: var(--text-muted); font-size: 14px; margin-bottom: 15px;">Duyệt yêu cầu rút tiền sau khi trừ phí sàn và thuế.</p>
             
             <div style="overflow-x: auto;">
@@ -139,7 +148,7 @@
         </div>
         
         <p style="font-size: 14px; color: var(--text-muted); margin-bottom: 20px;">
-            Hệ thống sẽ tự động trừ % phí sàn này vào doanh thu của thợ cho mỗi giao dịch thành công (BR49).
+            Hệ thống sẽ tự động trừ % phí sàn này vào doanh thu của thợ cho mỗi giao dịch thành công .
         </p>
 
         <div class="input-group">
