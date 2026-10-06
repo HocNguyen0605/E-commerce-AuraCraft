@@ -1,3 +1,4 @@
+<%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <!DOCTYPE html>
 <html lang="vi">
 <head>
@@ -71,7 +72,7 @@
                     <option value="all">Tất cả trạng thái</option>
                     <option value="active">Đang hoạt động</option>
                     <option value="pending">Chờ duyệt</option>
-                    <option value="suspended">Tạm khóa</option>
+                    <option value="locked">Tạm khóa</option>
                 </select>
             </div>
 
@@ -103,8 +104,7 @@
 
     <!-- Scripts -->
     <script src="../assets/js/admin/admin-common.js"></script>
-    <script src="../assets/js/user-store.js"></script>
-    <script src="../assets/js/admin-users.js"></script>
+    <script src="../assets/js/admin-users.js?v=3"></script>
 <script src="../assets/js/popup.js"></script>
 </body>
 </html>
