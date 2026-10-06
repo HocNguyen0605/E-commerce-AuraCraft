@@ -127,7 +127,7 @@
 
         // Bắt đầu gửi dữ liệu sang Backend Servlet
         try {
-            const res = await fetch((typeof CTX !== 'undefined' ? CTX : '') + '/login', {
+            const res = await fetch('/handmade/login', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
