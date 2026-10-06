@@ -12,88 +12,158 @@
 </head>
 
 <body>
-    <main class="form-page">
-        <div class="container">
-            <div class="auth-wrapper">
+<main class="form-page">
+    <div class="container">
+        <div class="auth-wrapper">
 
-                <div class="banner-side">
-                    <div class="banner-overlay"></div>
-                    <img src="https://i.pinimg.com/736x/0a/57/18/0a571878c98d882e140d54d302010359.jpg"
-                        alt="AuraCraft Crafting" class="banner-img">
-                    <div class="banner-content">
-                        <h3>AuraCraft</h3>
-                        <p>Mỗi món đồ là một câu chuyện được tạo nên từ sự tỉ mỉ và tình yêu.</p>
-                    </div>
+            <!-- Banner bên trái -->
+            <div class="banner-side">
+                <div class="banner-overlay"></div>
+                <img src="https://i.pinimg.com/736x/0a/57/18/0a571878c98d882e140d54d302010359.jpg"
+                     alt="AuraCraft Crafting" class="banner-img">
+                <div class="banner-content">
+                    <h3>AuraCraft</h3>
+                    <p>Mỗi món đồ là một câu chuyện được tạo nên từ sự tỉ mỉ và tình yêu.</p>
                 </div>
-
-                <div class="form-side">
-                    <div class="top-header">
-                        <a href="../index.html" class="brand-logo">
-                            <span class="logo-icon">A</span>
-                            <span class="logo-text">uraCraft</span>
-                        </a>
-                        <a href="../index.html" class="auth-nav-back">← Trang chủ</a>
-                    </div>
-
-                    <div class="form-header">
-                        <h2>Chào mừng trở lại!</h2>
-                        <p class="auth-subtitle">Đăng nhập để tiếp tục khám phá và sáng tạo các mẫu vòng tay độc bản.
-                        </p>
-                    </div>
-
-                    <form id="loginForm" novalidate>
-                        <div class="input-group">
-                            <label for="email">Tên đăng nhập hoặc Email</label>
-                            <div class="input-wrapper">
-                                <i class="fa-regular fa-envelope field-icon"></i>
-                                <input type="text" id="email" placeholder="Nhập email hoặc tên tài khoản" required>
-                            </div>
-                            <span class="error-msg">Vui lòng nhập email hoặc tên đăng nhập.</span>
-                        </div>
-
-                        <div class="input-group">
-                            <div class="form-label-row">
-                                <label for="password">Mật khẩu</label>
-                                <a href="forgot.html" class="forgot-pass-link">Quên mật khẩu?</a>
-                            </div>
-                            <div class="input-wrapper">
-                                <i class="fa-solid fa-lock field-icon"></i>
-                                <input type="password" id="password" placeholder="••••••••" required>
-                                <button type="button" class="btn-toggle-pass" onclick="togglePass('password', this)"
-                                    aria-label="Hiện/ẩn mật khẩu">
-                                    <i class="fa-regular fa-eye"></i>
-                                </button>
-                            </div>
-                            <span class="error-msg">Mật khẩu phải từ 6 ký tự trở lên.</span>
-                        </div>
-
-                        <div class="form-options">
-                            <label class="checkbox-container">
-                                <input type="checkbox" id="rememberMe">
-                                <span class="checkmark"></span>
-                                Ghi nhớ đăng nhập
-                            </label>
-                        </div>
-
-                        <button type="submit" class="btn btn-primary btn-submit" id="btnSubmit">
-                            <span class="btn-text">Đăng nhập</span>
-                            <div class="spinner" id="btnSpinner"></div>
-                        </button>
-                    </form>
-
-                    <div class="auth-footer-text">
-                        Chưa có tài khoản? <a href="register.html">Tạo tài khoản mới</a>
-                    </div>
-                </div>
-
             </div>
+
+            <!-- Form đăng nhập bên phải -->
+            <div class="form-side">
+                <div class="top-header">
+                    <a href="../index.html" class="brand-logo">
+                        <span class="logo-icon">A</span>
+                        <span class="logo-text">uraCraft</span>
+                    </a>
+                    <a href="../index.html" class="auth-nav-back">← Trang chủ</a>
+                </div>
+
+                <div class="form-header">
+                    <h2>Chào mừng trở lại!</h2>
+                    <p class="auth-subtitle">Đăng nhập để tiếp tục khám phá và sáng tạo các mẫu vòng tay độc bản.</p>
+                </div>
+
+                <!-- Giữ nguyên ID loginForm, sử dụng thuộc tính name cho từng input -->
+                <form id="loginForm" novalidate>
+                    <div class="input-group" id="emailGroup">
+                        <label for="email">Tên đăng nhập hoặc Email</label>
+                        <div class="input-wrapper">
+                            <i class="fa-regular fa-envelope field-icon"></i>
+                            <input type="text" id="email" name="email" placeholder="Nhập email hoặc tên tài khoản" required>
+                        </div>
+                        <span class="error-msg" id="emailError">Vui lòng nhập email hoặc tên đăng nhập.</span>
+                    </div>
+
+                    <div class="input-group" id="passGroup">
+                        <div class="form-label-row">
+                            <label for="password">Mật khẩu</label>
+                            <a href="forgot.html" class="forgot-pass-link">Quên mật khẩu?</a>
+                        </div>
+                        <div class="input-wrapper">
+                            <i class="fa-solid fa-lock field-icon"></i>
+                            <input type="password" id="password" name="password" placeholder="••••••••" required>
+                            <button type="button" class="btn-toggle-pass" onclick="togglePass('password', this)"
+                                    aria-label="Hiện/ẩn mật khẩu">
+                                <i class="fa-regular fa-eye"></i>
+                            </button>
+                        </div>
+                        <span class="error-msg" id="passError">Mật khẩu phải từ 6 ký tự trở lên.</span>
+                    </div>
+
+                    <div class="form-options">
+                        <label class="checkbox-container">
+                            <input type="checkbox" id="rememberMe" name="rememberMe">
+                            <span class="checkmark"></span>
+                            Ghi nhớ đăng nhập
+                        </label>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary btn-submit" id="btnSubmit">
+                        <span class="btn-text">Đăng nhập</span>
+                        <div class="spinner" id="btnSpinner"></div>
+                    </button>
+                </form>
+
+                <div class="auth-footer-text">
+                    Chưa có tài khoản? <a href="register.html">Tạo tài khoản mới</a>
+                </div>
+            </div>
+
         </div>
-    </main>
+    </div>
+</main>
 
-    <script src="../assets/js/auth.js"></script>
-
+<!-- auth.js chứa biến CTX, hàm logout, initAuth... -->
+<script src="../assets/js/auth.js"></script>
 <script src="../assets/js/popup.js"></script>
+
+<!-- Script kết nối Form với Servlet Backend -->
+<script>
+    document.getElementById('loginForm').addEventListener('submit', async e => {
+        e.preventDefault();
+
+        const emailInput = document.getElementById('email');
+        const passInput = document.getElementById('password');
+        const emailGroup = document.getElementById('emailGroup');
+        const passGroup = document.getElementById('passGroup');
+        const emailError = document.getElementById('emailError');
+
+        // Reset trạng thái lỗi giao diện
+        emailGroup.classList.remove('invalid');
+        passGroup.classList.remove('invalid');
+
+        // Validate nhanh ở Client
+        let isValid = true;
+        if (!emailInput.value.trim()) {
+            emailGroup.classList.add('invalid');
+            emailError.textContent = 'Vui lòng nhập email hoặc tên đăng nhập.';
+            isValid = false;
+        }
+        if (!passInput.value || passInput.value.length < 6) {
+            passGroup.classList.add('invalid');
+            isValid = false;
+        }
+
+        if (!isValid) return;
+
+        // Bắt đầu gửi dữ liệu sang Backend Servlet
+        try {
+            const res = await fetch((typeof CTX !== 'undefined' ? CTX : '') + '/login', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
+                },
+                body: new URLSearchParams(new FormData(e.target))
+            });
+
+            const data = await res.json();
+
+            if (data.ok) {
+                // Đăng nhập thành công -> Điều hướng theo role trả về từ Servlet
+                switch (data.role) {
+                    case 'ADMIN':
+                    case 'admin':
+                        location.href = (typeof CTX !== 'undefined' ? CTX : '') + '/pages/admin-orders.html';
+                        break;
+                    case 'ARTISAN':
+                    case 'artisan':
+                        location.href = (typeof CTX !== 'undefined' ? CTX : '') + '/pages/seller-dashboard.html';
+                        break;
+                    default:
+                        location.href = (typeof CTX !== 'undefined' ? CTX : '') + '/index.html';
+                        break;
+                }
+            } else {
+                // Đăng nhập thất bại -> Hiển thị thông báo lỗi từ Servlet (401 / 403 / 400)
+                emailGroup.classList.add('invalid');
+                emailError.textContent = data.message || 'Tài khoản hoặc mật khẩu không chính xác.';
+            }
+        } catch (ex) {
+            console.error('Lỗi kết nối:', ex);
+            emailGroup.classList.add('invalid');
+            emailError.textContent = 'Không kết nối được với máy chủ. Vui lòng thử lại!';
+        }
+    });
+</script>
 </body>
 
 </html>
-
