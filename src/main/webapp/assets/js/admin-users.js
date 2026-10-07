@@ -5,12 +5,35 @@ document.addEventListener("DOMContentLoaded", () => {
   const statusFilter = document.getElementById("statusFilter");
   const emptyState = document.getElementById("emptyUsers");
   const feedback = document.getElementById("userFeedback");
-  const roleLabels = { buyer: "Người mua", artisan: "Thợ thủ công" };
+  
+  const roleLabels = { buyer: "Người mua", seller: "Thợ thủ công", admin: "Admin" };
   const statusLabels = {
     active: "Đang hoạt động",
     pending: "Chờ duyệt",
-    suspended: "Tạm khóa"
+    locked: "Tạm khóa"
   };
+
+  let usersData = [];
+
+  function loadUsers() {
+    fetch('../api/admin/users?t=' + new Date().getTime())
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('Lỗi khi tải dữ liệu người dùng: ' + response.statusText);
+        }
+        return response.json();
+      })
+      .then(data => {
+        console.log("Dữ liệu Users nhận được từ API:", data);
+        usersData = data.users || [];
+        updateStats(data);
+        renderUsers();
+      })
+      .catch(error => {
+        console.error("Lỗi:", error);
+        feedback.textContent = "Lỗi khi tải dữ liệu. Vui lòng thử lại.";
+      });
+  }
 
   function createCell(content, className) {
     const cell = document.createElement("td");
@@ -25,7 +48,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const name = document.createElement("span");
     const email = document.createElement("span");
     name.className = "user-name";
-    name.textContent = user.fullName || "Chưa có tên";
+    name.textContent = user.name || "Chưa có tên";
     email.className = "user-email";
     email.textContent = user.email || "Chưa có email";
     content.append(name, email);
@@ -35,25 +58,27 @@ document.addEventListener("DOMContentLoaded", () => {
   function createProfileCell(user) {
     const content = document.createElement("div");
     content.className = "user-profile-summary";
-    content.textContent = user.introduction || "Chưa có thông tin giới thiệu.";
-
-    if (user.portfolio) {
-      try {
-        const portfolioUrl = new URL(user.portfolio);
-        if (portfolioUrl.protocol === "https:" || portfolioUrl.protocol === "http:") {
-          const link = document.createElement("a");
-          link.className = "user-portfolio";
-          link.href = portfolioUrl.href;
-          link.target = "_blank";
-          link.rel = "noopener noreferrer";
-          link.textContent = "Mở portfolio";
-          content.append(document.createElement("br"), link);
+    
+    if (user.role === 'seller') {
+        const desc = document.createElement("span");
+        desc.textContent = user.description ? user.description : (user.shopName ? `Cửa hàng: ${user.shopName}` : "Chưa cập nhật giới thiệu");
+        content.append(desc);
+        
+        if (user.shopId) {
+            content.append(document.createElement("br"));
+            const link = document.createElement("a");
+            link.className = "user-portfolio";
+            link.href = "shop-profile.html?id=" + user.shopId;
+            link.target = "_blank";
+            link.textContent = "Mở portfolio";
+            link.style.color = "var(--primary-blue)";
+            link.style.textDecoration = "underline";
+            link.style.fontSize = "13px";
+            content.append(link);
         }
-      } catch (error) {
-        // Ignore malformed portfolio links saved by older browser data.
-      }
+    } else {
+        content.textContent = "Khách hàng";
     }
-
     return content;
   }
 
@@ -74,52 +99,67 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     select.addEventListener("change", () => {
-      try {
-        if (!window.AuraCraftUsers.updateStatus(user.id, select.value)) {
-          throw new Error("Không tìm thấy tài khoản cần cập nhật.");
+      const newStatus = select.value;
+      fetch('../api/admin/users', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          userId: user.userId,
+          status: newStatus
+        })
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          feedback.textContent = `Đã cập nhật trạng thái cho ${user.email} thành công.`;
+          // Reload to update stats
+          loadUsers();
+        } else {
+          throw new Error(data.message || "Lỗi cập nhật");
         }
-        feedback.textContent = `Đã cập nhật trạng thái cho ${user.email}.`;
-        renderUsers();
-      } catch (error) {
-        feedback.textContent = error.message;
-        renderUsers();
-      }
+      })
+      .catch(err => {
+        feedback.textContent = `Cập nhật thất bại: ${err.message}`;
+        // Revert select back
+        select.value = user.status;
+      });
     });
 
     return select;
   }
 
-  function updateStats(users) {
-    document.getElementById("totalUsers").textContent = users.length;
-    document.getElementById("buyerUsers").textContent = users.filter((user) => user.role === "buyer").length;
-    document.getElementById("pendingArtisans").textContent = users.filter(
-      (user) => user.role === "artisan" && user.status === "pending"
-    ).length;
-    document.getElementById("suspendedUsers").textContent = users.filter((user) => user.status === "suspended").length;
+  function updateStats(data) {
+    document.getElementById("totalUsers").textContent = data.totalUsers || 0;
+    document.getElementById("buyerUsers").textContent = data.buyerUsers || 0;
+    document.getElementById("pendingArtisans").textContent = data.pendingArtisans || 0;
+    document.getElementById("suspendedUsers").textContent = data.suspendedUsers || 0;
   }
 
   function renderUsers() {
-    const users = window.AuraCraftUsers.getAll();
     const keyword = searchInput.value.trim().toLowerCase();
-    const visibleUsers = users
-      .filter((user) => {
-        const searchableText = `${user.fullName || ""} ${user.email || ""}`.toLowerCase();
-        return searchableText.includes(keyword)
-          && (roleFilter.value === "all" || user.role === roleFilter.value)
-          && (statusFilter.value === "all" || user.status === statusFilter.value);
-      })
-      .sort((first, second) => (second.createdAt || "").localeCompare(first.createdAt || ""));
+    
+    // Map artisan to seller for filtering to match DB roles
+    let currentRoleFilter = roleFilter.value;
+    if (currentRoleFilter === 'artisan') currentRoleFilter = 'seller';
 
-    updateStats(users);
+    const visibleUsers = usersData
+      .filter((user) => {
+        const searchableText = `${user.name || ""} ${user.email || ""}`.toLowerCase();
+        return searchableText.includes(keyword)
+          && (currentRoleFilter === "all" || user.role === currentRoleFilter)
+          && (statusFilter.value === "all" || user.status === statusFilter.value);
+      });
+
     tableBody.replaceChildren();
     visibleUsers.forEach((user) => {
       const row = document.createElement("tr");
       const role = document.createElement("span");
-      role.className = user.role === "artisan" ? "badge crafting" : "badge shipping";
+      role.className = user.role === "seller" ? "badge crafting" : (user.role === "admin" ? "badge cancel" : "badge shipping");
       role.textContent = roleLabels[user.role] || "Không xác định";
-      const createdAt = user.createdAt
-        ? new Intl.DateTimeFormat("vi-VN", { dateStyle: "medium" }).format(new Date(user.createdAt))
-        : "Không rõ";
+      
+      const createdAt = "N/A"; // Assuming we don't have creation date in this schema
 
       row.append(
         createCell(createAccountCell(user)),
@@ -137,6 +177,7 @@ document.addEventListener("DOMContentLoaded", () => {
   searchInput.addEventListener("input", renderUsers);
   roleFilter.addEventListener("change", renderUsers);
   statusFilter.addEventListener("change", renderUsers);
-  window.addEventListener("storage", renderUsers);
-  renderUsers();
+  
+  // Load initially
+  loadUsers();
 });
