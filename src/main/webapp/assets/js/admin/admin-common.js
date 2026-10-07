@@ -22,3 +22,33 @@ document.addEventListener("DOMContentLoaded", function() {
             }).catch(e => console.log('Lỗi tải sidebar:', e));
     }
 });
+
+// --- CÁC HÀM TIỆN ÍCH CHUNG CHO TOÀN BỘ TRANG ADMIN ---
+
+// Định dạng tiền tệ VNĐ
+window.formatMoney = function(value) {
+    if (!value && value !== 0) return "0 đ";
+    return Number(value).toLocaleString("vi-VN") + " đ";
+};
+
+// Định dạng ngày tháng
+window.formatDate = function(dateStr) {
+    if (!dateStr) return "N/A";
+    try {
+        var d = new Date(dateStr);
+        if (isNaN(d.getTime())) return dateStr;
+        return d.toLocaleDateString("vi-VN") + " - " +
+            d.toLocaleTimeString("vi-VN", { hour: "2-digit", minute: "2-digit" });
+    } catch (e) {
+        return dateStr;
+    }
+};
+
+// Xử lý chống XSS
+window.escapeHtml = function(text) {
+    if (!text) return "";
+    var div = document.createElement("div");
+    div.textContent = text;
+    return div.innerHTML;
+};
+
