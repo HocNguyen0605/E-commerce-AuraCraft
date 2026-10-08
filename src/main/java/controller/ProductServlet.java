@@ -14,7 +14,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-@WebServlet(urlPatterns = {"/products"})
+@WebServlet(urlPatterns = {"/pages/products", "/products"})
 public class ProductServlet extends HttpServlet {
     private static final int MAX_KEYWORD_LENGTH = 100;
     private static final int PAGE_SIZE = 12;
@@ -178,6 +178,7 @@ public class ProductServlet extends HttpServlet {
             request.setAttribute("pageEnd", 1);
         }
 
+        request.setAttribute("productListingReady", true);
         request.getRequestDispatcher("/pages/products.jsp").forward(request, response);
     }
 }

@@ -151,6 +151,7 @@
                         <p class="products-empty-state">Không tìm thấy sản phẩm phù hợp. Hãy thử thay đổi từ khóa hoặc
                             bộ lọc.</p>
                     </c:when>
+
                     <c:otherwise>
                         <c:forEach var="product" items="${products}">
                             <c:choose>

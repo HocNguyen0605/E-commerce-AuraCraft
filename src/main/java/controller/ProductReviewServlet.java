@@ -11,7 +11,7 @@ import jakarta.servlet.http.HttpSession;
 import java.io.IOException;
 import java.sql.SQLException;
 
-@WebServlet("/product-review")
+@WebServlet(urlPatterns = {"/pages/product-review", "/product-review"})
 public class ProductReviewServlet extends HttpServlet {
     private final ProductDAO productDAO = new ProductDAO();
 
@@ -39,7 +39,7 @@ public class ProductReviewServlet extends HttpServlet {
         } else if (userId == null || !isBuyer) {
             result = "login";
         }
-        response.sendRedirect(request.getContextPath() + "/product-detail?id=" + productId + "&review=" + result + "#reviews");
+        response.sendRedirect(request.getContextPath() + "/pages/product-detail?id=" + productId + "&review=" + result + "#reviews");
     }
 
     private int parseInt(String value) {

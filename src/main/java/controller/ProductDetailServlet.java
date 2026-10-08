@@ -12,7 +12,7 @@ import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
 
-@WebServlet(urlPatterns = {"/product-detail"})
+@WebServlet(urlPatterns = {"/pages/product-detail", "/product-detail"})
 public class ProductDetailServlet extends HttpServlet {
     private final ProductDAO productDAO = new ProductDAO();
 
@@ -45,10 +45,15 @@ public class ProductDetailServlet extends HttpServlet {
             String introduction = description == null ? "" : description.trim();
             if (introduction.length() > 180) introduction = introduction.substring(0, 177).trim() + "…";
             request.setAttribute("productIntroduction", introduction);
-            List<String> images = productDAO.findProductImages(id).stream()
-                    .map(path -> resolveImage(path, (Integer) product.get("categoryId")))
-                    .filter(path -> path != null).toList();
-            if (images.isEmpty()) images = fallbackImages((Integer) product.get("categoryId"));
+            int categoryId = (Integer) product.get("categoryId");
+            List<String> storedImages = productDAO.findProductImages(id);
+
+            List<String> images = new java.util.ArrayList<>();
+            for (String storedImage : storedImages) {
+                String image = resolveStoredImage(storedImage);
+                if (image != null && !images.contains(image)) images.add(image);
+            }
+            if (images.isEmpty()) images = fallbackImages(categoryId);
             request.setAttribute("productImages", images);
             request.setAttribute("reviews", productDAO.findProductReviews(id, 20));
             Object sessionUserId = request.getSession(false) == null ? null
@@ -66,10 +71,10 @@ public class ProductDetailServlet extends HttpServlet {
             List<Map<String, Object>> similarProducts = productDAO.findSimilarProducts(
                     id, (Integer) product.get("categoryId"), 8);
             for (Map<String, Object> similar : similarProducts) {
-                similar.put("image", resolveImage((String) similar.get("image"),
-                        (Integer) product.get("categoryId")));
+                similar.put("image", resolveImage((String) similar.get("image"), categoryId, 0));
             }
             request.setAttribute("similarProducts", similarProducts);
+            request.setAttribute("productDetailReady", true);
             request.getRequestDispatcher("/pages/product-detail.jsp").forward(request, response);
         } catch (SQLException exception) {
             getServletContext().log("Unable to load product details", exception);
@@ -78,7 +83,7 @@ public class ProductDetailServlet extends HttpServlet {
         }
     }
 
-    private String resolveImage(String storedPath, int categoryId) {
+    private String resolveImage(String storedPath, int categoryId, int fallbackIndex) {
         if (storedPath != null && (storedPath.startsWith("https://") || storedPath.startsWith("http://"))) {
             return storedPath;
         }
@@ -95,15 +100,24 @@ public class ProductDetailServlet extends HttpServlet {
             }
         }
         List<String> fallbacks = fallbackImages(categoryId);
-        return fallbacks.isEmpty() ? null : fallbacks.get(0);
+        return fallbacks.isEmpty() ? null : fallbacks.get(Math.floorMod(fallbackIndex, fallbacks.size()));
+    }
+
+    private String resolveStoredImage(String storedPath) {
+        if (storedPath == null || storedPath.isBlank()) return null;
+        if (storedPath.startsWith("https://") || storedPath.startsWith("http://")) return storedPath;
+
+        String path = storedPath.replace('\\', '/').replaceFirst("^/+", "");
+        String webPath = path.startsWith("assets/") ? path : "assets/img/" + path;
+        try {
+            return getServletContext().getResource("/" + webPath) == null
+                    ? null : getServletContext().getContextPath() + "/" + webPath;
+        } catch (IOException ignored) {
+            return null;
+        }
     }
 
     private List<String> fallbackImages(int categoryId) {
-        String folder = switch (categoryId) {
-            case 2 -> "necklace";
-            case 3 -> "phoneStrap";
-            default -> "bracelet";
-        };
         List<String> files = switch (categoryId) {
             case 2 -> List.of("necklace_02.jpg", "necklace_03.jpg", "necklace_04.jpg");
             case 3 -> List.of("phoneStrap_01.jpg", "phoneStrap_02.jpg", "phoneStrap_03.jpg");
@@ -111,8 +125,11 @@ public class ProductDetailServlet extends HttpServlet {
         };
         return files.stream().map(file -> getServletContext().getContextPath()
                 + "/assets/img/products/" + file).filter(url -> {
-                    try { return getServletContext().getResource(url.substring(getServletContext().getContextPath().length())) != null; }
-                    catch (IOException ignored) { return false; }
-                }).toList();
+            try {
+                return getServletContext().getResource(url.substring(getServletContext().getContextPath().length())) != null;
+            } catch (IOException ignored) {
+                return false;
+            }
+        }).toList();
     }
 }
