@@ -238,6 +238,17 @@ textarea.form-control {
     gap: 12px;
 }
 
+.checkout-products-error {
+    margin: 0;
+    padding: 14px;
+    border: 1px solid #e3b2a8;
+    border-radius: 8px;
+    background: #fff4f1;
+    color: #8d3428;
+    font-size: 14px;
+    line-height: 1.5;
+}
+
 .summary-product-thumb {
     width: 56px;
     height: 56px;
@@ -343,6 +354,97 @@ textarea.form-control {
 
 .checkout-guarantee i {
     color: var(--success-text);
+}
+
+.checkout-deposit-alert {
+    margin-top: 16px;
+    padding: 12px;
+    border: 1px solid #c6dafc;
+    border-radius: 8px;
+    background: #e8f0fe;
+    color: #1a73e8;
+    font-size: 13px;
+}
+
+.deposit-row {
+    margin-top: 4px;
+    padding-top: 14px;
+    border-top: 1px dashed var(--gray-light);
+    color: var(--primary-brown);
+    font-weight: 700;
+}
+
+.deposit-value {
+    color: var(--primary-blue);
+    font: 700 1.4rem var(--font-title);
+}
+
+.remaining-row {
+    padding-top: 4px;
+    color: var(--text-muted);
+    font-size: 13px;
+}
+
+.qr-payment-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 99999;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    background: rgb(0 0 0 / 60%);
+    backdrop-filter: blur(4px);
+}
+
+.qr-payment-card {
+    width: min(100%, 400px);
+    padding: 30px;
+    border-radius: 12px;
+    background: var(--white);
+    text-align: center;
+    font-family: var(--font-content);
+}
+
+.qr-payment-card h3 {
+    margin-bottom: 15px;
+    color: var(--primary-blue);
+    font-family: var(--font-title);
+}
+
+.qr-payment-card p {
+    margin-bottom: 20px;
+    color: var(--text-muted);
+}
+
+.qr-payment-card p strong {
+    color: var(--accent-gold);
+    font-size: 18px;
+}
+
+.qr-code-placeholder {
+    display: inline-block;
+    margin: 0 auto 20px;
+    padding: 20px;
+    border-radius: 8px;
+    background: var(--gray-light);
+}
+
+.qr-code-placeholder i {
+    color: #333;
+    font-size: 120px;
+}
+
+.qr-payment-actions {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+}
+
+.qr-payment-actions .btn {
+    padding: 10px 16px;
+    font-size: 14px;
+    white-space: nowrap;
 }
 
 
