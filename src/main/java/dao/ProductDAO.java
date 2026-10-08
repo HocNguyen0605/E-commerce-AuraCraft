@@ -98,6 +98,30 @@ public class ProductDAO {
         return reviews;
     }
 
+    public List<Integer> findReviewableOrders(int userId, int productId) throws SQLException {
+        String sql = "SELECT DISTINCT o.id FROM orders o JOIN account a ON a.id_user=o.id_user AND a.role='buyer' JOIN orderitems oi ON oi.id_order=o.id " +
+                "LEFT JOIN reviews r ON r.id_user=o.id_user AND r.id_product=oi.id_product AND r.id_order=o.id " +
+                "WHERE o.id_user=? AND oi.id_product=? AND o.status='completed' AND r.id IS NULL ORDER BY o.id DESC";
+        List<Integer> orderIds = new ArrayList<>();
+        try (Connection connection = DBConnection.getConnection(); PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setInt(1, userId); statement.setInt(2, productId);
+            try (ResultSet rs = statement.executeQuery()) { while (rs.next()) orderIds.add(rs.getInt("id")); }
+        }
+        return orderIds;
+    }
+
+    public boolean insertProductReview(int userId, int productId, int orderId, int rating, String comment) throws SQLException {
+        String sql = "INSERT INTO reviews (id_user,id_product,id_order,rating,comment) " +
+                "SELECT ?, oi.id_product, o.id, ?, ? FROM orders o JOIN account a ON a.id_user=o.id_user AND a.role='buyer' JOIN orderitems oi ON oi.id_order=o.id " +
+                "WHERE o.id=? AND o.id_user=? AND o.status='completed' AND oi.id_product=? " +
+                "AND NOT EXISTS (SELECT 1 FROM reviews r WHERE r.id_user=o.id_user AND r.id_product=oi.id_product AND r.id_order=o.id)";
+        try (Connection connection = DBConnection.getConnection(); PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setInt(1, userId); statement.setInt(2, rating); statement.setString(3, comment);
+            statement.setInt(4, orderId); statement.setInt(5, userId); statement.setInt(6, productId);
+            return statement.executeUpdate() == 1;
+        }
+    }
+
     public List<Map<String, Object>> findSimilarProducts(int productId, int categoryId, int limit) throws SQLException {
         String sql = "SELECT p.id,p.name,p.price,p.sold_count, " +
                 "(SELECT pi.url FROM productimages pi WHERE pi.id_product=p.id ORDER BY pi.id LIMIT 1) image, " +

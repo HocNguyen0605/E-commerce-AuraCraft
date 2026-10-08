@@ -1,6 +1,14 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <%@ taglib prefix="c" uri="jakarta.tags.core" %>
 <%@ taglib prefix="fmt" uri="jakarta.tags.fmt" %>
+<%
+    if (request.getAttribute("productDetailReady") == null) {
+        String target = request.getContextPath() + "/pages/product-detail";
+        if (request.getQueryString() != null && !request.getQueryString().isBlank()) target += "?" + request.getQueryString();
+        response.sendRedirect(response.encodeRedirectURL(target));
+        return;
+    }
+%>
 <!DOCTYPE html>
 <html lang="vi">
 
@@ -22,7 +30,7 @@
         .pd-gallery-main img {
             width: 100%;
             height: 100%;
-            object-fit: contain
+            /*object-fit: contain*/
         }
 
         .pd-thumb {
@@ -58,8 +66,8 @@
 <div id="header-placeholder"></div>
 <main class="container pd-wrap" data-context="${pageContext.request.contextPath}" data-id="${product.id}" data-category="<c:out value='${product.categoryName}'/>" data-shop="<c:out value='${product.shopName}'/>" data-database-cart="${databaseCartAvailable}">
     <nav class="breadcrumb" aria-label="Điều hướng">
-        <a href="${pageContext.request.contextPath}/products">Sản phẩm</a> /
-        <a href="${pageContext.request.contextPath}/products?category=${product.categoryId}&amp;categoryFilter=1"><c:out
+        <a href="${pageContext.request.contextPath}/pages/products">Sản phẩm</a> /
+        <a href="${pageContext.request.contextPath}/pages/products?category=${product.categoryId}&amp;categoryFilter=1"><c:out
                 value="${product.categoryName}"/></a> /
         <strong aria-current="page"><c:out value="${product.name}"/></strong>
     </nav>
@@ -77,8 +85,9 @@
                 <c:forEach items="${productImages}" var="image" varStatus="loop">
                     <button type="button"
                             class="pd-thumb${loop.first ? ' is-active' : ''}"
-                            data-image="${image}" aria-label="Xem ảnh ${loop.count}"
-                            style="background-image:url('${image}')"></button>
+                            data-image="${image}" aria-label="Xem ảnh ${loop.count}" aria-pressed="${loop.first}">
+                        <img src="${image}" alt="${product.name} — ảnh ${loop.count}" loading="lazy">
+                    </button>
                 </c:forEach>
             </div>
         </div>
@@ -124,7 +133,19 @@
                 </button>
             </div>
             <p id="pdActionMessage" role="status" aria-live="polite"></p>
-            <a href="${pageContext.request.contextPath}/pages/customizer.html?type=bracelet&amp;id=${product.id}"
+            <c:choose>
+                <c:when test="${product.categoryId eq 2}"><c:set var="customizerType" value="necklace"/></c:when>
+                <c:when test="${product.categoryId eq 3}"><c:set var="customizerType" value="charm"/></c:when>
+                <c:otherwise><c:set var="customizerType" value="bracelet"/></c:otherwise>
+            </c:choose>
+            <c:url var="customizerUrl" value="/pages/customizer.html">
+                <c:param name="type" value="${customizerType}"/>
+                <c:param name="id" value="${product.id}"/>
+                <c:param name="name" value="${product.name}"/>
+                <c:param name="shop" value="${product.shopName}"/>
+                <c:param name="context" value="${pageContext.request.contextPath}"/>
+            </c:url>
+            <a href="${customizerUrl}"
                class="custom-cta"><span class="custom-cta-icon">✎</span><span><strong>Tạo thiết kế tùy
                             chỉnh</strong><small>Kéo thả vật liệu, charm vào đúng vị trí mong
                             muốn</small></span></a>
@@ -185,7 +206,7 @@
             </c:otherwise>
         </c:choose>
         <c:if test="${not empty reviewableOrders}">
-            <form class="pd-review-form card" action="${pageContext.request.contextPath}/product-review" method="post">
+            <form class="pd-review-form card" action="${pageContext.request.contextPath}/pages/product-review" method="post">
                 <h3>Viết đánh giá của bạn</h3>
                 <input type="hidden" name="productId" value="${product.id}">
                 <label for="reviewOrder">Đơn hàng đã hoàn thành</label>
@@ -206,7 +227,7 @@
             <c:choose>
                 <c:when test="${not empty similarProducts}">
                     <c:forEach items="${similarProducts}" var="similar"><a class="shop-suggest-item"
-                                                                           href="${pageContext.request.contextPath}/product-detail?id=${similar.id}">
+                                                                           href="${pageContext.request.contextPath}/pages/product-detail?id=${similar.id}">
                         <c:choose>
                             <c:when test="${not empty similar.image}">
                                 <div class="shop-suggest-img"
@@ -269,10 +290,11 @@
         requestAnimationFrame(updateArrows);
     }
     document.querySelectorAll('.pd-thumb').forEach(b => b.addEventListener('click', () => {
-        document.querySelectorAll('.pd-thumb').forEach(x => x.classList.remove('is-active'));
+        document.querySelectorAll('.pd-thumb').forEach(x => { x.classList.remove('is-active'); x.setAttribute('aria-pressed', 'false'); });
         b.classList.add('is-active');
+        b.setAttribute('aria-pressed', 'true');
         const img = document.getElementById('pdMainImage');
-        if (img) img.src = b.dataset.image;
+        if (img) { img.src = b.dataset.image; img.alt = b.querySelector('img')?.alt || img.alt; }
     }));
     document.getElementById('qtyMinus')?.addEventListener('click', () => qty.value = Math.max(1, (+qty.value || 1) - 1));
     document.getElementById('qtyPlus')?.addEventListener('click', () => qty.value = Math.min(stock, (+qty.value || 1) + 1));
@@ -302,7 +324,7 @@
             cartItem.quantity = amount;
             localStorage.setItem('AuraCraftCheckoutCart', JSON.stringify([cartItem]));
             localStorage.setItem('AuraCraftCheckoutSource', root.dataset.databaseCart === 'true' ? 'database' : 'browser');
-            location.href = ctx + '/pages/checkout.html?fromCart=1';
+            location.href = ctx + '/pages/checkout?fromCart=1&productIds=' + encodeURIComponent(productId);
         } else {
             const shortName = name.length > 32 ? name.slice(0, 32).trimEnd() + '…' : name;
             window.alert('Đã thêm thành công ' + amountAdded + ' x ' + shortName + ' vào giỏ hàng.');
@@ -312,10 +334,10 @@
     document.getElementById('pdAddToCartBtn')?.addEventListener('click', () => addCart(false));
     document.getElementById('pdBuyNowBtn')?.addEventListener('click', () => addCart(true));
     fetch(ctx + '/components/header.html').then(r => r.text()).then(html => {
-        document.getElementById('header-placeholder').innerHTML = html.replace(/href="index\.html"/g, 'href="' + ctx + '/index.html"').replace(/href="\.\.\/products"/g, 'href="' + ctx + '/products"')
+        document.getElementById('header-placeholder').innerHTML = html.replace(/href="index\.html"/g, 'href="' + ctx + '/index.html"').replace(/href="pages\/products"/g, 'href="' + ctx + '/pages/products"').replace(/href="pages\/cart\.jsp"/g, 'href="' + ctx + '/pages/cart.jsp"').replace(/href="\.\.\/products"/g, 'href="' + ctx + '/pages/products"')
     });
     fetch(ctx + '/components/footer.html').then(r => r.text()).then(html => {
-        document.getElementById('footer-placeholder').innerHTML = html.replace(/href="index\.html"/g, 'href="' + ctx + '/index.html"').replace(/href="\.\.\/products"/g, 'href="' + ctx + '/products"')
+        document.getElementById('footer-placeholder').innerHTML = html.replace(/href="index\.html"/g, 'href="' + ctx + '/index.html"').replace(/href="pages\/products"/g, 'href="' + ctx + '/pages/products"').replace(/href="\.\.\/products"/g, 'href="' + ctx + '/pages/products"')
     });
 </script>
 <script src="${pageContext.request.contextPath}/assets/js/popup.js"></script>

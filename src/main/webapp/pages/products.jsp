@@ -3,8 +3,11 @@
 <%@ taglib prefix="fmt" uri="jakarta.tags.fmt" %>
 <%@ taglib prefix="fn" uri="jakarta.tags.functions" %>
 <%
-    if (request.getAttribute("databaseAvailable") == null) {
-        response.sendRedirect(request.getContextPath() + "/products");
+    if (request.getAttribute("productListingReady") == null) {
+        String target = request.getContextPath() + "/pages/products";
+        if (request.getQueryString() != null && !request.getQueryString().isBlank())
+            target += "?" + request.getQueryString();
+        response.sendRedirect(response.encodeRedirectURL(target));
         return;
     }
 %>
@@ -25,7 +28,7 @@
 
 <main class="products-page">
     <div class="container products-layout">
-        <form class="sidebar-filter" method="get" action="${pageContext.request.contextPath}/products">
+        <form class="sidebar-filter" method="get" action="${pageContext.request.contextPath}/pages/products">
             <input type="hidden" name="categoryFilter" value="1">
             <input type="hidden" name="sort" value="${sort}">
             <c:if test="${not empty keyword}"><input type="hidden" name="q" value="<c:out value='${keyword}'/>"/></c:if>
@@ -91,7 +94,7 @@
         <section class="products-main" aria-labelledby="products-title">
             <div class="products-header">
                 <h1 id="products-title">Tất cả sản phẩm</h1>
-                <form class="products-search" method="get" action="${pageContext.request.contextPath}/products">
+                <form class="products-search" method="get" action="${pageContext.request.contextPath}/pages/products">
                     <input type="hidden" name="sort" value="${sort}">
                     <c:forEach var="categoryId" items="${selectedCategories}">
                         <input type="hidden" name="category" value="${categoryId}">
@@ -106,7 +109,7 @@
                     <button type="submit" aria-label="Tìm kiếm"><i class="fa-solid fa-magnifying-glass"
                                                                    aria-hidden="true"></i></button>
                 </form>
-                <form class="sort-box" method="get" action="${pageContext.request.contextPath}/products">
+                <form class="sort-box" method="get" action="${pageContext.request.contextPath}/pages/products">
                     <c:forEach var="categoryId" items="${selectedCategories}">
                         <input type="hidden" name="category" value="${categoryId}">
                     </c:forEach>
@@ -150,6 +153,19 @@
                     </c:when>
                     <c:otherwise>
                         <c:forEach var="product" items="${products}">
+                            <c:choose>
+                                <c:when test="${product.categoryId eq 2}"><c:set var="customizerType" value="necklace"/></c:when>
+                                <c:when test="${product.categoryId eq 3}"><c:set var="customizerType"
+                                                                                 value="charm"/></c:when>
+                                <c:otherwise><c:set var="customizerType" value="bracelet"/></c:otherwise>
+                            </c:choose>
+                            <c:url var="customizerUrl" value="/pages/customizer.html">
+                                <c:param name="id" value="${product.id}"/>
+                                <c:param name="type" value="${customizerType}"/>
+                                <c:param name="name" value="${product.name}"/>
+                                <c:param name="shop" value="${product.shopName}"/>
+                                <c:param name="context" value="${pageContext.request.contextPath}"/>
+                            </c:url>
                             <c:set var="fallbackImage"
                                    value="${pageContext.request.contextPath}/assets/img/products/bracelet_01.jpg"/>
                             <c:if test="${product.categoryId eq 2}"><c:set var="fallbackImage"
@@ -158,7 +174,7 @@
                                                                            value="${pageContext.request.contextPath}/assets/img/products/phoneStrap_01.jpg"/></c:if>
                             <article class="product-card has-image">
                                 <a class="product-card-link"
-                                   href="${pageContext.request.contextPath}/product-detail?id=${product.id}"
+                                   href="${pageContext.request.contextPath}/pages/product-detail?id=${product.id}"
                                    aria-label="Xem chi tiết ${fn:escapeXml(product.name)}">
                                     <c:choose>
                                         <c:when test="${not empty product.image and fn:startsWith(product.image, 'http')}">
@@ -195,6 +211,7 @@
                                         <p class="product-sold">Đã bán <c:out value="${product.soldCount}"/></p>
                                     </div>
                                 </a>
+<%--                                <a class="product-customizer-link" href="${customizerUrl}">Tùy chỉnh sản phẩm</a>--%>
                             </article>
                         </c:forEach>
                     </c:otherwise>
@@ -202,7 +219,7 @@
             </div>
             <c:if test="${totalPages gt 1}">
                 <form class="products-pagination-form" method="get"
-                      action="${pageContext.request.contextPath}/products">
+                      action="${pageContext.request.contextPath}/pages/products">
                     <input type="hidden" name="categoryFilter" value="1">
                     <input type="hidden" name="sort" value="${sort}">
                     <c:if test="${not empty keyword}"><input type="hidden" name="q"
@@ -239,7 +256,7 @@
         .then(response => response.text())
         .then(html => {
             html = html.replace(/href="index\.html"/g, 'href="' + appContextPath + '/index.html"');
-            html = html.replace(/href="\.\.\/products"/g, 'href="' + appContextPath + '/products"');
+            html = html.replace(/href="pages\/products"/g, 'href="' + appContextPath + '/pages/products"').replace(/href="\.\.\/products"/g, 'href="' + appContextPath + '/pages/products"');
             document.getElementById('header-placeholder').innerHTML = html;
         })
         .catch(error => console.error('Không thể tải header:', error));
@@ -247,7 +264,7 @@
         .then(response => response.text())
         .then(html => {
             html = html.replace(/href="index\.html"/g, 'href="' + appContextPath + '/index.html"');
-            html = html.replace(/href="\.\.\/products"/g, 'href="' + appContextPath + '/products"');
+            html = html.replace(/href="pages\/products"/g, 'href="' + appContextPath + '/pages/products"').replace(/href="\.\.\/products"/g, 'href="' + appContextPath + '/pages/products"');
             document.getElementById('footer-placeholder').innerHTML = html;
         })
         .catch(error => console.error('Không thể tải footer:', error));
