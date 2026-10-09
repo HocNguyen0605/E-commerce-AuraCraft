@@ -3,6 +3,11 @@ document.addEventListener("DOMContentLoaded", () => {
   if (checkoutForm) {
     const customOrderId = new URLSearchParams(window.location.search).get("orderId");
     const customOrder = customOrderId && window.AuraCraftCustom.getOrder(customOrderId);
+    let checkoutCart = [];
+    try { checkoutCart = JSON.parse(localStorage.getItem("AuraCraftCheckoutCart") || "[]"); } catch { checkoutCart = []; }
+    const cartCheckoutMode = !customOrder && (new URLSearchParams(window.location.search).get("fromCart") === "1"
+      || checkoutCart.length > 0 || Boolean(checkoutForm.dataset.productIds));
+    const cartSubtotal = checkoutCart.reduce((sum, item) => sum + Number(item.price || 0) * Number(item.quantity || 1), 0);
     const customAmountDue = customOrder && customOrder.paymentStatus === "adjustment_due"
       ? Math.abs(customOrder.priceDifference)
       : customOrder && customOrder.price;
@@ -44,6 +49,55 @@ document.addEventListener("DOMContentLoaded", () => {
       document.querySelector(".checkout-breadcrumb .active").textContent = "Thanh toán đơn Custom";
     }
 
+    if (!customOrder && checkoutForm.dataset.databaseCheckout === "true") {
+      const serverItems = document.querySelectorAll("#summaryProductsList .summary-product-item");
+      if (!serverItems.length) {
+        const localIds = checkoutCart.map(item => Number(item.id)).filter(id => Number.isInteger(id) && id > 0);
+        if (!checkoutForm.dataset.productIds && localIds.length) {
+          const url = new URL(checkoutForm.dataset.context + "/pages/checkout", window.location.origin);
+          url.searchParams.set("fromCart", "1");
+          url.searchParams.set("productIds", localIds.join(","));
+          window.location.replace(url.href);
+          return;
+        }
+        const warning = document.createElement("p");
+        warning.className = "checkout-products-error";
+        warning.setAttribute("role", "alert");
+        warning.textContent = "Không tải được sản phẩm đã chọn từ giỏ hàng. Hãy quay lại giỏ và chọn sản phẩm cần thanh toán.";
+        document.querySelector(".summary-products-list").replaceChildren(warning);
+        document.getElementById("btnConfirmOrder").disabled = true;
+        return;
+      }
+    }
+
+    if (cartCheckoutMode) {
+      const databaseProductIds = checkoutForm.dataset.productIds || "";
+      if (!checkoutCart.length && !(checkoutForm.dataset.databaseCheckout === "true" && databaseProductIds)) {
+        checkoutForm.hidden = true;
+        alert("Giỏ hàng chưa có sản phẩm được chọn.");
+        window.location.href = "cart.jsp";
+        return;
+      }
+      if (checkoutForm.dataset.databaseCheckout !== "true") {
+        const list = document.querySelector(".summary-products-list");
+        list.replaceChildren(...checkoutCart.map(item => {
+          const row = document.createElement("div"); row.className = "summary-product-item";
+          const image = document.createElement("img"); image.className = "summary-product-thumb"; image.src = item.image || "../assets/img/products/bracelet_01.jpg"; image.alt = item.name || "Sản phẩm";
+          const details = document.createElement("div"); details.className = "summary-product-details";
+          const name = document.createElement("h3"); name.className = "summary-product-title"; name.textContent = item.name || "Sản phẩm AuraCraft";
+          const meta = document.createElement("p"); meta.className = "summary-product-meta"; meta.textContent = `Số lượng: ${Number(item.quantity || 1)}`;
+          details.append(name, meta);
+          const price = document.createElement("span"); price.className = "summary-product-price"; price.textContent = `${(Number(item.price || 0) * Number(item.quantity || 1)).toLocaleString("vi-VN")}đ`;
+          row.append(image, details, price); return row;
+        }));
+        const sellerCount = Math.max(1, new Set(checkoutCart.map(item => item.shopName).filter(Boolean)).size);
+        const shipping = 25300 * sellerCount;
+        document.getElementById("summarySubtotal").textContent = `${cartSubtotal.toLocaleString("vi-VN")}đ`;
+        document.getElementById("summaryShipping").textContent = `${shipping.toLocaleString("vi-VN")}đ`;
+        document.getElementById("summaryTotal").textContent = `${(cartSubtotal + shipping).toLocaleString("vi-VN")}đ`;
+      }
+    }
+
     const hasCustomItem = Array.from(document.querySelectorAll('.summary-product-title')).some(el => el.textContent.toLowerCase().includes('custom')) || !!customOrder;
 
 
@@ -52,6 +106,8 @@ document.addEventListener("DOMContentLoaded", () => {
     
     function updateDepositUI(radio) {
         if (!hasCustomItem) return;
+        const depositAlert = document.getElementById('customDepositAlert');
+        depositAlert.hidden = false;
         let totalStr = document.getElementById('summaryTotal') ? document.getElementById('summaryTotal').textContent.replace(/\D/g, '') : "415300";
         if (customOrder) totalStr = (customAmountDue + 25300).toString();
         let totalVal = parseInt(totalStr);
@@ -60,14 +116,14 @@ document.addEventListener("DOMContentLoaded", () => {
         
         if (radio.value === 'vnpay') {
             // Thanh toán 100%
-            document.getElementById('depositRow').style.display = 'none';
-            document.getElementById('remainingRow').style.display = 'none';
+            document.getElementById('depositRow').hidden = true;
+            document.getElementById('remainingRow').hidden = true;
             if (btnConfirmText) btnConfirmText.textContent = 'Thanh toán trực tuyến (100%)';
             document.getElementById('customDepositAlert').innerHTML = '<i class="fa-solid fa-circle-exclamation"></i> Sản phẩm Custom yêu cầu thanh toán 100% khi chọn VNPay.';
         } else {
             // COD - Cọc 50%
-            document.getElementById('depositRow').style.display = 'flex';
-            document.getElementById('remainingRow').style.display = 'flex';
+            document.getElementById('depositRow').hidden = false;
+            document.getElementById('remainingRow').hidden = false;
             let depositVal = totalVal / 2;
             let remainingVal = totalVal - depositVal;
             document.getElementById('summaryDeposit').textContent = depositVal.toLocaleString('vi-VN') + 'đ';
@@ -93,7 +149,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (checkedRadio) updateDepositUI(checkedRadio);
 
     // Submit form đặt hàng
-    checkoutForm.addEventListener("submit", (e) => {
+    checkoutForm.addEventListener("submit", async (e) => {
       e.preventDefault();
 
       const fullName = document.getElementById("fullName");
@@ -138,6 +194,64 @@ document.addEventListener("DOMContentLoaded", () => {
         const firstInvalid = document.querySelector(".form-group.invalid");
         if (firstInvalid) {
           firstInvalid.scrollIntoView({ behavior: "smooth", block: "center" });
+        }
+        return;
+      }
+
+      // Signed-in buyers submit the selected cart item IDs to the server. Product names,
+      // prices, stock and quantities are reloaded from the database before orders are saved.
+      if (checkoutForm.dataset.databaseCheckout === "true" && !customOrder) {
+        const productIds = (checkoutForm.dataset.productIds || "").split(",").map(id => Number(id)).filter(id => Number.isInteger(id) && id > 0);
+        const button = document.getElementById("btnConfirmOrder");
+        button.disabled = true;
+        button.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Đang tạo đơn hàng...';
+        try {
+          const response = await fetch(checkoutForm.dataset.context + "/pages/checkout", {
+            method: "POST",
+            headers: { "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8", "Accept": "application/json" },
+            signal: AbortSignal.timeout(20000),
+            body: new URLSearchParams({
+              productIds: productIds.join(","),
+              fullName: fullName.value.trim(),
+              phone: phone.value.trim(),
+              address: address.value.trim(),
+              note: note ? note.value.trim() : "",
+              paymentMethod: document.querySelector('input[name="paymentMethod"]:checked')?.value || "cod"
+            })
+          });
+          const result = await response.json();
+          if (!response.ok) throw new Error(result.message || "Không thể tạo đơn hàng.");
+
+          const total = Number(result.total || 0);
+          const subtotal = Number(result.subtotal || 0);
+          const shipping = Number(result.shipping || 0);
+          const method = result.paymentMethod === "VNPay"
+            ? "VNPay (đơn đang chờ thanh toán)"
+            : "Thanh toán khi nhận hàng (COD)";
+          sessionStorage.setItem("auracraft_latest_order", JSON.stringify({
+            orderId: "#AC-" + result.orderId,
+            orderIds: result.orderIds,
+            fullName: fullName.value.trim(), phone: phone.value.trim(),
+            address: address.value.trim(), note: note ? note.value.trim() : "",
+            paymentMethod: method,
+            shippingFee: shipping.toLocaleString("vi-VN") + "đ",
+            subtotal: subtotal.toLocaleString("vi-VN") + "đ",
+            total: total.toLocaleString("vi-VN") + "đ",
+            createdAt: new Date().toLocaleString("vi-VN")
+          }));
+          const boughtIds = new Set(productIds.map(String));
+          try {
+            const localCart = JSON.parse(localStorage.getItem("AuraCraftCart") || "[]");
+            localStorage.setItem("AuraCraftCart", JSON.stringify(localCart.filter(item => !boughtIds.has(String(item.id)))));
+          } catch (_) { }
+          localStorage.removeItem("AuraCraftCheckoutCart");
+          localStorage.removeItem("AuraCraftCheckoutSource");
+          sessionStorage.removeItem("AuraCraftCartSelected");
+          window.location.href = checkoutForm.dataset.context + "/pages/success.html?orderId=" + encodeURIComponent("#AC-" + result.orderId);
+        } catch (error) {
+          window.alert(error.message);
+          button.disabled = false;
+          button.innerHTML = '<span id="btnConfirmText">Xác nhận đặt hàng</span><i class="fa-solid fa-arrow-right"></i>';
         }
         return;
       }
@@ -196,7 +310,7 @@ document.addEventListener("DOMContentLoaded", () => {
               paymentStatus: result.order.paymentStatus
             };
             sessionStorage.setItem("auracraft_latest_order", JSON.stringify(customOrderData));
-            window.location.href = `success.html?orderId=${encodeURIComponent(result.order.id)}`;
+            window.location.href = `${checkoutForm.dataset.context || ""}/pages/success.html?orderId=${encodeURIComponent(result.order.id)}`;
           } catch (error) {
             alert(error.message);
           }
@@ -221,8 +335,8 @@ document.addEventListener("DOMContentLoaded", () => {
           note: note ? note.value.trim() : "",
           paymentMethod: paymentMethodText,
           shippingFee: "25.300đ",
-          subtotal: "390.000đ",
-          total: "415.300đ",
+          subtotal: `${(cartCheckoutMode ? cartSubtotal : 390000).toLocaleString("vi-VN")}đ`,
+          total: `${(cartCheckoutMode ? cartSubtotal + 25300 : 415300).toLocaleString("vi-VN")}đ`,
           paid: (hasCustomItemSubmit && !isVNPay) ? `${depositToPay.toLocaleString("vi-VN")}đ` : undefined,
           remaining: (hasCustomItemSubmit && !isVNPay) ? `${depositToPay.toLocaleString("vi-VN")}đ` : undefined,
           createdAt: new Date().toLocaleString("vi-VN"),
@@ -233,54 +347,34 @@ document.addEventListener("DOMContentLoaded", () => {
           JSON.stringify(orderData),
         );
 
+        if (cartCheckoutMode) {
+          const checkedOutIds = new Set(checkoutCart.map(item => String(item.id)));
+          const currentCart = JSON.parse(localStorage.getItem("AuraCraftCart") || "[]");
+          localStorage.setItem("AuraCraftCart", JSON.stringify(currentCart.filter(item => !checkedOutIds.has(String(item.id)))));
+          if (localStorage.getItem("AuraCraftCheckoutSource") === "database") {
+            fetch(new URL("../api/cart", window.location.href), {
+              method: "POST",
+              headers: { "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8" },
+              body: new URLSearchParams({ action: "remove-many", productIds: [...checkedOutIds].join(",") })
+            }).catch(error => console.error("Could not sync checked out items with database cart", error));
+          }
+          localStorage.removeItem("AuraCraftCheckoutCart");
+          localStorage.removeItem("AuraCraftCheckoutSource");
+        }
+
         setTimeout(() => {
-          window.location.href = `success.html?orderId=${encodeURIComponent(virtualOrderId)}`;
+          window.location.href = `${checkoutForm.dataset.context || ""}/pages/success.html?orderId=${encodeURIComponent(virtualOrderId)}`;
         }, 400);
       }
 
-      if (depositToPay > 0) {
-          // Hiển thị modal QR cho cả Custom cọc 50% HOẶC thanh toán VNPay 100%
-          const qrModal = document.getElementById('qrPaymentModal');
-          if (qrModal) {
-              const modalTitle = qrModal.querySelector('h3');
-              if (modalTitle) {
-                  modalTitle.textContent = hasCustomItemSubmit && !isVNPay ? 'Thanh toán cọc 50% qua Mã QR' : 'Thanh toán qua Mã QR (VNPay)';
-              }
-              document.getElementById('qrDepositAmount').textContent = depositToPay.toLocaleString('vi-VN') + 'đ';
-              qrModal.style.display = 'flex';
-              
-              // Remove old event listeners by replacing nodes
-              const btnSuccess = document.getElementById('btnSuccessQr');
-              const btnCancel = document.getElementById('btnCancelQr');
-              
-              const newSuccess = btnSuccess.cloneNode(true);
-              const newCancel = btnCancel.cloneNode(true);
-              btnSuccess.parentNode.replaceChild(newSuccess, btnSuccess);
-              btnCancel.parentNode.replaceChild(newCancel, btnCancel);
-              
-              newCancel.addEventListener('click', () => {
-                  qrModal.style.display = 'none';
-                  processCheckoutFinal(false);
-              });
-              
-              newSuccess.addEventListener('click', () => {
-                  qrModal.style.display = 'none';
-                  const btnConfirm = document.getElementById("btnConfirmOrder");
-                  if (btnConfirm) {
-                    btnConfirm.disabled = true;
-                    btnConfirm.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Đang xử lý...';
-                  }
-                  processCheckoutFinal(true);
-              });
-          }
-      } else {
-          const btnConfirm = document.getElementById("btnConfirmOrder");
-          if (btnConfirm) {
-            btnConfirm.disabled = true;
-            btnConfirm.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Đang tạo đơn hàng...';
-          }
-          processCheckoutFinal(true);
+      const btnConfirm = document.getElementById("btnConfirmOrder");
+      if (btnConfirm) {
+        btnConfirm.disabled = true;
+        btnConfirm.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Đang tạo đơn hàng...';
       }
+      // This storefront uses a simulated payment step. Once the buyer confirms,
+      // finish the order flow and navigate to the success page without another QR dialog.
+      processCheckoutFinal(true);
     });
   }
 
