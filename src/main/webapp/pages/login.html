@@ -136,22 +136,16 @@
             });
 
             const data = await res.json();
-
             if (data.ok) {
-                // Đăng nhập thành công -> Điều hướng theo role trả về từ Servlet
-                switch (data.role) {
-                    case 'ADMIN':
-                    case 'admin':
-                        location.href = (typeof CTX !== 'undefined' ? CTX : '') + '/pages/admin-orders.html';
-                        break;
-                    case 'ARTISAN':
-                    case 'artisan':
-                        location.href = (typeof CTX !== 'undefined' ? CTX : '') + '/pages/seller-dashboard.html';
-                        break;
-                    default:
-                        location.href = (typeof CTX !== 'undefined' ? CTX : '') + '/index.html';
-                        break;
-                }
+                const base = (typeof CTX !== 'undefined' ? CTX : '');
+                const role = String(data.role || '').toLowerCase();
+
+                const routes = {
+                    admin:  '/pages/admin-user.jsp',
+                    seller: '/pages/seller/seller-dashboard.html'
+                };
+
+                location.href = base + (routes[role] || '/index.html');
             } else {
                 // Đăng nhập thất bại -> Hiển thị thông báo lỗi từ Servlet (401 / 403 / 400)
                 emailGroup.classList.add('invalid');

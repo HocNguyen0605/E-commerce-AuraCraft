@@ -39,17 +39,11 @@ public class LoginServlet extends HttpServlet {
 
         try {
             AccountInfoDTO acc = dao.findByEmail(email);
-            System.out.println("DEBUG ACC -> Email: " + email + " | Found: " + (acc != null) +
-                    " | Hash: " + (acc != null ? acc.passwordHash : "null") +
-                    " | Provider: " + (acc != null ? acc.provider : "null"));
 
             if (acc != null && (acc.passwordHash == null || "google".equals(acc.provider))) {
                 send(resp, 401, false, "Tài khoản này đăng nhập bằng Google", null, null);
                 return;
             }
-            // Cùng một thông báo cho "không có email" và "sai mật khẩu"
-            System.out.println("DEBUG INPUT -> Pass nhận từ Form: [" + password + "]");
-            System.out.println("DEBUG MATCH -> Kế quả BCrypt: " + BCrypt.checkpw(password, acc.passwordHash));
             if (acc == null || !checkPassword(password, acc.passwordHash)) {
                 send(resp, 401, false, "Email hoặc mật khẩu không đúng", null, null);
                 return;
