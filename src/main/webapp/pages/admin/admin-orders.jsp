@@ -10,11 +10,11 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <!-- Styles -->
-    <link rel="stylesheet" href="../assets/css/style.css">
-    <link rel="stylesheet" href="../assets/css/header-footer.css">
-    <link rel="stylesheet" href="../assets/css/pages/styleOrders.css">
-    <link rel="stylesheet" href="../assets/css/pages/styleAdminOrders.css">
-    <link rel="stylesheet" href="../assets/css/admin-layout.css">
+    <link rel="stylesheet" href="../../assets/css/style.css">
+    <link rel="stylesheet" href="../../assets/css/header-footer.css">
+    <link rel="stylesheet" href="../../assets/css/pages/styleOrders.css">
+    <link rel="stylesheet" href="../../assets/css/pages/styleAdminOrders.css">
+    <link rel="stylesheet" href="../../assets/css/admin-layout.css">
 </head>
 <body>
 <div class="admin-wrapper">
@@ -171,8 +171,8 @@
 </div>
 
 <!-- Scripts -->
-<script src="../assets/js/admin/admin-common.js"></script>
-<script src="../assets/js/admin/admin-orders.js"></script>
-<script src="../assets/js/popup.js"></script>
+<script src="../../assets/js/admin/admin-common.js"></script>
+<script src="../../assets/js/admin/admin-orders.js"></script>
+<script src="../../assets/js/popup.js"></script>
 </body>
 </html>

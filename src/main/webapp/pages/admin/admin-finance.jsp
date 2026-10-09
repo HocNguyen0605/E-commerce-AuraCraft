@@ -13,9 +13,9 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
     <!-- Styles -->
-    <link rel="stylesheet" href="../assets/css/style.css">
-    <link rel="stylesheet" href="../assets/css/admin-layout.css">
-    <link rel="stylesheet" href="../assets/css/pages/styleAdminFinance.css">
+    <link rel="stylesheet" href="../../assets/css/style.css">
+    <link rel="stylesheet" href="../../assets/css/admin-layout.css">
+    <link rel="stylesheet" href="../../assets/css/pages/styleAdminFinance.css">
 </head>
 <body>
 <div class="admin-wrapper">
@@ -161,9 +161,9 @@
 </div>
 
 <!-- Scripts -->
-<script src="../assets/js/admin/admin-common.js"></script>
-<script src="../assets/js/admin/admin-finance.js"></script>
-<script src="../assets/js/popup.js"></script>
+<script src="../../assets/js/admin/admin-common.js"></script>
+<script src="../../assets/js/admin/admin-finance.js"></script>
+<script src="../../assets/js/popup.js"></script>
 </body>
 </html>
 

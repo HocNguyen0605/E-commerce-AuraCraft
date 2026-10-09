@@ -34,3 +34,19 @@ function whenReady(selector, cb) {
     }
   });
 })();
+
+window.CTX = window.CTX || ('/' + location.pathname.split('/')[1]);
+document.addEventListener('click', e => {
+  const home = e.target.closest('[data-home]');
+  if (home) {
+    e.preventDefault();
+    location.href = window.CTX + '/index.html';
+    return;
+  }
+  const out = e.target.closest('[data-logout]');
+  if (out) {
+    e.preventDefault();
+    fetch(window.CTX + '/logout', { method: 'POST' })
+        .finally(() => location.href = window.CTX + '/index.html');
+  }
+});
