@@ -2,7 +2,8 @@
 document.addEventListener("DOMContentLoaded", function() {
     const sidebarPlaceholder = document.getElementById('admin-sidebar-placeholder');
     if (sidebarPlaceholder) {
-        fetch('../components/admin-sidebar.html')
+        const CTX = location.pathname.split('/')[1] ? '/' + location.pathname.split('/')[1] : '';
+        fetch(CTX + '/components/admin-sidebar.html')
             .then(response => response.text())
             .then(data => {
                 sidebarPlaceholder.outerHTML = data;
@@ -51,4 +52,18 @@ window.escapeHtml = function(text) {
     div.textContent = text;
     return div.innerHTML;
 };
-
+window.CTX = window.CTX || ('/' + location.pathname.split('/')[1]);
+document.addEventListener('click', e => {
+    const home = e.target.closest('[data-home]');
+    if (home) {
+        e.preventDefault();
+        location.href = window.CTX + '/index.html';
+        return;
+    }
+    const out = e.target.closest('[data-logout]');
+    if (out) {
+        e.preventDefault();
+        fetch(window.CTX + '/logout', { method: 'POST' })
+            .finally(() => location.href = window.CTX + '/index.html');
+    }
+});
