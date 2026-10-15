@@ -1,3 +1,4 @@
+<%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <!DOCTYPE html>
 <html lang="vi">
 <head>
@@ -19,7 +20,7 @@
                 <p class="hero-subtitle">Nền tảng thương mại điện tử kết nối người mua và thợ thủ công.<br>Khám phá hàng ngàn sản phẩm handmade hoặc tự tay thiết kế món đồ mang đậm dấu ấn cá nhân.</p>
                 <div class="hero-buttons">
                     <a href="#featured" class="btn btn-primary">Mua sắm ngay</a>
-                    <a href="pages/buyer-request-form.html" class="btn btn-outline">Tạo Yêu Cầu Custom</a>
+                    <a href="pages/buyer-request-form.jsp" class="btn btn-outline">Tạo Yêu Cầu Custom</a>
                 </div>
             </div>
         </section>
@@ -63,7 +64,7 @@
                         <li><i class="fa-solid fa-check"></i> Tùy chỉnh vị trí và số lượng theo ý thích</li>
                         <li><i class="fa-solid fa-check"></i> Tính giá cơ sở tự động, minh bạch</li>
                     </ul>
-                    <a href="pages/customizer.html" class="btn btn-primary mt-4">Bắt đầu thiết kế ngay</a>
+                    <a href="pages/customizer.jsp" class="btn btn-primary mt-4">Bắt đầu thiết kế ngay</a>
                 </div>
                 <div class="custom-image">
                     <img src="https://images.unsplash.com/photo-1611591437281-460bfbe1220a?q=80&w=800&auto=format&fit=crop" alt="Thiết kế trang sức Custom">
@@ -75,7 +76,7 @@
             <div class="container">
                 <h2 class="section-title">Sản phẩm nổi bật</h2>
                 <div class="product-grid">
-                    <div class="product-card has-image" onclick="window.location.href='pages/product-detail.html'" style="cursor: pointer;">
+                    <div class="product-card has-image" onclick="window.location.href='pages/product-detail.jsp'" style="cursor: pointer;">
                         <img src="https://myumemories.com/wp-content/uploads/2026/01/z7461915860226_00fb3ad756b0b24c78c89caf38ad44ba-768x512.jpg" alt="Vòng tay hạt gỗ thơm & Charm bạc">
                         <div class="product-info">
                             <h3>Vòng tay hạt gỗ thơm & Charm bạc</h3>

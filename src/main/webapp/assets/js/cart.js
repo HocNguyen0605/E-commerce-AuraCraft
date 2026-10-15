@@ -144,9 +144,9 @@ document.addEventListener("DOMContentLoaded", () => {
   }).catch(error => window.alert(error.message));
 
   fetch(context + "/components/header.html").then(r => r.text()).then(html => {
-    document.getElementById("header-placeholder").innerHTML = html.replace(/href="index\.html"/g, 'href="' + context + '/index.html"');
+    document.getElementById("header-placeholder").innerHTML = html.replace(/href="index\.html"/g, 'href="' + context + '/index.jsp"');
   });
   fetch(context + "/components/footer.html").then(r => r.text()).then(html => {
-    document.getElementById("footer-placeholder").innerHTML = html.replace(/href="index\.html"/g, 'href="' + context + '/index.html"');
+    document.getElementById("footer-placeholder").innerHTML = html.replace(/href="index\.html"/g, 'href="' + context + '/index.jsp"');
   });
 });

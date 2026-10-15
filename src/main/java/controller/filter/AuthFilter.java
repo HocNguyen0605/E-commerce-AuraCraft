@@ -15,7 +15,7 @@ public class AuthFilter implements Filter {
         HttpServletRequest req = (HttpServletRequest) request;
         HttpServletResponse resp = (HttpServletResponse) response;
 
-        // đường dẫn không gồm context path, vd: /pages/seller/seller-dashboard.html
+        // đường dẫn không gồm context path, vd: /pages/seller/seller-dashboard.jsp
         String path = req.getRequestURI().substring(req.getContextPath().length());
 
         boolean isAdminPage  = path.startsWith("/pages/admin/") || path.startsWith("/pages/admin-");
@@ -29,7 +29,7 @@ public class AuthFilter implements Filter {
 
         HttpSession session = req.getSession(false);
         if (session == null || session.getAttribute("userId") == null) {
-            resp.sendRedirect(req.getContextPath() + "/pages/login.html");
+            resp.sendRedirect(req.getContextPath() + "/pages/login.jsp");
             return;
         }
 
@@ -38,7 +38,7 @@ public class AuthFilter implements Filter {
         boolean isSeller = role.equals("seller") || role.equals("artisan");
 
         if ((isAdminPage && !isAdmin) || (isSellerPage && !isSeller && !isAdmin)) {
-            resp.sendRedirect(req.getContextPath() + "/index.html");
+            resp.sendRedirect(req.getContextPath() + "/index.jsp");
             return;
         }
 

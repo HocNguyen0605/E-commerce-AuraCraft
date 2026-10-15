@@ -256,7 +256,7 @@
     fetch(appContextPath + '/components/header.html')
         .then(response => response.text())
         .then(html => {
-            html = html.replace(/href="index\.html"/g, 'href="' + appContextPath + '/index.html"');
+            html = html.replace(/href="index\.html"/g, 'href="' + appContextPath + '/index.jsp"');
             html = html.replace(/href="pages\/products"/g, 'href="' + appContextPath + '/pages/products"').replace(/href="\.\.\/products"/g, 'href="' + appContextPath + '/pages/products"');
             document.getElementById('header-placeholder').innerHTML = html;
         })
@@ -264,7 +264,7 @@
     fetch(appContextPath + '/components/footer.html')
         .then(response => response.text())
         .then(html => {
-            html = html.replace(/href="index\.html"/g, 'href="' + appContextPath + '/index.html"');
+            html = html.replace(/href="index\.html"/g, 'href="' + appContextPath + '/index.jsp"');
             html = html.replace(/href="pages\/products"/g, 'href="' + appContextPath + '/pages/products"').replace(/href="\.\.\/products"/g, 'href="' + appContextPath + '/pages/products"');
             document.getElementById('footer-placeholder').innerHTML = html;
         })
@@ -307,5 +307,7 @@
     syncSelectAllCategories();
 </script>
 <script src="${pageContext.request.contextPath}/assets/js/popup.js"></script>
+<script src="${pageContext.request.contextPath}/assets/js/auth.js"></script>
+
 </body>
 </html>

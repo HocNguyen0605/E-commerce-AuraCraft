@@ -1,3 +1,5 @@
+<%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
+
 <!DOCTYPE html>
 <html lang="vi">
 
@@ -47,7 +49,7 @@
         <div class="seller-quote">
           <div class="quote-price">110.000 ₫</div>
           <button type="button" class="btn btn-primary btn-sm quote-choose-btn">Chọn thợ này</button>
-          <a href="chat-buyer.html" class="btn btn-outline btn-sm quote-chat-btn"
+          <a href="chat-buyer.jsp" class="btn btn-outline btn-sm quote-chat-btn"
              style="text-decoration:none; display:inline-block; text-align:center; padding: 0.25rem 0.5rem; line-height: 1.5;">💬
             Nhắn tin với thợ</a>
         </div>
@@ -73,7 +75,7 @@
         <div class="seller-quote">
           <div class="quote-price">125.000 ₫</div>
           <button type="button" class="btn btn-primary btn-sm quote-choose-btn">Chọn thợ này</button>
-          <a href="chat-buyer.html" class="btn btn-outline btn-sm quote-chat-btn"
+          <a href="chat-buyer.jsp" class="btn btn-outline btn-sm quote-chat-btn"
              style="text-decoration:none; display:inline-block; text-align:center; padding: 0.25rem 0.5rem; line-height: 1.5;">💬
             Nhắn tin với thợ</a>
         </div>
@@ -99,7 +101,7 @@
         <div class="seller-quote">
           <div class="quote-price">105.000 ₫</div>
           <button type="button" class="btn btn-primary btn-sm quote-choose-btn">Chọn thợ này</button>
-          <a href="chat-buyer.html" class="btn btn-outline btn-sm quote-chat-btn"
+          <a href="chat-buyer.jsp" class="btn btn-outline btn-sm quote-chat-btn"
              style="text-decoration:none; display:inline-block; text-align:center; padding: 0.25rem 0.5rem; line-height: 1.5;">💬
             Nhắn tin với thợ</a>
         </div>
@@ -125,7 +127,7 @@
         <div class="seller-quote">
           <div class="quote-price">118.000 ₫</div>
           <button type="button" class="btn btn-primary btn-sm quote-choose-btn">Chọn thợ này</button>
-          <a href="chat-buyer.html" class="btn btn-outline btn-sm quote-chat-btn"
+          <a href="chat-buyer.jsp" class="btn btn-outline btn-sm quote-chat-btn"
              style="text-decoration:none; display:inline-block; text-align:center; padding: 0.25rem 0.5rem; line-height: 1.5;">💬
             Nhắn tin với thợ</a>
         </div>
@@ -157,11 +159,13 @@
 
   <script src="../assets/js/choose-seller.js"></script>
   <script>
-    fetch('../components/header.html').then(response => response.text()).then(data => { let html = data.replace(/href="index\.html"/g, 'href="../index.html"'); document.getElementById('header-placeholder').innerHTML = html; }).catch(error => console.error('Error loading header:', error));
+    fetch('../components/header.html').then(response => response.text()).then(data => { let html = data.replace(/href="index\.html"/g, 'href="../index.jsp"'); document.getElementById('header-placeholder').innerHTML = html; }).catch(error => console.error('Error loading header:', error));
 
-    fetch('../components/footer.html').then(response => response.text()).then(data => { let html = data.replace(/href="index\.html"/g, 'href="../index.html"'); document.getElementById('footer-placeholder').innerHTML = html; }).catch(error => console.error('Error loading footer:', error));
+    fetch('../components/footer.html').then(response => response.text()).then(data => { let html = data.replace(/href="index\.html"/g, 'href="../index.jsp"'); document.getElementById('footer-placeholder').innerHTML = html; }).catch(error => console.error('Error loading footer:', error));
   </script>
 <script src="../assets/js/popup.js"></script>
+  <script src="${pageContext.request.contextPath}/assets/js/auth.js"></script>
+
 </body>
 
 </html>

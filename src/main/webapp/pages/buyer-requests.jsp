@@ -1,3 +1,4 @@
+<%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <!DOCTYPE html>
 <html lang="vi">
 <head>
@@ -25,10 +26,10 @@
             <p class="seller-role">Thợ thủ công Trang sức</p>
         </div>
         <nav class="seller-nav">
-            <a href="seller/seller-dashboard.html"><i class="bi bi-pie-chart-fill"></i> Tổng quan Doanh thu</a>
-            <a href="seller/seller-products.html"><i class="bi bi-box-seam-fill"></i> Quản lý Sản phẩm</a>
-            <a href="chat-seller.html"><i class="bi bi-chat-dots-fill"></i> Tin nhắn <span class="noti-count">2</span></a>
-            <a href="order-management.html"><i class="bi bi-card-list"></i> Quản lý Đơn hàng</a>
+            <a href="seller/seller-dashboard.jsp"><i class="bi bi-pie-chart-fill"></i> Tổng quan Doanh thu</a>
+            <a href="seller/seller-products.jsp"><i class="bi bi-box-seam-fill"></i> Quản lý Sản phẩm</a>
+            <a href="chat-seller"><i class="bi bi-chat-dots-fill"></i> Tin nhắn <span class="noti-count">2</span></a>
+            <a href="order-management.jsp"><i class="bi bi-card-list"></i> Quản lý Đơn hàng</a>
             <a href="buyer-requests.html" class="active"><i class="bi bi-shop"></i> Chợ Custom & Báo giá</a>
             <a href="#"><i class="bi bi-gear-fill"></i> Cài đặt</a>
         </nav>
@@ -38,7 +39,7 @@
     <section class="seller-content">
     <div class="content-header">
         <h1 class="page-title">Chợ Yêu Cầu Custom</h1>
-        <button class="btn btn-outline" style="font-size: 14px;" onclick="window.location.href='choose-seller.html'">Xem Báo Giá Của Tôi</button>
+        <button class="btn btn-outline" style="font-size: 14px;" onclick="window.location.href='choose-seller.jsp'">Xem Báo Giá Của Tôi</button>
     </div>
 
     <div class="dashboard-section table-section">
@@ -292,7 +293,7 @@
     fetch('../components/header.html')
         .then(response => response.text())
         .then(data => {
-            let html = data.replace(/href="index\.html"/g, 'href="../index.html"');
+            let html = data.replace(/href="index\.html"/g, 'href="../index.jsp"');
             document.getElementById('header-placeholder').innerHTML = html;
         })
         .catch(error => console.error('Error loading header:', error));
@@ -300,7 +301,7 @@
     fetch('../components/footer.html')
         .then(response => response.text())
         .then(data => {
-            let html = data.replace(/href="index\.html"/g, 'href="../index.html"');
+            let html = data.replace(/href="index\.html"/g, 'href="../index.jsp"');
             document.getElementById('footer-placeholder').innerHTML = html;
         })
         .catch(error => console.error('Error loading footer:', error));
@@ -551,5 +552,7 @@
     });
 </script>
 <script src="../assets/js/popup.js"></script>
+<script src="${pageContext.request.contextPath}/assets/js/auth.js"></script>
+
 </body>
 </html>

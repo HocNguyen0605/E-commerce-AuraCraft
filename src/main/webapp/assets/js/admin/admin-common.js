@@ -57,13 +57,13 @@ document.addEventListener('click', e => {
     const home = e.target.closest('[data-home]');
     if (home) {
         e.preventDefault();
-        location.href = window.CTX + '/index.html';
+        location.href = window.CTX + '/index.jsp';
         return;
     }
     const out = e.target.closest('[data-logout]');
     if (out) {
         e.preventDefault();
         fetch(window.CTX + '/logout', { method: 'POST' })
-            .finally(() => location.href = window.CTX + '/index.html');
+            .finally(() => location.href = window.CTX + '/index.jsp');
     }
 });

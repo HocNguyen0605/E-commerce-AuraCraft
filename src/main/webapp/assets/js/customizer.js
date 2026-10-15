@@ -18,7 +18,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const cfg = TYPE_CONFIG[type];
   const shopName = product ? product.shop : 'Xưởng Mộc An';
 
-  const backHref = 'shop-profile.html';
+  const backHref = 'shop-profile.jsp';
   document.getElementById('czBackLink').href = backHref;
   document.getElementById('czBackLink').textContent = `← Quay lại cửa hàng (${shopName})`;
   document.getElementById('czCancelLink').href = backHref;

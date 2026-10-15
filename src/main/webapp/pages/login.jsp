@@ -1,3 +1,5 @@
+<%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
+<%@ page import="controller.GoogleAuthServlet" %>
 <!DOCTYPE html>
 <html lang="vi">
 
@@ -9,6 +11,11 @@
     <link rel="stylesheet" href="../assets/css/style.css">
     <link rel="stylesheet" href="../assets/css/header-footer.css">
     <link rel="stylesheet" href="../assets/css/pages/styleLogin.css">
+    <style>
+        #googleBtn { display: flex; justify-content: center; min-height: 44px; }
+        .auth-divider { display: flex; align-items: center; gap: 12px; margin: 18px 0; color: #8a8a8a; font-size: .9rem; }
+        .auth-divider::before, .auth-divider::after { content: ""; flex: 1; height: 1px; background: #e3e3e3; }
+    </style>
 </head>
 
 <body>
@@ -30,11 +37,11 @@
             <!-- Form đăng nhập bên phải -->
             <div class="form-side">
                 <div class="top-header">
-                    <a href="../index.html" class="brand-logo">
+                    <a href="../index.jsp" class="brand-logo">
                         <span class="logo-icon">A</span>
                         <span class="logo-text">uraCraft</span>
                     </a>
-                    <a href="../index.html" class="auth-nav-back">← Trang chủ</a>
+                    <a href="../index.jsp" class="auth-nav-back">← Trang chủ</a>
                 </div>
 
                 <div class="form-header">
@@ -56,7 +63,7 @@
                     <div class="input-group" id="passGroup">
                         <div class="form-label-row">
                             <label for="password">Mật khẩu</label>
-                            <a href="forgot.html" class="forgot-pass-link">Quên mật khẩu?</a>
+                            <a href="forgot.jsp" class="forgot-pass-link">Quên mật khẩu?</a>
                         </div>
                         <div class="input-wrapper">
                             <i class="fa-solid fa-lock field-icon"></i>
@@ -83,8 +90,11 @@
                     </button>
                 </form>
 
+                <div class="auth-divider">hoặc</div>
+                <div id="googleBtn"></div>
+
                 <div class="auth-footer-text">
-                    Chưa có tài khoản? <a href="register.html">Tạo tài khoản mới</a>
+                    Chưa có tài khoản? <a href="register.jsp">Tạo tài khoản mới</a>
                 </div>
             </div>
 
@@ -93,71 +103,115 @@
 </main>
 
 <!-- auth.js chứa biến CTX, hàm logout, initAuth... -->
-<script src="../assets/js/auth.js"></script>
 <script src="../assets/js/popup.js"></script>
+<script src="${pageContext.request.contextPath}/assets/js/auth.js"></script>
 
-<!-- Script kết nối Form với Servlet Backend -->
+<!-- Lưu ý: script nội tuyến trong JSP không dùng template literal (dấu đô-la + ngoặc nhọn) vì Tomcat sẽ hiểu là EL -->
 <script>
-    document.getElementById('loginForm').addEventListener('submit', async e => {
+    var ctxPath = '${pageContext.request.contextPath}';
+    var GOOGLE_CLIENT_ID = '<%= GoogleAuthServlet.CLIENT_ID %>';
+
+    var emailGroup = document.getElementById('emailGroup');
+    var emailError = document.getElementById('emailError');
+
+    function showLoginError(msg) {
+        emailGroup.classList.add('invalid');
+        emailError.textContent = msg;
+    }
+
+    // Chuyển trang theo vai trò, dùng chung cho đăng nhập thường và Google
+    function redirectByRole(roleValue) {
+        var base = (typeof CTX !== 'undefined' ? CTX : ctxPath);
+        var role = String(roleValue || '').toLowerCase();
+        var routes = {
+            admin:  '/pages/admin/admin-users.jsp',
+            seller: '/pages/seller/seller-dashboard.jsp'
+        };
+        location.href = base + (routes[role] || '/index.jsp');
+    }
+
+    // Đăng nhập thường
+    document.getElementById('loginForm').addEventListener('submit', async function (e) {
         e.preventDefault();
 
-        const emailInput = document.getElementById('email');
-        const passInput = document.getElementById('password');
-        const emailGroup = document.getElementById('emailGroup');
-        const passGroup = document.getElementById('passGroup');
-        const emailError = document.getElementById('emailError');
+        var emailInput = document.getElementById('email');
+        var passInput = document.getElementById('password');
+        var passGroup = document.getElementById('passGroup');
 
         // Reset trạng thái lỗi giao diện
         emailGroup.classList.remove('invalid');
         passGroup.classList.remove('invalid');
 
         // Validate nhanh ở Client
-        let isValid = true;
+        var isValid = true;
         if (!emailInput.value.trim()) {
-            emailGroup.classList.add('invalid');
-            emailError.textContent = 'Vui lòng nhập email hoặc tên đăng nhập.';
+            showLoginError('Vui lòng nhập email hoặc tên đăng nhập.');
             isValid = false;
         }
         if (!passInput.value || passInput.value.length < 6) {
             passGroup.classList.add('invalid');
             isValid = false;
         }
-
         if (!isValid) return;
 
-        // Bắt đầu gửi dữ liệu sang Backend Servlet
         try {
-            const res = await fetch('/handmade/login', {
+            var res = await fetch(ctxPath + '/login', {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
-                },
+                headers: {'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'},
                 body: new URLSearchParams(new FormData(e.target))
             });
-
-            const data = await res.json();
+            var data = await res.json();
             if (data.ok) {
-                const base = (typeof CTX !== 'undefined' ? CTX : '');
-                const role = String(data.role || '').toLowerCase();
-
-                const routes = {
-                    admin:  '/pages/admin/admin-users.jsp',
-                    seller: '/pages/seller/seller-dashboard.html'
-                };
-
-                location.href = base + (routes[role] || '/index.html');
+                redirectByRole(data.role);
             } else {
-                // Đăng nhập thất bại -> Hiển thị thông báo lỗi từ Servlet (401 / 403 / 400)
-                emailGroup.classList.add('invalid');
-                emailError.textContent = data.message || 'Tài khoản hoặc mật khẩu không chính xác.';
+                showLoginError(data.message || 'Tài khoản hoặc mật khẩu không chính xác.');
             }
         } catch (ex) {
             console.error('Lỗi kết nối:', ex);
-            emailGroup.classList.add('invalid');
-            emailError.textContent = 'Không kết nối được với máy chủ. Vui lòng thử lại!';
+            showLoginError('Không kết nối được với máy chủ. Vui lòng thử lại!');
         }
     });
+
+    // Đăng nhập bằng Google: mode=login nên servlet chỉ đăng nhập, không tự tạo tài khoản
+    async function onGoogleCredential(response) {
+        emailGroup.classList.remove('invalid');
+        try {
+            var res = await fetch(ctxPath + '/auth/google', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'},
+                body: new URLSearchParams({
+                    credential: response.credential,
+                    mode: 'login'
+                })
+            });
+            var data = await res.json();
+            if (data.ok) {
+                redirectByRole(data.role);
+            } else {
+                showLoginError(data.message || 'Đăng nhập bằng Google không thành công.');
+            }
+        } catch (ex) {
+            console.error('Lỗi kết nối:', ex);
+            showLoginError('Không kết nối được với máy chủ. Vui lòng thử lại!');
+        }
+    }
+
+    function initGoogle() {
+        google.accounts.id.initialize({
+            client_id: GOOGLE_CLIENT_ID,
+            callback: onGoogleCredential
+        });
+        google.accounts.id.renderButton(document.getElementById('googleBtn'), {
+            theme: 'outline',
+            size: 'large',
+            shape: 'pill',
+            text: 'signin_with',
+            locale: 'vi',
+            width: 320
+        });
+    }
 </script>
+<script src="https://accounts.google.com/gsi/client" async defer onload="initGoogle()"></script>
 </body>
 
 </html>

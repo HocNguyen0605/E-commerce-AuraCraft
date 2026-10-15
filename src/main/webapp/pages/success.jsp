@@ -1,3 +1,4 @@
+<%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <!DOCTYPE html>
 <html lang="vi">
 
@@ -86,7 +87,7 @@
                     <a href="products.html" class="btn btn-outline">
                         <i class="fa-solid fa-bag-shopping"></i> Tiếp tục mua sắm
                     </a>
-                    <a href="../index.html" class="btn btn-outline">
+                    <a href="../index.jsp" class="btn btn-outline">
                         <i class="fa-solid fa-house"></i> Về trang chủ
                     </a>
                 </div>
@@ -101,18 +102,20 @@
         fetch('../components/header.html')
             .then(r => r.text())
             .then(html => {
-                document.getElementById('header-placeholder').innerHTML = html.replace(/href="index\.html"/g, 'href="../index.html"');
+                document.getElementById('header-placeholder').innerHTML = html.replace(/href="index\.html"/g, 'href="../index.jsp"');
             })
             .catch(err => console.error('Lỗi tải Header:', err));
 
         fetch('../components/footer.html')
             .then(r => r.text())
             .then(html => {
-                document.getElementById('footer-placeholder').innerHTML = html.replace(/href="index\.html"/g, 'href="../index.html"');
+                document.getElementById('footer-placeholder').innerHTML = html.replace(/href="index\.html"/g, 'href="../index.jsp"');
             })
             .catch(err => console.error('Lỗi tải Footer:', err));
     </script>
 <script src="../assets/js/popup.js"></script>
+    <script src="${pageContext.request.contextPath}/assets/js/auth.js"></script>
+
 </body>
 
 </html>
