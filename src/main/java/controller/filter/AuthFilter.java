@@ -15,7 +15,7 @@ public class AuthFilter implements Filter {
         HttpServletRequest req = (HttpServletRequest) request;
         HttpServletResponse resp = (HttpServletResponse) response;
 
-        // đường dẫn không gồm context path, vd: /pages/seller/seller-dashboard.html
+        // đường dẫn không gồm context path, vd: /pages/seller/seller-dashboard.jsp
         String path = req.getRequestURI().substring(req.getContextPath().length());
 
         boolean isAdminPage  = path.startsWith("/pages/admin/") || path.startsWith("/pages/admin-");

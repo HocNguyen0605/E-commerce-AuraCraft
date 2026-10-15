@@ -1,4 +1,4 @@
-window.CTX = window.CTX || location.pathname.replace(/\/(pages\/[^/]*|index\.html)?$/, '');
+window.CTX = window.CTX || location.pathname.replace(/\/(pages\/[^/]*|index\.(html|jsp))?$/, '');
 function whenReady(selector, cb) {
   const el = document.querySelector(selector);
   if (el) return cb(el);

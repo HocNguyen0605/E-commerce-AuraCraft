@@ -21,8 +21,8 @@
                 <p class="seller-role">Thợ thủ công Trang sức</p>
             </div>
             <nav class="seller-nav">
-                <a href="seller-dashboard.html"><i class="bi bi-pie-chart-fill"></i> Tổng quan Doanh thu</a>
-                <a href="seller-products.html" class="active"><i class="bi bi-box-seam-fill"></i> Quản lý Sản phẩm</a>
+                <a href="seller-dashboard.jsp"><i class="bi bi-pie-chart-fill"></i> Tổng quan Doanh thu</a>
+                <a href="seller-products.jsp" class="active"><i class="bi bi-box-seam-fill"></i> Quản lý Sản phẩm</a>
                 <a href="../chat-seller.jsp"><i class="bi bi-chat-dots-fill"></i> Tin nhắn <span class="noti-count">2</span></a>
                 <a href="../order-management.jsp"><i class="bi bi-card-list"></i> Quản lý Đơn hàng</a>
                 <a href="../buyer-requests.jsp"><i class="bi bi-shop"></i> Chợ Custom & Báo giá</a>
@@ -35,7 +35,7 @@
             <div class="content-header">
                 <h1 class="page-title">Thêm/Sửa Sản phẩm</h1>
                 <div>
-                    <a href="seller-products.html" class="btn btn-outline" style="margin-right: 10px;">Hủy bỏ</a>
+                    <a href="seller-products.jsp" class="btn btn-outline" style="margin-right: 10px;">Hủy bỏ</a>
                     <button class="btn btn-primary" onclick="alert('Đã lưu sản phẩm thành công!')"><i class="bi bi-check-lg"></i> Lưu Sản phẩm</button>
                 </div>
             </div>

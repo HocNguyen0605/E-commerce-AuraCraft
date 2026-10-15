@@ -24,7 +24,7 @@
             </div>
             <nav class="seller-nav">
                 <a href="seller-dashboard.html" class="active"><i class="bi bi-pie-chart-fill"></i> Tổng quan Doanh thu</a>
-                <a href="seller-products.html"><i class="bi bi-box-seam-fill"></i> Quản lý Sản phẩm</a>
+                <a href="seller-products.jsp"><i class="bi bi-box-seam-fill"></i> Quản lý Sản phẩm</a>
                 <a href="../chat-seller.jsp"><i class="bi bi-chat-dots-fill"></i> Tin nhắn <span class="noti-count">2</span></a>
                 <a href="../order-management.jsp"><i class="bi bi-card-list"></i> Quản lý Đơn hàng</a>
                 <a href="../buyer-requests.jsp"><i class="bi bi-shop"></i> Chợ Custom & Báo giá</a>

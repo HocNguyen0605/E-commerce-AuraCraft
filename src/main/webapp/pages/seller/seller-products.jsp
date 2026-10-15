@@ -23,7 +23,7 @@
                 <p class="seller-role">Thợ thủ công Trang sức</p>
             </div>
             <nav class="seller-nav">
-                <a href="seller-dashboard.html"><i class="bi bi-pie-chart-fill"></i> Tổng quan Doanh thu</a>
+                <a href="seller-dashboard.jsp"><i class="bi bi-pie-chart-fill"></i> Tổng quan Doanh thu</a>
                 <a href="seller-products.html" class="active"><i class="bi bi-box-seam-fill"></i> Quản lý Sản phẩm</a>
                 <a href="../chat-seller.jsp"><i class="bi bi-chat-dots-fill"></i> Tin nhắn <span class="noti-count">2</span></a>
                 <a href="../order-management.jsp"><i class="bi bi-card-list"></i> Quản lý Đơn hàng</a>
@@ -36,7 +36,7 @@
         <section class="seller-content">
             <div class="content-header">
                 <h1 class="page-title">Quản lý Sản phẩm</h1>
-                <a href="seller-product-form.html" class="btn btn-primary"><i class="bi bi-plus-lg"></i> Thêm Sản phẩm mới</a>
+                <a href="seller-product-form.jsp" class="btn btn-primary"><i class="bi bi-plus-lg"></i> Thêm Sản phẩm mới</a>
             </div>
 
             <!-- Toolbar: Tìm kiếm, lọc, sắp xếp -->
@@ -89,7 +89,7 @@
                             <td><span class="status-badge success">Đang bán</span></td>
                             <td>
                                 <div class="action-btns">
-                                    <a href="seller-product-form.html" class="btn-icon text-primary" title="Sửa"><i class="bi bi-pencil-fill"></i></a>
+                                    <a href="seller-product-form.jsp" class="btn-icon text-primary" title="Sửa"><i class="bi bi-pencil-fill"></i></a>
                                     <button class="btn-icon text-danger" title="Xóa"><i class="bi bi-trash-fill"></i></button>
                                 </div>
                             </td>
@@ -109,7 +109,7 @@
                             <td><span class="status-badge success">Đang bán</span></td>
                             <td>
                                 <div class="action-btns">
-                                    <a href="seller-product-form.html" class="btn-icon text-primary" title="Sửa"><i class="bi bi-pencil-fill"></i></a>
+                                    <a href="seller-product-form.jsp" class="btn-icon text-primary" title="Sửa"><i class="bi bi-pencil-fill"></i></a>
                                     <button class="btn-icon text-danger" title="Xóa"><i class="bi bi-trash-fill"></i></button>
                                 </div>
                             </td>
