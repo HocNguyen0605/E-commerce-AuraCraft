@@ -518,7 +518,7 @@ CREATE TABLE `productimages` (
 
 LOCK TABLES `productimages` WRITE;
 /*!40000 ALTER TABLE `productimages` DISABLE KEYS */;
-INSERT INTO `productimages` VALUES (1,1,'products/vong-go-1.jpg'),(2,1,'products/vong-go-2.jpg'),(3,2,'products/day-voso-1.jpg'),(4,3,'products/vong-custom-1.jpg'),(5,4,'products/charm-gau-1.jpg'),(6,5,'products/charm-hoa-1.jpg'),(7,6,'products/day-ngoctrai-1.jpg');
+INSERT INTO `productimages` VALUES (1,1,'products/bracelet_01.jpg'),(2,1,'products/bracelet_02.jpg'),(3,2,'products/necklace_02.jpg'),(4,3,'products/bracelet_03.jpg'),(5,4,'products/phoneStrap_01.jpg'),(6,5,'products/phoneStrap_02.jpg'),(7,6,'products/necklace_03.jpg');
 /*!40000 ALTER TABLE `productimages` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -793,6 +793,34 @@ LOCK TABLES `voucherusage` WRITE;
 /*!40000 ALTER TABLE `voucherusage` DISABLE KEYS */;
 INSERT INTO `voucherusage` VALUES (1,1,4,1,'2026-09-20 10:15:00'),(2,2,4,3,'2026-09-30 15:00:00');
 /*!40000 ALTER TABLE `voucherusage` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `featured_products`
+--
+
+DROP TABLE IF EXISTS `featured_products`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `featured_products` (
+  `id` int unsigned NOT NULL AUTO_INCREMENT,
+  `product_id` int unsigned NOT NULL,
+  `display_order` int NOT NULL DEFAULT '0',
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uq_featured_product` (`product_id`),
+  CONSTRAINT `fk_featured_product` FOREIGN KEY (`product_id`) REFERENCES `products` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `featured_products`
+--
+
+LOCK TABLES `featured_products` WRITE;
+/*!40000 ALTER TABLE `featured_products` DISABLE KEYS */;
+INSERT INTO `featured_products` (`product_id`, `display_order`) VALUES (1,1),(2,2),(3,3);
+/*!40000 ALTER TABLE `featured_products` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
