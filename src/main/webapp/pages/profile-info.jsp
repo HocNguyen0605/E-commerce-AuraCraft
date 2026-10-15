@@ -1,3 +1,4 @@
+<%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <!DOCTYPE html>
 <html lang="vi">
 <head>
@@ -23,9 +24,9 @@
             <div class="col-3 over_content">
                 <ul class="menu_function">
                     <li class="funciton_item active"><a href="profile-info.html">Thông tin cá nhân</a></li>
-                    <li class="funciton_item"><a href="profile.html">Đơn hàng</a></li>
-                    <li class="funciton_item"><a href="profile-favorites.html">Yêu thích</a></li>
-                    <li class="funciton_item"><a href="profile-quotes.html">Báo giá</a></li>
+                    <li class="funciton_item"><a href="profile.jsp">Đơn hàng</a></li>
+                    <li class="funciton_item"><a href="profile-favorites.jsp">Yêu thích</a></li>
+                    <li class="funciton_item"><a href="profile-quotes.jsp">Báo giá</a></li>
                 </ul>
             </div>
             <!--Màn hình hiển thị thông tin -->
@@ -84,6 +85,8 @@
         .then(html => document.getElementById('footer-placeholder').innerHTML = html);
 </script>
 <script src="../assets/js/popup.js"></script>
+<script src="${pageContext.request.contextPath}/assets/js/auth.js"></script>
+
 </body>
 </html>
 

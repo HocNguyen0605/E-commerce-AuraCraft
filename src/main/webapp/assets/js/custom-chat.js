@@ -2,7 +2,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const requestId = new URLSearchParams(window.location.search).get("requestId");
   if (!requestId || !window.AuraCraftCustom.getRequest(requestId)) return;
 
-  const isSeller = window.location.pathname.endsWith("chat-seller.html");
+  const isSeller = window.location.pathname.endsWith("chat-seller.jsp");
   const role = isSeller ? "artisan" : "buyer";
   const name = isSeller ? "Thợ thủ công" : "Người mua";
   const messageList = document.getElementById("customMessages");

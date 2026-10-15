@@ -1,3 +1,4 @@
+<%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <!DOCTYPE html>
 <html lang="vi">
 <head>
@@ -16,16 +17,16 @@
 <main>
     <div class="container">
         <img class="avatar" src="../assets/img/profile/avatar.png" alt="Avatar">
-        <p class="info_name"><b>Họ và tên</b>  <a href="profile-info.html"><i class="fa-solid fa-pencil"></i></a></p>
+        <p class="info_name"><b>Họ và tên</b>  <a href="profile-info.jsp"><i class="fa-solid fa-pencil"></i></a></p>
         <p class="email">CongchuaBongBong@gmail.com</p>
         <div class="row body">
             <!--Thanh menu -->
             <div class="col-3 over_content">
                 <ul class="menu_function">
-                    <li class="funciton_item"><a href="profile-info.html">Thông tin cá nhân</a></li>
-                    <li class="funciton_item"><a href="profile.html">Đơn hàng</a></li>
+                    <li class="funciton_item"><a href="profile-info.jsp">Thông tin cá nhân</a></li>
+                    <li class="funciton_item"><a href="profile.jsp">Đơn hàng</a></li>
                     <li class="funciton_item active"><a href="profile-favorites.html">Yêu thích</a></li>
-                    <li class="funciton_item"><a href="profile-quotes.html">Báo giá</a></li>
+                    <li class="funciton_item"><a href="profile-quotes.jsp">Báo giá</a></li>
                 </ul>
             </div>
             <!--Màn hình hiển thị thông tin -->
@@ -116,6 +117,8 @@
     document.querySelectorAll('.fav-remove').forEach(b => b.addEventListener('click', () => b.closest('.fav-card').remove()));
 </script>
 <script src="../assets/js/popup.js"></script>
+<script src="${pageContext.request.contextPath}/assets/js/auth.js"></script>
+
 </body>
 </html>
 

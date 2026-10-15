@@ -1,3 +1,4 @@
+<%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <!DOCTYPE html>
 <html lang="vi">
 <head>
@@ -143,5 +144,7 @@
     <script src="../../assets/js/custom-workflow.js"></script>
     <script src="../../assets/js/admin-disputes.js"></script>
 <script src="../../assets/js/popup.js"></script>
+    <script src="${pageContext.request.contextPath}/assets/js/auth.js"></script>
+
 </body>
 </html>

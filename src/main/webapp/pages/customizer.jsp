@@ -1,3 +1,4 @@
+<%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <!DOCTYPE html>
 <html lang="vi">
 <head>
@@ -80,7 +81,7 @@
         <div class="cz-price-actions">
           <button type="button" class="btn btn-outline cz-save-btn" id="czSaveDesignBtn">Lưu thiết kế</button>
           <button type="button" class="btn btn-primary cz-request-btn" id="czSendShopBtn">Thanh toán ngay</button>
-          <a href="product-detail.html" class="cz-cancel-link" id="czCancelLink">Không muốn custom nữa? Quay lại sản phẩm</a>
+          <a href="product-detail.jsp" class="cz-cancel-link" id="czCancelLink">Không muốn custom nữa? Quay lại sản phẩm</a>
         </div>
       </div>
     </section>
@@ -101,10 +102,11 @@
 <script src="../assets/js/products-data.js"></script>
 <script src="../assets/js/customizer.js"></script>
 <script>
-        fetch('../components/header.html').then(response => response.text()).then(data => { let html = data.replace(/href="index\.html"/g, 'href="../index.html"'); document.getElementById('header-placeholder').innerHTML = html; }).catch(error => console.error('Error loading header:', error));
+        fetch('../components/header.html').then(response => response.text()).then(data => { let html = data.replace(/href="index\.html"/g, 'href="../index.jsp"'); document.getElementById('header-placeholder').innerHTML = html; }).catch(error => console.error('Error loading header:', error));
 
-        fetch('../components/footer.html').then(response => response.text()).then(data => { let html = data.replace(/href="index\.html"/g, 'href="../index.html"'); document.getElementById('footer-placeholder').innerHTML = html; }).catch(error => console.error('Error loading footer:', error));
+        fetch('../components/footer.html').then(response => response.text()).then(data => { let html = data.replace(/href="index\.html"/g, 'href="../index.jsp"'); document.getElementById('footer-placeholder').innerHTML = html; }).catch(error => console.error('Error loading footer:', error));
     </script>
 <script src="../assets/js/popup.js"></script>
+ <script src="${pageContext.request.contextPath}/assets/js/auth.js"></script>
 </body>
 </html>

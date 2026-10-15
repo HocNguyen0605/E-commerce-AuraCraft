@@ -1,3 +1,4 @@
+<%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <!DOCTYPE html>
 <html lang="vi">
 <head>
@@ -8,7 +9,6 @@
     <link rel="stylesheet" href="../assets/css/header-footer.css">
     <link rel="stylesheet" href="../assets/css/pages/profile.css">
     <link rel="stylesheet" href="../assets/css/pages/profile-content.css">
-
 </head>
 <body>
 <div id="header-placeholder"></div>
@@ -23,10 +23,10 @@
             <!--Thanh menu -->
             <div class="col-3 over_content">
                 <ul class="menu_function">
-                    <li class="funciton_item"><a href="profile-info.html">Thông tin cá nhân</a></li>
+                    <li class="funciton_item"><a href="profile-info.jsp">Thông tin cá nhân</a></li>
                     <li class="funciton_item active"><a href="profile-orders.html">Đơn hàng</a></li>
-                    <li class="funciton_item"><a href="profile-favorites.html">Yêu thích</a></li>
-                    <li class="funciton_item"><a href="profile-quotes.html">Báo giá</a></li>
+                    <li class="funciton_item"><a href="profile-favorites.jsp">Yêu thích</a></li>
+                    <li class="funciton_item"><a href="profile-quotes.jsp">Báo giá</a></li>
                     <li class="funciton_item">
                         <a href="#" data-logout style="color: #E74C3C;">
                             <i class="fa-solid fa-arrow-right-from-bracket"></i> Đăng xuất
@@ -186,6 +186,6 @@
         .catch(e => console.error("Lỗi load footer:", e));
 </script>
 <script src="../assets/js/popup.js"></script>
-<script src="../assets/js/auth.js"></script>
+<script src="${pageContext.request.contextPath}/assets/js/auth.js"></script>
 </body>
 </html>

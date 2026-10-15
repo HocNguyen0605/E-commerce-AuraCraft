@@ -136,7 +136,7 @@
             <h3>Bạn muốn tự tay thiết kế vòng mang dấu ấn riêng?</h3>
             <p>Xưởng Mộc An cung cấp công cụ kéo thả trực quan. Bạn có thể tự do phối hạt chữ, charm bạc, hạt gỗ từ kho
                 nguyên liệu độc quyền của chúng tôi.</p>
-            <a href="../customizer.html" class="btn btn-primary btn-lg" style="padding: 12px 30px; font-size: 1.1rem;">
+            <a href="../customizer.jsp" class="btn btn-primary btn-lg" style="padding: 12px 30px; font-size: 1.1rem;">
                 <i class="fa-solid fa-wand-magic-sparkles" style="margin-right: 8px;"></i> Vào xưởng thiết kế của Mộc An
             </a>
         </div>

@@ -21,7 +21,7 @@ public class LoginServlet extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-        resp.sendRedirect(req.getContextPath() + "/pages/login.html");
+        resp.sendRedirect(req.getContextPath() + "/pages/login.jsp");
     }
 
     @Override
@@ -38,7 +38,7 @@ public class LoginServlet extends HttpServlet {
         }
 
         try {
-            AccountInfoDTO acc = dao.findByEmail(email);
+            AccountInfoDTO acc = dao.findByLogin(email);
 
             if (acc != null && (acc.passwordHash == null || "google".equals(acc.provider))) {
                 send(resp, 401, false, "Tài khoản này đăng nhập bằng Google", null, null);
