@@ -11,18 +11,17 @@ document.addEventListener("DOMContentLoaded", function() {
     }
 });
 
-// ─── Helper: format tiền VND ──────────────────────────────────────────────────
+// format tiền VND
 function formatVND(amount) {
     if (amount == null || isNaN(amount)) return '0 đ';
     return new Intl.NumberFormat('vi-VN').format(Math.round(amount)) + ' đ';
 }
 
-// ─── Load dữ liệu từ Servlet ──────────────────────────────────────────────────
+// Load dữ liệu từ Servlet 
 function loadChartsData() {
     const startDate = document.getElementById('startDate') ? document.getElementById('startDate').value : '';
     const endDate   = document.getElementById('endDate')   ? document.getElementById('endDate').value   : '';
 
-    // Đường dẫn tương đối từ thư mục pages/
     const url = `../api/admin/finance/charts?startDate=${startDate}&endDate=${endDate}`;
 
     fetch(url)
@@ -48,7 +47,7 @@ function loadChartsData() {
         });
 }
 
-// ─── Cập nhật 4 stat cards ────────────────────────────────────────────────────
+// Cập nhật 4 stat cards 
 function updateStats(data) {
     const gmvEl     = document.getElementById('statTotalGmv');
     const feeEl     = document.getElementById('statTotalFee');
@@ -61,7 +60,7 @@ function updateStats(data) {
     if (pendingEl) pendingEl.textContent = formatVND(data.totalPendingBalance);
 }
 
-// ─── Bar Chart ────────────────────────────────────────────────────────────────
+//  Bar Chart 
 function renderBarChart(data) {
     const canvasBar = document.getElementById('revenueBarChart');
     if (!canvasBar) return;
@@ -70,7 +69,7 @@ function renderBarChart(data) {
         myBarChart.destroy();
     }
 
-    // Nếu không có dữ liệu → hiển thị thông báo thay vì chart rỗng
+    // Nếu không có dữ liệu hiển thị thông báo thay vì chart rỗng
     const labels  = (data.barLabels  && data.barLabels.length  > 0) ? data.barLabels  : ['Chưa có dữ liệu'];
     const gmvData = (data.barGmvData && data.barGmvData.length > 0) ? data.barGmvData : [0];
     const feeData = (data.barFeeData && data.barFeeData.length > 0) ? data.barFeeData : [0];
@@ -115,7 +114,7 @@ function renderBarChart(data) {
     });
 }
 
-// ─── Pie / Doughnut Chart ─────────────────────────────────────────────────────
+//  Pie / Doughnut Chart 
 function renderPieChart(data) {
     const canvasPie = document.getElementById('revenuePieChart');
     if (!canvasPie) return;
@@ -161,14 +160,14 @@ function renderPieChart(data) {
     });
 }
 
-// ─── XỬ LÝ RÚT TIỀN ──────────────────────────────────────────────────────────
+//  XỬ LÝ RÚT TIỀN 
 function approveWithdrawal(id) {
     if (confirm("Xác nhận đã chuyển khoản thành công cho yêu cầu " + id + "?\nHành động này sẽ thay đổi trạng thái và trừ số dư của Thợ.")) {
         alert("Đã duyệt thành công Payout " + id + "!");
     }
 }
 
-// ─── XỬ LÝ CẤU HÌNH PHÍ SÀN ─────────────────────────────────────────────────
+//  XỬ LÝ CẤU HÌNH PHÍ SÀN 
 function openConfigModal() {
     const configModal = document.getElementById('configModal');
     if (configModal) {

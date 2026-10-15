@@ -15,9 +15,7 @@ public class OrderAdminDAO {
 
     /**
      * Lấy toàn bộ dữ liệu đơn hàng cho trang quản lý đơn hàng admin.
-     * JOIN orders với users (buyer), shops, users (seller/owner), paymentmethods,
-     * và tổng hợp orderitems để lấy danh sách sản phẩm + phí sàn.
-     */
+git      */
     public OrderAdminResponseDTO getOrdersData() {
         OrderAdminResponseDTO response = new OrderAdminResponseDTO();
         List<OrderAdminDTO> orders = new ArrayList<>();
