@@ -149,9 +149,17 @@ public class ProductDAO {
                                    List<String> priceRanges,
                                    List<Integer> minRatings,
                                    String keyword) throws SQLException {
+        return countActiveProducts(categoryIds, priceRanges, minRatings, keyword, null);
+    }
+
+    public int countActiveProducts(List<Integer> categoryIds,
+                                   List<String> priceRanges,
+                                   List<Integer> minRatings,
+                                   String keyword,
+                                   Integer shopId) throws SQLException {
         StringBuilder sql = new StringBuilder("SELECT COUNT(*) ").append(PRODUCT_FROM_WHERE);
         List<Object> parameters = new ArrayList<>();
-        appendFilters(sql, parameters, categoryIds, priceRanges, minRatings, keyword);
+        appendFilters(sql, parameters, categoryIds, priceRanges, minRatings, keyword, shopId);
 
         try (Connection connection = DBConnection.getConnection();
              PreparedStatement statement = connection.prepareStatement(sql.toString())) {
@@ -169,15 +177,26 @@ public class ProductDAO {
                                                         String sort,
                                                         int limit,
                                                         int offset) throws SQLException {
+        return findActiveProducts(categoryIds, priceRanges, minRatings, keyword, null, sort, limit, offset);
+    }
+
+    public List<Map<String, Object>> findActiveProducts(List<Integer> categoryIds,
+                                                        List<String> priceRanges,
+                                                        List<Integer> minRatings,
+                                                        String keyword,
+                                                        Integer shopId,
+                                                        String sort,
+                                                        int limit,
+                                                        int offset) throws SQLException {
         StringBuilder sql = new StringBuilder(
                 "SELECT p.id, p.name, p.price, p.description, p.stock, p.sold_count, " +
-                "c.id AS category_id, c.name AS category_name, s.name AS shop_name, " +
+                "c.id AS category_id, c.name AS category_name, s.name AS shop_name, s.id AS shop_id, " +
                 "COALESCE(review_stats.average_rating, 0) AS rating, " +
                 "COALESCE(review_stats.review_count, 0) AS review_count, " +
                 "(SELECT pi.url FROM productimages pi WHERE pi.id_product = p.id ORDER BY pi.id LIMIT 1) AS image ")
                 .append(PRODUCT_FROM_WHERE);
         List<Object> parameters = new ArrayList<>();
-        appendFilters(sql, parameters, categoryIds, priceRanges, minRatings, keyword);
+        appendFilters(sql, parameters, categoryIds, priceRanges, minRatings, keyword, shopId);
 
         switch (sort == null ? "default" : sort) {
             case "price-asc" -> sql.append(" ORDER BY p.price ASC, p.id DESC");
@@ -205,6 +224,7 @@ public class ProductDAO {
                     product.put("soldCount", result.getInt("sold_count"));
                     product.put("categoryId", result.getInt("category_id"));
                     product.put("categoryName", result.getString("category_name"));
+                    product.put("shopId", result.getInt("shop_id"));
                     product.put("shopName", result.getString("shop_name"));
                     product.put("rating", result.getBigDecimal("rating"));
                     product.put("reviewCount", result.getInt("review_count"));
@@ -221,7 +241,13 @@ public class ProductDAO {
                                List<Integer> categoryIds,
                                List<String> priceRanges,
                                List<Integer> minRatings,
-                               String keyword) {
+                               String keyword,
+                               Integer shopId) {
+        if (shopId != null && shopId > 0) {
+            sql.append(" AND p.id_shop = ?");
+            parameters.add(shopId);
+        }
+
         if (categoryIds != null) {
             if (categoryIds.isEmpty()) {
                 sql.append(" AND 1 = 0");

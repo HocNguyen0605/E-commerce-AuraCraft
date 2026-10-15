@@ -19,7 +19,7 @@ public class AuthFilter implements Filter {
         String path = req.getRequestURI().substring(req.getContextPath().length());
 
         boolean isAdminPage  = path.startsWith("/pages/admin/") || path.startsWith("/pages/admin-");
-        boolean isSellerPage = path.startsWith("/pages/seller/");
+        boolean isSellerPage = path.startsWith("/pages/seller/") && !path.contains("shop-profile");
 
         // Trang công khai: cho qua
         if (!isAdminPage && !isSellerPage) {
