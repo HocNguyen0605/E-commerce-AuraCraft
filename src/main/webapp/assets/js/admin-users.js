@@ -15,8 +15,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
   let usersData = [];
 
+  const CTX = window.CTX || (location.pathname.split('/')[1] ? '/' + location.pathname.split('/')[1] : '');
+
   function loadUsers() {
-    fetch('../api/admin/users?t=' + new Date().getTime())
+    fetch(CTX + '/api/admin/users?t=' + new Date().getTime())
       .then(response => {
         if (!response.ok) {
           throw new Error('Lỗi khi tải dữ liệu người dùng: ' + response.statusText);
@@ -100,7 +102,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     select.addEventListener("change", () => {
       const newStatus = select.value;
-      fetch('../api/admin/users', {
+      fetch(CTX + '/api/admin/users', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'

@@ -22,7 +22,8 @@ function loadChartsData() {
     const startDate = document.getElementById('startDate') ? document.getElementById('startDate').value : '';
     const endDate   = document.getElementById('endDate')   ? document.getElementById('endDate').value   : '';
 
-    const url = `../api/admin/finance/charts?startDate=${startDate}&endDate=${endDate}`;
+    const CTX = window.CTX || (location.pathname.split('/')[1] ? '/' + location.pathname.split('/')[1] : '');
+    const url = `${CTX}/api/admin/finance/charts?startDate=${startDate}&endDate=${endDate}`;
 
     fetch(url)
         .then(response => {
