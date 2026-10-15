@@ -236,18 +236,20 @@
         fetch(contextPath + '/components/header.html')
             .then(r => r.text())
             .then(html => {
-                document.getElementById('header-placeholder').innerHTML = html.replace(/href="index\.html"/g, 'href="${pageContext.request.contextPath}/index.html"').replace(/href="pages\/products"/g, 'href="${pageContext.request.contextPath}/pages/products"').replace(/href="pages\/cart\.jsp"/g, 'href="${pageContext.request.contextPath}/pages/cart.jsp"');
+                document.getElementById('header-placeholder').innerHTML = html.replace(/href="index\.html"/g, 'href="${pageContext.request.contextPath}/index.jsp"').replace(/href="pages\/products"/g, 'href="${pageContext.request.contextPath}/pages/products"').replace(/href="pages\/cart\.jsp"/g, 'href="${pageContext.request.contextPath}/pages/cart.jsp"');
             })
             .catch(err => console.error('Lỗi tải Header:', err));
 
         fetch(contextPath + '/components/footer.html')
             .then(r => r.text())
             .then(html => {
-                document.getElementById('footer-placeholder').innerHTML = html.replace(/href="index\.html"/g, 'href="${pageContext.request.contextPath}/index.html"').replace(/href="pages\/products"/g, 'href="${pageContext.request.contextPath}/pages/products"');
+                document.getElementById('footer-placeholder').innerHTML = html.replace(/href="index\.html"/g, 'href="${pageContext.request.contextPath}/index.jsp"').replace(/href="pages\/products"/g, 'href="${pageContext.request.contextPath}/pages/products"');
             })
             .catch(err => console.error('Lỗi tải Footer:', err));
     </script>
 <script src="${pageContext.request.contextPath}/assets/js/popup.js"></script>
+    <script src="${pageContext.request.contextPath}/assets/js/auth.js"></script>
+
 </body>
 
 </html>

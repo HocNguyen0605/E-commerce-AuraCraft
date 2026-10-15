@@ -68,7 +68,7 @@ document.addEventListener("DOMContentLoaded", () => {
             content.append(document.createElement("br"));
             const link = document.createElement("a");
             link.className = "user-portfolio";
-            link.href = "shop-profile.html?id=" + user.shopId;
+            link.href = "shop-profile.jsp?id=" + user.shopId;
             link.target = "_blank";
             link.textContent = "Mở portfolio";
             link.style.color = "var(--primary-blue)";
