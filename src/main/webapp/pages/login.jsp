@@ -1,3 +1,4 @@
+<%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <!DOCTYPE html>
 <html lang="vi">
 
@@ -30,11 +31,11 @@
             <!-- Form đăng nhập bên phải -->
             <div class="form-side">
                 <div class="top-header">
-                    <a href="../index.html" class="brand-logo">
+                    <a href="../index.jsp" class="brand-logo">
                         <span class="logo-icon">A</span>
                         <span class="logo-text">uraCraft</span>
                     </a>
-                    <a href="../index.html" class="auth-nav-back">← Trang chủ</a>
+                    <a href="../index.jsp" class="auth-nav-back">← Trang chủ</a>
                 </div>
 
                 <div class="form-header">
@@ -56,7 +57,7 @@
                     <div class="input-group" id="passGroup">
                         <div class="form-label-row">
                             <label for="password">Mật khẩu</label>
-                            <a href="forgot.html" class="forgot-pass-link">Quên mật khẩu?</a>
+                            <a href="forgot.jsp" class="forgot-pass-link">Quên mật khẩu?</a>
                         </div>
                         <div class="input-wrapper">
                             <i class="fa-solid fa-lock field-icon"></i>
@@ -84,7 +85,7 @@
                 </form>
 
                 <div class="auth-footer-text">
-                    Chưa có tài khoản? <a href="register.html">Tạo tài khoản mới</a>
+                    Chưa có tài khoản? <a href="register.jsp">Tạo tài khoản mới</a>
                 </div>
             </div>
 
@@ -95,6 +96,8 @@
 <!-- auth.js chứa biến CTX, hàm logout, initAuth... -->
 <script src="../assets/js/auth.js"></script>
 <script src="../assets/js/popup.js"></script>
+<script src="${pageContext.request.contextPath}/assets/js/auth.js"></script>
+
 
 <!-- Script kết nối Form với Servlet Backend -->
 <script>

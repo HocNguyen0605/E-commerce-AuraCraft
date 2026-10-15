@@ -310,7 +310,7 @@ document.addEventListener("DOMContentLoaded", () => {
               paymentStatus: result.order.paymentStatus
             };
             sessionStorage.setItem("auracraft_latest_order", JSON.stringify(customOrderData));
-            window.location.href = `${checkoutForm.dataset.context || ""}/pages/success.html?orderId=${encodeURIComponent(result.order.id)}`;
+            window.location.href = `../../pages/success.jsp`;
           } catch (error) {
             alert(error.message);
           }

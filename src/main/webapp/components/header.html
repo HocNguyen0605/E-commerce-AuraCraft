@@ -16,14 +16,17 @@
         <nav class="nav-menu" id="nav-menu-mobile">
             <button class="close-menu" onclick="document.getElementById('nav-menu-mobile').classList.remove('active'); document.getElementById('menu-overlay').classList.remove('active')"><i class="fa-solid fa-xmark"></i></button>
             <a href="products">Sản phẩm</a>
-            <a href="customizer.html">Thiết kế</a>
-            
-            <!-- Chưa đăng nhập -->
+            <a href="customizer">Thiết kế</a>
+
+            <!-- Mặc định nút đăng nhập -->
             <a href="login.html" id="nav-login" class="nav-text-btn">Đăng nhập</a>
-            
-            <!-- Đã đăng nhập -->
-            <a href="profile.html" id="nav-profile" class="icon-btn" style="display: none;" title="Trang cá nhân"><i class="fa-regular fa-user"></i></a>
-            
+
+            <!-- Phần hiển thị sau khi đăng nhập (Sẽ ẩn/hiện bằng JS) -->
+            <div id="user-logged-in" style="display: none; align-items: center; gap: 8px;">
+                <span id="user-greeting" style="font-weight: 500; color: #333;"></span>
+                <a href="profile.html" class="icon-btn" title="Trang cá nhân"><i class="fa-regular fa-user"></i></a>
+            </div>
+
             <a href="cart.jsp" class="icon-btn" title="Giỏ hàng"><i class="fa-solid fa-cart-shopping"></i></a>
         </nav>
     </div>

@@ -1,3 +1,4 @@
+<%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <!DOCTYPE html>
 <html lang="vi">
 <head>
@@ -29,9 +30,9 @@
         <nav class="seller-nav">
             <a href="seller/seller-dashboard.html"><i class="bi bi-pie-chart-fill"></i> Tổng quan Doanh thu</a>
             <a href="seller/seller-products.html"><i class="bi bi-box-seam-fill"></i> Quản lý Sản phẩm</a>
-            <a href="chat-seller.html"><i class="bi bi-chat-dots-fill"></i> Tin nhắn <span class="noti-count">2</span></a>
+            <a href="chat-seller.jsp"><i class="bi bi-chat-dots-fill"></i> Tin nhắn <span class="noti-count">2</span></a>
             <a href="order-management.html" class="active"><i class="bi bi-card-list"></i> Quản lý Đơn hàng</a>
-            <a href="buyer-requests.html"><i class="bi bi-shop"></i> Chợ Custom & Báo giá</a>
+            <a href="buyer-requests.jsp"><i class="bi bi-shop"></i> Chợ Custom & Báo giá</a>
             <a href="#"><i class="bi bi-gear-fill"></i> Cài đặt</a>
         </nav>
     </aside>
@@ -244,14 +245,14 @@
     fetch('../components/header.html')
         .then(response => response.text())
         .then(data => {
-            let html = data.replace(/href="index\.html"/g, 'href="../index.html"');
+            let html = data.replace(/href="index\.html"/g, 'href="../index.jsp"');
             document.getElementById('header-placeholder').innerHTML = html;
         }).catch(e => console.log(e));
 
     fetch('../components/footer.html')
         .then(response => response.text())
         .then(data => {
-            let html = data.replace(/href="index\.html"/g, 'href="../index.html"');
+            let html = data.replace(/href="index\.html"/g, 'href="../index.jsp"');
             document.getElementById('footer-placeholder').innerHTML = html;
         }).catch(e => console.log(e));
 
@@ -338,5 +339,7 @@
     }
 </script>
 <script src="../assets/js/popup.js"></script>
+<script src="${pageContext.request.contextPath}/assets/js/auth.js"></script>
+
 </body>
 </html>

@@ -1,3 +1,4 @@
+<%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <!DOCTYPE html>
 <html lang="vi">
 
@@ -28,11 +29,11 @@
 
                 <div class="form-side">
                     <div class="top-header">
-                        <a href="../index.html" class="brand-logo">
+                        <a href="../index.jsp" class="brand-logo">
                             <span class="logo-icon">A</span>
                             <span class="logo-text">uraCraft</span>
                         </a>
-                        <a href="login.html" class="auth-nav-back">Đã có tài khoản? Đăng nhập</a>
+                        <a href="login.jsp" class="auth-nav-back">Đã có tài khoản? Đăng nhập</a>
                     </div>
 
                     <div class="form-header">
@@ -125,6 +126,8 @@
     <script src="../assets/js/auth.js"></script>
 
 <script src="../assets/js/popup.js"></script>
+    <script src="${pageContext.request.contextPath}/assets/js/auth.js"></script>
+
 </body>
 
 </html>

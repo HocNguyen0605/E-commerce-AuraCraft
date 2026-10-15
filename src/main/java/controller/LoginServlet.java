@@ -21,7 +21,7 @@ public class LoginServlet extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-        resp.sendRedirect(req.getContextPath() + "/pages/login.html");
+        resp.sendRedirect(req.getContextPath() + "/pages/login.jsp");
     }
 
     @Override
