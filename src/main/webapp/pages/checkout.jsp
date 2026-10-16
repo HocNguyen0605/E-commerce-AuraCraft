@@ -20,7 +20,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/style.css">
     <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/header-footer.css">
-    <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/pages/styleCheckout.css?v=checkout-sync-2">
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/pages/styleCheckout.css?v=checkout-benefits-1">
 </head>
 
 <body>
@@ -115,11 +115,10 @@
                                     <input type="radio" id="paymentVNPay" name="paymentMethod" value="vnpay">
                                     <div class="payment-method-info">
                                         <div class="payment-method-name">
-                                            <span>Cổng thanh toán VNPay</span>
-                                            <span class="payment-badge">QR / Thẻ ATM</span>
+                                            <span>VNPay (mô phỏng)</span>
+                                            <span class="payment-badge">Demo</span>
                                         </div>
-                                        <p class="payment-method-desc">Thanh toán trực tuyến bảo mật qua ứng dụng ngân
-                                            hàng quét VNPAY-QR hoặc thẻ ATM / Visa / Mastercard.</p>
+                                        <p class="payment-method-desc">Mô phỏng xác nhận thanh toán VNPay. Không chuyển tiền thật và không cần thông tin thẻ/ngân hàng.</p>
                                     </div>
                                     <div class="payment-method-icon">
                                         <i class="fa-solid fa-qrcode"></i>
@@ -161,6 +160,32 @@
                                 </c:choose>
                             </div>
 
+                            <section class="checkout-benefits" aria-label="Voucher và xu AuraCraft">
+                                <h3>Ưu đãi đơn hàng</h3>
+                                <label for="voucherCode">Mã voucher</label>
+                                <div class="checkout-voucher-controls">
+                                    <input type="text" id="voucherCode" maxlength="50" placeholder="Nhập mã voucher">
+                                    <button type="button" id="btnApplyVoucher" class="btn btn-outline">Áp dụng</button>
+                                </div>
+                                <p id="voucherMessage" class="checkout-benefit-message" aria-live="polite">Voucher chỉ dùng được trong thời hạn và khi đơn đạt giá trị tối thiểu.</p>
+                                <c:if test="${not empty availableVouchers}">
+                                    <div class="checkout-voucher-list">
+                                        <c:forEach items="${availableVouchers}" var="voucher">
+                                            <button type="button" class="checkout-voucher-option" data-voucher-code="<c:out value='${voucher.code}'/>">
+                                                <strong><c:out value="${voucher.code}"/></strong>
+                                                <span>Giảm <c:out value="${voucher.discountText}"/> · Đơn từ <fmt:formatNumber value="${voucher.minOrder}" type="number" groupingUsed="true"/>đ</span>
+                                                <small>Hết hạn <c:out value="${voucher.endDate}"/></small>
+                                            </button>
+                                        </c:forEach>
+                                    </div>
+                                </c:if>
+                                <div class="checkout-coins-controls">
+                                    <span>Bạn có <strong id="availableCoins">0 xu</strong></span>
+                                    <button type="button" id="btnUseCoins" class="btn btn-outline" disabled>Dùng xu</button>
+                                </div>
+                                <p id="coinsMessage" class="checkout-benefit-message">1 xu giảm 1.000đ. Tích 1 xu mỗi 100.000đ tiền hàng sau giảm khi đơn của shop hoàn tất.</p>
+                            </section>
+
                             <!-- Chi phí & Phí vận chuyển -->
                             <div class="summary-cost-table">
                                 <div class="cost-row">
@@ -173,9 +198,13 @@
                                     <span class="cost-value" id="summaryShipping"><fmt:formatNumber value="${checkoutShipping}" type="number" groupingUsed="true"/>đ</span>
                                 </div>
 
-                                <div class="cost-row">
-                                    <span>Mã giảm giá (Voucher)</span>
-                                    <span class="cost-value" id="summaryDiscount">-0đ</span>
+                                <div class="cost-row checkout-discount-row" id="voucherDiscountRow" hidden>
+                                    <span>Voucher</span>
+                                    <span class="cost-value" id="summaryVoucherDiscount">-0đ</span>
+                                </div>
+                                <div class="cost-row checkout-discount-row" id="coinDiscountRow" hidden>
+                                    <span>Xu đã dùng (<span id="summaryCoinsUsed">0</span> xu)</span>
+                                    <span class="cost-value" id="summaryCoinDiscount">-0đ</span>
                                 </div>
 
                                 <div class="cost-row total-row">
@@ -214,15 +243,16 @@
     <!-- QR Payment Modal -->
     <div id="qrPaymentModal" class="modal-overlay qr-payment-overlay" hidden>
         <div class="qr-payment-card">
-            <h3>Thanh toán cọc 50% qua Mã QR</h3>
-            <p>Vui lòng dùng ứng dụng ngân hàng quét mã QR dưới đây để thanh toán số tiền: <strong id="qrDepositAmount"></strong></p>
+            <h3 id="mockPaymentTitle">Mô phỏng thanh toán VNPay</h3>
+            <p id="mockPaymentDescription">Đây là giao dịch giả lập, không chuyển tiền thật. Số tiền mô phỏng: <strong id="qrDepositAmount"></strong></p>
             <div class="qr-code-placeholder">
-                <!-- Dummy QR -->
-                <i class="fa-solid fa-qrcode"></i>
+                <i class="fa-solid fa-laptop-code"></i>
+                <p id="mockPaymentDemoNote">CHẾ ĐỘ DEMO · KHÔNG GIAO DỊCH NGÂN HÀNG</p>
             </div>
+            <p>Mã tham chiếu: <strong id="mockPaymentReference"></strong></p>
             <div class="qr-payment-actions">
-                <button type="button" id="btnCancelQr" class="btn btn-outline">Hủy giao dịch</button>
-                <button type="button" id="btnSuccessQr" class="btn btn-primary">Đã thanh toán xong</button>
+                <button type="button" id="btnCancelQr" class="btn btn-outline">Quay lại</button>
+                <button type="button" id="btnSuccessQr" class="btn btn-primary">Xác nhận giả lập thanh toán</button>
             </div>
         </div>
     </div>
@@ -230,26 +260,26 @@
     <div id="footer-placeholder"></div>
 
     <script src="${pageContext.request.contextPath}/assets/js/custom-workflow.js"></script>
-    <script src="${pageContext.request.contextPath}/assets/js/checkout.js?v=checkout-sync-2"></script>
+    <script src="${pageContext.request.contextPath}/assets/js/checkout.js?v=checkout-benefits-1"></script>
     <script>
         const contextPath = '${pageContext.request.contextPath}';
         fetch(contextPath + '/components/header.html')
             .then(r => r.text())
             .then(html => {
-                document.getElementById('header-placeholder').innerHTML = html.replace(/href="index\.html"/g, 'href="${pageContext.request.contextPath}/index.jsp"').replace(/href="pages\/products"/g, 'href="${pageContext.request.contextPath}/pages/products"').replace(/href="pages\/cart\.jsp"/g, 'href="${pageContext.request.contextPath}/pages/cart.jsp"');
+                document.getElementById('header-placeholder').innerHTML = html.replace(/href="index\.html"/g, 'href="${pageContext.request.contextPath}/index.html"').replace(/href="login\.html"/g, 'href="${pageContext.request.contextPath}/pages/login.html"').replace(/href="profile\.html"/g, 'href="${pageContext.request.contextPath}/profile"').replace(/href="pages\/products"/g, 'href="${pageContext.request.contextPath}/pages/products"').replace(/href="cart\.jsp"/g, 'href="${pageContext.request.contextPath}/pages/cart.jsp"').replace(/href="pages\/cart\.jsp"/g, 'href="${pageContext.request.contextPath}/pages/cart.jsp"');
             })
             .catch(err => console.error('Lỗi tải Header:', err));
 
         fetch(contextPath + '/components/footer.html')
             .then(r => r.text())
             .then(html => {
-                document.getElementById('footer-placeholder').innerHTML = html.replace(/href="index\.html"/g, 'href="${pageContext.request.contextPath}/index.jsp"').replace(/href="pages\/products"/g, 'href="${pageContext.request.contextPath}/pages/products"');
+                document.getElementById('footer-placeholder').innerHTML = html.replace(/href="index\.html"/g, 'href="${pageContext.request.contextPath}/index.html"').replace(/href="pages\/products"/g, 'href="${pageContext.request.contextPath}/pages/products"');
             })
             .catch(err => console.error('Lỗi tải Footer:', err));
     </script>
 <script src="${pageContext.request.contextPath}/assets/js/popup.js"></script>
-    <script src="${pageContext.request.contextPath}/assets/js/auth.js"></script>
-
+<script src="${pageContext.request.contextPath}/assets/js/site-shell.js"></script>
+<script src="assets/js/auth.js"></script>
 </body>
 
 </html>
