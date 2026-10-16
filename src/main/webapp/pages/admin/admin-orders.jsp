@@ -58,7 +58,7 @@
                 <h2>Vận hành đơn Custom</h2>
                 <p>Theo dõi deadline, cập nhật trạng thái và xử lý hủy/hoàn tiền.</p>
             </div>
-            <a class="btn btn-outline" href="admin-disputes.html"><i class="fa-solid fa-scale-balanced" aria-hidden="true"></i> Khiếu nại &amp; vi phạm</a>
+            <a class="btn btn-outline" href="admin-disputes.jsp"><i class="fa-solid fa-scale-balanced" aria-hidden="true"></i> Khiếu nại &amp; vi phạm</a>
         </div>
         <div class="admin-custom-toolbar">
             <label class="search-box">
@@ -171,8 +171,11 @@
 </div>
 
 <!-- Scripts -->
+<script>window.CTX = "${pageContext.request.contextPath}";</script>
 <script src="../../assets/js/admin/admin-common.js"></script>
-<script src="../../assets/js/admin/admin-orders.js"></script>
+<script src="../../assets/js/admin/admin-orders.js?v=4"></script>
 <script src="../../assets/js/popup.js"></script>
+<script src="${pageContext.request.contextPath}/assets/js/auth.js"></script>
+
 </body>
 </html>

@@ -1,0 +1,191 @@
+<%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Profile</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <link rel="stylesheet" href="../assets/css/header-footer.css">
+    <link rel="stylesheet" href="../assets/css/pages/profile.css">
+    <link rel="stylesheet" href="../assets/css/pages/profile-content.css">
+</head>
+<body>
+<div id="header-placeholder"></div>
+
+<main>
+    <div class="container">
+        <!-- -->
+        <img class="avatar" src="../assets/img/profile/avatar.png">
+        <p class="info_name"><b>Họ và tên</b>  <a href="#"><i class="fa-solid fa-pencil"></i></a></p>
+        <p class="email">CongchuaBongBong@gmail.com</p>
+        <div class="row body">
+            <!--Thanh menu -->
+            <div class="col-3 over_content">
+                <ul class="menu_function">
+                    <li class="funciton_item"><a href="profile-info.jsp">Thông tin cá nhân</a></li>
+                    <li class="funciton_item active"><a href="profile-orders.html">Đơn hàng</a></li>
+                    <li class="funciton_item"><a href="profile-favorites.jsp">Yêu thích</a></li>
+                    <li class="funciton_item"><a href="profile-quotes.jsp">Báo giá</a></li>
+                    <li class="funciton_item">
+                        <a href="#" data-logout style="color: #E74C3C;">
+                            <i class="fa-solid fa-arrow-right-from-bracket"></i> Đăng xuất
+                        </a>
+                    </li>
+                </ul>
+            </div>
+            <!--Màn hình hiển thị thông tin -->
+            <div class="col-9 over_content">
+                <div class="col-12 over_content">
+                    <ul class="menu">
+                        <li class="btn-primary filter active" data-filter="all">All</li>
+                        <li class="btn-primary filter" data-filter="quote">Báo giá</li>
+                        <li class="btn-primary filter" data-filter="processing">Đang thực hiện</li>
+                        <li class="btn-primary filter" data-filter="pickup">Đang chờ lấy hàng</li>
+                        <li class="btn-primary filter" data-filter="shipping">Đang giao</li>
+                        <li class="btn-primary filter" data-filter="done">Đã giao</li>
+                        <li class="btn-primary filter" data-filter="cancel">Đã hủy</li>
+                        <li class="btn-primary filter" data-filter="return">Trả hàng / Khiếu nại</li>
+                    </ul>
+                </div>
+                <!--Thông tin một sản phẩm -->
+                <div class="col-12 over_content">
+                    <div class="row">
+                        <div class="col-6">
+                            <a href="#" class="addition"><i>Yêu thích</i></a>
+                            <span>#Mã đơn tìm/ TÊN SHOP</span>
+                        </div>
+                        <div class="col-6 right">
+                            <span class="status">TRẠNG THÁI GIAO HÀNG</span>
+                        </div>
+                    </div>
+                    <!--Sản phẩm -->
+                    <div class="row">
+                        <div class="col-2">
+                            <img src="../assets/img/products/belly_02.jpg" class="product_picture">
+                        </div>
+                        <div class="col-8">
+                            <p><b>Tên sản phẩm Tên sản phẩm Tên sản phẩm Tên sản phẩm Tên sản phẩm Tên sản phẩm</b></p>
+                            <p>Loại: abc</p>
+                            <p>Số lượng: 1</p>
+                        </div>
+                        <div class="col-2 right">
+                            <p>45.000 VND</p>
+                            <del>Giá chưa giảm</del>
+                        </div>
+                    </div>
+                </div>
+                <!-- Mẫu cho nhiều sản phẩm (4 mẫu)-->
+                <div class="col-12 over_content">
+                    <div class="row">
+                        <div class="col-6">
+                            <a href="#" class="addition"><i>Yêu thích</i></a>
+                            <span>#Mã đơn tìm/ TÊN SHOP</span>
+                        </div>
+                        <div class="col-6 right">
+                            <span class="status">TRẠNG THÁI GIAO HÀNG</span>
+                        </div>
+                    </div>
+                    <!--Sản phẩm -->
+                    <div class="row">
+                        <div class="col-2">
+                            <img src="../assets/img/products/belly_02.jpg" class="product_picture">
+                        </div>
+                        <div class="col-8">
+                            <p><b>Tên sản phẩm Tên sản phẩm Tên sản phẩm Tên sản phẩm Tên sản phẩm Tên sản phẩm</b></p>
+                            <p>Loại: abc</p>
+                            <p>Số lượng: 1</p>
+                        </div>
+                        <div class="col-2 right">
+                            <p>45.000 VND</p>
+                            <del>Giá chưa giảm</del>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-12 over_content">
+                    <div class="row">
+                        <div class="col-6">
+                            <a href="#" class="addition"><i>Yêu thích</i></a>
+                            <span>#Mã đơn tìm/ TÊN SHOP</span>
+                        </div>
+                        <div class="col-6 right">
+                            <span class="status">TRẠNG THÁI GIAO HÀNG</span>
+                        </div>
+                    </div>
+                    <!--Sản phẩm -->
+                    <div class="row">
+                        <div class="col-2">
+                            <img src="../assets/img/products/belly_02.jpg" class="product_picture">
+                        </div>
+                        <div class="col-8">
+                            <p><b>Tên sản phẩm Tên sản phẩm Tên sản phẩm Tên sản phẩm Tên sản phẩm Tên sản phẩm</b></p>
+                            <p>Loại: abc</p>
+                            <p>Số lượng: 1</p>
+                        </div>
+                        <div class="col-2 right">
+                            <p>45.000 VND</p>
+                            <del>Giá chưa giảm</del>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-12 over_content">
+                    <div class="row">
+                        <div class="col-6">
+                            <a href="#" class="addition"><i>Yêu thích</i></a>
+                            <span>#Mã đơn tìm/ TÊN SHOP</span>
+                        </div>
+                        <div class="col-6 right">
+                            <span class="status">TRẠNG THÁI GIAO HÀNG</span>
+                        </div>
+                    </div>
+                    <!--Sản phẩm -->
+                    <div class="row">
+                        <div class="col-2">
+                            <img src="../assets/img/products/belly_02.jpg" class="product_picture">
+                        </div>
+                        <div class="col-8">
+                            <p><b>Tên sản phẩm Tên sản phẩm Tên sản phẩm Tên sản phẩm Tên sản phẩm Tên sản phẩm</b></p>
+                            <p>Loại: abc</p>
+                            <p>Số lượng: 1</p>
+                        </div>
+                        <div class="col-2 right">
+                            <p>45.000 VND</p>
+                            <del>Giá chưa giảm</del>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+            <div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<div id="footer-placeholder"></div>
+
+<script>
+    // Lấy Context Path tự động
+    const CTX = location.pathname.replace(/\/(pages\/[^/]*|index\.html)?$/, '');
+
+    // Load Header & Footer bằng đường dẫn chuẩn
+    fetch(CTX + '/components/header.html')
+        .then(r => {
+            if (!r.ok) throw new Error("Header 404");
+            return r.text();
+        })
+        .then(html => document.getElementById('header-placeholder').innerHTML = html)
+        .catch(e => console.error("Lỗi load header:", e));
+
+    fetch(CTX + '/components/footer.html')
+        .then(r => {
+            if (!r.ok) throw new Error("Footer 404");
+            return r.text();
+        })
+        .then(html => document.getElementById('footer-placeholder').innerHTML = html)
+        .catch(e => console.error("Lỗi load footer:", e));
+</script>
+<script src="../assets/js/popup.js"></script>
+<script src="${pageContext.request.contextPath}/assets/js/auth.js"></script>
+</body>
+</html>

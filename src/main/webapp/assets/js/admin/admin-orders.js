@@ -45,8 +45,9 @@ document.addEventListener("DOMContentLoaded", function () {
     let currentModalOrderId = null;
 
     // --- LOAD DATA FROM API ---
+    const CTX = window.CTX || (location.pathname.split('/')[1] ? '/' + location.pathname.split('/')[1] : '');
     function loadOrders() {
-        fetch("../api/admin/orders?t=" + new Date().getTime())
+        fetch(CTX + "/api/admin/orders?t=" + new Date().getTime())
             .then(function (res) {
                 if (!res.ok) throw new Error("Lỗi khi tải dữ liệu đơn hàng: " + res.statusText);
                 return res.json();
@@ -397,7 +398,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 }
             }
 
-            fetch("../api/admin/orders", {
+            fetch(CTX + "/api/admin/orders", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
@@ -426,7 +427,7 @@ document.addEventListener("DOMContentLoaded", function () {
     window.cancelOrder = function (orderId) {
         if (!confirm("CẢNH BÁO: Bạn có chắc chắn muốn HỦY đơn #ORD-" + orderId + "?")) return;
 
-        fetch("../api/admin/orders", {
+        fetch(CTX + "/api/admin/orders", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({

@@ -1,4 +1,4 @@
-window.CTX = window.CTX || location.pathname.replace(/\/(pages\/[^/]*|index\.html)?$/, '');
+window.CTX = window.CTX || location.pathname.replace(/\/(pages\/[^/]*|index\.(html|jsp))?$/, '');
 function whenReady(selector, cb) {
   const el = document.querySelector(selector);
   if (el) return cb(el);
@@ -21,7 +21,7 @@ function whenReady(selector, cb) {
     if (!me.loggedIn) {
       console.log("ĐÃ TÌM THẤY NAV-LOGIN:", link);
       link.textContent = 'Đăng nhập';
-      link.href = window.CTX + '/pages/login.html';
+      link.href = window.CTX + '/pages/login.jsp';
       return;
     }
 
@@ -40,13 +40,13 @@ document.addEventListener('click', e => {
   const home = e.target.closest('[data-home]');
   if (home) {
     e.preventDefault();
-    location.href = window.CTX + '/index.html';
+    location.href = window.CTX + '/index.jsp';
     return;
   }
   const out = e.target.closest('[data-logout]');
   if (out) {
     e.preventDefault();
     fetch(window.CTX + '/logout', { method: 'POST' })
-        .finally(() => location.href = window.CTX + '/index.html');
+        .finally(() => location.href = window.CTX + '/index.jsp');
   }
 });

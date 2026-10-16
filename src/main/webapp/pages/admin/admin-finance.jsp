@@ -161,9 +161,12 @@
 </div>
 
 <!-- Scripts -->
+<script>window.CTX = "${pageContext.request.contextPath}";</script>
 <script src="../../assets/js/admin/admin-common.js"></script>
-<script src="../../assets/js/admin/admin-finance.js"></script>
+<script src="../../assets/js/admin/admin-finance.js?v=4"></script>
 <script src="../../assets/js/popup.js"></script>
+<script src="${pageContext.request.contextPath}/assets/js/auth.js"></script>
+
 </body>
 </html>
 

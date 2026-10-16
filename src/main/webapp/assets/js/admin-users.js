@@ -15,8 +15,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
   let usersData = [];
 
+  const CTX = window.CTX || (location.pathname.split('/')[1] ? '/' + location.pathname.split('/')[1] : '');
+
   function loadUsers() {
-    fetch('../api/admin/users?t=' + new Date().getTime())
+    fetch(CTX + '/api/admin/users?t=' + new Date().getTime())
       .then(response => {
         if (!response.ok) {
           throw new Error('Lỗi khi tải dữ liệu người dùng: ' + response.statusText);
@@ -68,7 +70,7 @@ document.addEventListener("DOMContentLoaded", () => {
             content.append(document.createElement("br"));
             const link = document.createElement("a");
             link.className = "user-portfolio";
-            link.href = "shop-profile.html?id=" + user.shopId;
+            link.href = "shop-profile.jsp?id=" + user.shopId;
             link.target = "_blank";
             link.textContent = "Mở portfolio";
             link.style.color = "var(--primary-blue)";
@@ -100,7 +102,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     select.addEventListener("change", () => {
       const newStatus = select.value;
-      fetch('../api/admin/users', {
+      fetch(CTX + '/api/admin/users', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
