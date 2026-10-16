@@ -1,4 +1,20 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
+<%@ page import="dao.ProductDAO, java.util.List, java.util.Map" %>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
+<%
+    List<Map<String, Object>> featuredProducts = (List<Map<String, Object>>) request.getAttribute("featuredProducts");
+    if (featuredProducts == null) {
+        try {
+            featuredProducts = new ProductDAO().getFeaturedProducts();
+            request.setAttribute("featuredProducts", featuredProducts);
+        } catch (Exception e) {
+            featuredProducts = java.util.Collections.emptyList();
+            request.setAttribute("featuredProducts", featuredProducts);
+        }
+    }
+%>
 <!DOCTYPE html>
 <html lang="vi">
 <head>
@@ -76,44 +92,48 @@
             <div class="container">
                 <h2 class="section-title">Sản phẩm nổi bật</h2>
                 <div class="product-grid">
-                    <div class="product-card has-image" onclick="window.location.href='pages/product-detail.jsp'" style="cursor: pointer;">
-                        <img src="https://myumemories.com/wp-content/uploads/2026/01/z7461915860226_00fb3ad756b0b24c78c89caf38ad44ba-768x512.jpg" alt="Vòng tay hạt gỗ thơm & Charm bạc">
-                        <div class="product-info">
-                            <h3>Vòng tay hạt gỗ thơm & Charm bạc</h3>
-                            <p class="product-shop"><i class="fa-solid fa-store"></i> Xưởng Mộc An</p>
-                            <div class="product-rating">
-                                <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star-half-stroke"></i>
-                                <span class="rating-score">4.8</span>
-                            </div>
-                            <p class="price">120.000đ <span style="text-decoration: line-through; color: #999; margin-left: 10px; font-size: 0.9em;">150.000đ</span></p>
-                        </div>
-                    </div>
-                    
-                    <div class="product-card has-image" onclick="window.location.href='pages/product-detail.html'" style="cursor: pointer;">
-                        <img src="assets/img/products/necklace_02.jpg" alt="Dây chuyền Charm">
-                        <div class="product-info">
-                            <h3>Dây chuyền mặt trăng</h3>
-                            <p class="product-shop"><i class="fa-solid fa-store"></i> Silver Soul Studio</p>
-                            <div class="product-rating">
-                                <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i>
-                                <span class="rating-score">5.0</span>
-                            </div>
-                            <p class="price">350.000đ</p>
-                        </div>
-                    </div>
-                    
-                    <div class="product-card has-image" onclick="window.location.href='pages/product-detail.html'" style="cursor: pointer;">
-                        <img src="assets/img/products/anket_01.jpg" alt="Lắc chân Bạc">
-                        <div class="product-info">
-                            <h3>Lắc chân chuông bạc</h3>
-                            <p class="product-shop"><i class="fa-solid fa-store"></i> Handmade By My</p>
-                            <div class="product-rating">
-                                <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-regular fa-star"></i>
-                                <span class="rating-score">4.0</span>
-                            </div>
-                            <p class="price">220.000đ</p>
-                        </div>
-                    </div>
+                    <c:choose>
+                        <c:when test="${not empty featuredProducts}">
+                            <c:forEach var="product" items="${featuredProducts}">
+                                <c:set var="fallbackImg" value="${pageContext.request.contextPath}/assets/img/products/bracelet_01.jpg" />
+                                <c:if test="${product.categoryId eq 2}">
+                                    <c:set var="fallbackImg" value="${pageContext.request.contextPath}/assets/img/products/necklace_02.jpg" />
+                                </c:if>
+                                <c:if test="${product.categoryId eq 3}">
+                                    <c:set var="fallbackImg" value="${pageContext.request.contextPath}/assets/img/products/phoneStrap_01.jpg" />
+                                </c:if>
+                                <c:choose>
+                                    <c:when test="${not empty product.image and (fn:startsWith(product.image, 'http://') or fn:startsWith(product.image, 'https://'))}">
+                                        <c:set var="cardImg" value="${product.image}" />
+                                    </c:when>
+                                    <c:when test="${not empty product.image}">
+                                        <c:set var="cardImg" value="${pageContext.request.contextPath}/assets/img/${product.image}" />
+                                    </c:when>
+                                    <c:otherwise>
+                                        <c:set var="cardImg" value="${fallbackImg}" />
+                                    </c:otherwise>
+                                </c:choose>
+                                <div class="product-card has-image" onclick="window.location.href='${pageContext.request.contextPath}/pages/product-detail?id=${product.id}'" style="cursor: pointer;">
+                                    <img src="<c:out value='${cardImg}'/>" onerror="this.onerror=null;this.src='${fallbackImg}';" alt="<c:out value='${product.name}'/>">
+                                    <div class="product-info">
+                                        <h3><c:out value="${product.name}"/></h3>
+                                        <p class="product-shop"><i class="fa-solid fa-store"></i> <c:out value="${product.shopName}"/></p>
+                                        <div class="product-rating">
+                                            <i class="fa-solid fa-star"></i>
+                                            <span class="rating-score">
+                                                <fmt:formatNumber value="${product.rating}" minFractionDigits="1" maxFractionDigits="1"/>
+                                            </span>
+                                            <span class="review-count">(<c:out value="${product.reviewCount}"/>)</span>
+                                        </div>
+                                        <p class="price"><fmt:formatNumber value="${product.price}" type="number" groupingUsed="true"/>đ</p>
+                                    </div>
+                                </div>
+                            </c:forEach>
+                        </c:when>
+                        <c:otherwise>
+                            <p style="text-align: center; color: var(--text-muted); width: 100%; grid-column: 1 / -1; padding: 40px 0;">Hiện chưa có sản phẩm nổi bật nào.</p>
+                        </c:otherwise>
+                    </c:choose>
                 </div>
             </div>
         </section>

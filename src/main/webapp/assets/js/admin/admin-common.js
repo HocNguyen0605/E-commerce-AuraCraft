@@ -1,4 +1,4 @@
-// --- LOAD ADMIN SIDEBAR & CHỨC NĂNG CHUNG ---
+//  LOAD ADMIN SIDEBAR & CHỨC NĂNG CHUNG 
 document.addEventListener("DOMContentLoaded", function() {
     const sidebarPlaceholder = document.getElementById('admin-sidebar-placeholder');
     if (sidebarPlaceholder) {
@@ -24,7 +24,7 @@ document.addEventListener("DOMContentLoaded", function() {
     }
 });
 
-// --- CÁC HÀM TIỆN ÍCH CHUNG CHO TOÀN BỘ TRANG ADMIN ---
+//  CÁC HÀM TIỆN ÍCH CHUNG CHO TOÀN BỘ TRANG ADMIN 
 
 // Định dạng tiền tệ VNĐ
 window.formatMoney = function(value) {
