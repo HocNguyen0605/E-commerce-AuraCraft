@@ -1,4 +1,4 @@
-package controller;
+package controller;//package controller;
 
 import com.google.gson.Gson;
 import dao.CheckoutDAO;
@@ -58,12 +58,17 @@ public class CheckoutServlet extends HttpServlet {
                     }
                     BigDecimal subtotal = BigDecimal.ZERO;
                     java.util.Set<Integer> shops = new java.util.LinkedHashSet<>();
+                    boolean hasCustomItem = false;
                     for (Map<String, Object> item : checkoutItems) {
                         BigDecimal price = (BigDecimal) item.get("price");
                         int quantity = (Integer) item.get("quantity");
                         subtotal = subtotal.add(price.multiply(BigDecimal.valueOf(quantity)));
                         shops.add((Integer) item.get("shopId"));
                         item.put("imageUrl", checkoutImageUrl(request, (String) item.get("image"), (Integer) item.get("categoryId")));
+                        String itemName = (String) item.get("name");
+                        if (itemName != null && itemName.toLowerCase().contains("custom")) {
+                            hasCustomItem = true;
+                        }
                     }
                     BigDecimal shipping = new BigDecimal("25300").multiply(BigDecimal.valueOf(shops.size()));
                     request.setAttribute("checkoutItems", checkoutItems);
@@ -71,6 +76,7 @@ public class CheckoutServlet extends HttpServlet {
                     request.setAttribute("checkoutSubtotal", subtotal);
                     request.setAttribute("checkoutShipping", shipping);
                     request.setAttribute("checkoutTotal", subtotal.add(shipping));
+                    request.setAttribute("hasCustomItem", hasCustomItem);
                     request.setAttribute("availableVouchers", checkoutDAO.findAvailableVouchers(((Number) userId).intValue(), productIds));
                 }
                 Map<String, String> savedAddress = checkoutDAO.findDefaultAddress(((Number) userId).intValue());
@@ -137,7 +143,7 @@ public class CheckoutServlet extends HttpServlet {
         String phone = trim(checkoutRequest.getPhone()).replaceAll("\\s+", "");
         String address = trim(checkoutRequest.getAddress());
         String note = trim(checkoutRequest.getNote());
-        String payment = trim(checkoutRequest.getPaymentMethod()).equalsIgnoreCase("vnpay") ? "VNPay" : "COD";
+        String payment = trim(checkoutRequest.getPaymentMethod()).toLowerCase(java.util.Locale.ROOT).contains("vnpay") ? "VNPay" : "COD";
         List<Integer> productIds = parseIds(checkoutRequest.getProductIds());
         if (receiver.isBlank() || receiver.length() > 100 || !phone.matches("0[35789][0-9]{8}")
                 || address.isBlank() || address.length() > 350 || note.length() > 100
@@ -160,7 +166,7 @@ public class CheckoutServlet extends HttpServlet {
             checkoutResponse.setTotal((BigDecimal) result.get("total"));
             checkoutResponse.setItemCount(((Number) result.get("itemCount")).intValue());
             checkoutResponse.setPaymentMethod(payment);
-            // COD also waits for a simulated 50% deposit before the success page.
+            checkoutResponse.setHasCustomItem(Boolean.TRUE.equals(result.get("hasCustomItem")));
             checkoutResponse.setPaymentReference(paymentReference);
             checkoutResponse.setVoucherDiscount((BigDecimal) result.get("voucherDiscount"));
             checkoutResponse.setCoinDiscount((BigDecimal) result.get("coinDiscount"));

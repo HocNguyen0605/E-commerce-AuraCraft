@@ -139,11 +139,12 @@
                 <c:when test="${product.categoryId eq 3}"><c:set var="customizerType" value="charm"/></c:when>
                 <c:otherwise><c:set var="customizerType" value="bracelet"/></c:otherwise>
             </c:choose>
-            <c:url var="customizerUrl" value="/pages/customizer.html">
+            <c:url var="customizerUrl" value="/pages/customizer.jsp">
                 <c:param name="type" value="${customizerType}"/>
                 <c:param name="id" value="${product.id}"/>
                 <c:param name="name" value="${product.name}"/>
                 <c:param name="shop" value="${product.shopName}"/>
+                <c:param name="shopId" value="${product.shopId}"/>
                 <c:param name="context" value="${pageContext.request.contextPath}"/>
             </c:url>
             <a href="${customizerUrl}"
@@ -153,7 +154,10 @@
         </div>
     </section>
     <section class="pd-shop-section">
-        <h3>Cửa hàng</h3><a href="${pageContext.request.contextPath}/pages/shop-profile.html?id=${product.shopId}"
+        <c:url var="shopProfileUrl" value="/pages/shop-profile">
+            <c:param name="id" value="${product.shopId}"/>
+        </c:url>
+        <h3>Cửa hàng</h3><a href="${shopProfileUrl}"
                             class="pd-shop"><span class="pd-shop-avatar">
                     <c:out value="${product.shopName.substring(0,1)}"/>
                 </span><span class="pd-shop-body"><strong class="pd-shop-name">
@@ -168,6 +172,11 @@
         <p>
             <c:out value="${product.description}"/>
         </p>
+    </section>
+    <section class="pd-desc card">
+        <h3>Thông tin sản phẩm &amp; hướng dẫn bảo quản</h3>
+        <p><strong>Danh mục:</strong> <c:out value="${product.categoryName}"/> · <strong>Gian hàng:</strong> <c:out value="${product.shopName}"/> · <strong>Tình trạng:</strong> <c:choose><c:when test="${product.stock gt 0}">Còn hàng</c:when><c:otherwise>Hết hàng</c:otherwise></c:choose></p>
+        <p>Bảo quản nơi khô ráo, tránh tiếp xúc lâu với nước hoa, hóa chất và độ ẩm cao. Lau nhẹ bằng khăn mềm sau khi sử dụng.</p>
     </section>
     <section class="pd-reviews" id="reviews">
         <h2 class="section-title">Đánh giá từ người mua</h2>
@@ -227,7 +236,7 @@
         <div class="shop-suggest-grid" id="similarGrid">
             <c:choose>
                 <c:when test="${not empty similarProducts}">
-                    <c:forEach items="${similarProducts}" var="similar"><a class="shop-suggest-item"
+                    <c:forEach items="${similarProducts}" var="similar"><article class="similar-product-card"><a class="shop-suggest-item"
                                                                            href="${pageContext.request.contextPath}/pages/product-detail?id=${similar.id}">
                         <c:choose>
                             <c:when test="${not empty similar.image}">
@@ -248,7 +257,7 @@
                                         <fmt:formatNumber value="${similar.rating}" maxFractionDigits="1"/>
                                         · Đã bán ${similar.soldCount}
                                     </span></div>
-                    </a></c:forEach>
+                    </a><button type="button" class="btn btn-outline similar-add-cart" data-id="${similar.id}" data-name="<c:out value='${similar.name}'/>" data-price="${similar.price}" data-stock="${similar.stock}" data-category="<c:out value='${similar.categoryName}'/>" data-shop="<c:out value='${similar.shopName}'/>">Thêm giỏ hàng</button></article></c:forEach>
                 </c:when>
                 <c:otherwise>
                     <p class="pd-empty">Chưa có sản phẩm tương tự.</p>
@@ -334,16 +343,32 @@
 
     document.getElementById('pdAddToCartBtn')?.addEventListener('click', () => addCart(false));
     document.getElementById('pdBuyNowBtn')?.addEventListener('click', () => addCart(true));
-    fetch(ctx + '/components/header.html').then(r => r.text()).then(html => {
-        document.getElementById('header-placeholder').innerHTML = html.replace(/href="index\.html"/g, 'href="' + ctx + '/index.html"').replace(/href="login\.html"/g, 'href="' + ctx + '/pages/login.html"').replace(/href="profile\.html"/g, 'href="' + ctx + '/profile"').replace(/href="pages\/products"/g, 'href="' + ctx + '/pages/products"').replace(/href="cart\.jsp"/g, 'href="' + ctx + '/pages/cart.jsp"').replace(/href="pages\/cart\.jsp"/g, 'href="' + ctx + '/pages/cart.jsp"').replace(/href="\.\.\/products"/g, 'href="' + ctx + '/pages/products"')
-    });
-    fetch(ctx + '/components/footer.html').then(r => r.text()).then(html => {
-        document.getElementById('footer-placeholder').innerHTML = html.replace(/href="index\.html"/g, 'href="' + ctx + '/index.html"').replace(/href="pages\/products"/g, 'href="' + ctx + '/pages/products"').replace(/href="\.\.\/products"/g, 'href="' + ctx + '/pages/products"')
-    });
+    document.querySelectorAll('.similar-add-cart').forEach(button => button.addEventListener('click', async () => {
+        const id = button.dataset.id, quantity = 1;
+        try {
+            if (root.dataset.databaseCart === 'true') {
+                const response = await fetch(ctx + '/api/cart', {method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded;charset=UTF-8'},body:new URLSearchParams({action:'add',productId:id,quantity:String(quantity)})});
+                const result = await response.json(); if (!response.ok) throw new Error(result.message || 'Không thể thêm sản phẩm vào giỏ.');
+            } else {
+                const cart = JSON.parse(localStorage.getItem('AuraCraftCart') || '[]');
+                const existing = cart.find(item => String(item.id) === id);
+                if (existing) existing.quantity = Math.min(Number(button.dataset.stock || 99), Number(existing.quantity || 1) + 1);
+                else cart.push({id:Number(id),name:button.dataset.name,price:Number(button.dataset.price),quantity:1,stock:Number(button.dataset.stock || 99),categoryName:button.dataset.category,shopName:button.dataset.shop,selected:true});
+                localStorage.setItem('AuraCraftCart', JSON.stringify(cart));
+            }
+            button.textContent = 'Đã thêm vào giỏ'; setTimeout(() => button.textContent = 'Thêm giỏ hàng', 1500);
+        } catch (error) { alert(error.message); }
+    }));
+    // fetch(ctx + '/components/header.html').then(r => r.text()).then(html => {
+    //     document.getElementById('header-placeholder').innerHTML = html.replace(/href="index\.html"/g, 'href="' + ctx + '/index.html"').replace(/href="login\.html"/g, 'href="' + ctx + '/pages/login.html"').replace(/href="profile\.html"/g, 'href="' + ctx + '/profile"').replace(/href="pages\/products"/g, 'href="' + ctx + '/pages/products"').replace(/href="cart\.jsp"/g, 'href="' + ctx + '/pages/cart.jsp"').replace(/href="pages\/cart\.jsp"/g, 'href="' + ctx + '/pages/cart.jsp"').replace(/href="\.\.\/products"/g, 'href="' + ctx + '/pages/products"')
+    // });
+    // fetch(ctx + '/components/footer.html').then(r => r.text()).then(html => {
+    //     document.getElementById('footer-placeholder').innerHTML = html.replace(/href="index\.html"/g, 'href="' + ctx + '/index.html"').replace(/href="pages\/products"/g, 'href="' + ctx + '/pages/products"').replace(/href="\.\.\/products"/g, 'href="' + ctx + '/pages/products"')
+    // });
 </script>
 <script src="${pageContext.request.contextPath}/assets/js/popup.js"></script>
 <script src="${pageContext.request.contextPath}/assets/js/site-shell.js"></script>
-<script src="assets/js/auth.js"></script>
+<script src="${pageContext.request.contextPath}/assets/js/auth.js"></script>
 </body>
 
 </html>

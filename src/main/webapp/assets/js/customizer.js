@@ -13,21 +13,29 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const params = new URLSearchParams(window.location.search);
   const productId = parseInt(params.get('id'), 10);
-  const product = (typeof AURA_PRODUCTS !== 'undefined') ? AURA_PRODUCTS.find(p => p.id === productId) : null;
-  const type = product ? product.type : (TYPE_CONFIG[params.get('type')] ? params.get('type') : 'bracelet');
+  const productName = (params.get('name') || '').trim();
+  const product = productId ? {
+    id: productId,
+    name: productName || `Sản phẩm #${productId}`,
+    shop: (params.get('shop') || '').trim() || 'AuraCraft'
+  } : null;
+  const type = TYPE_CONFIG[params.get('type')] ? params.get('type') : 'bracelet';
   const cfg = TYPE_CONFIG[type];
-  const shopName = product ? product.shop : 'Xưởng Mộc An';
+  const shopName = (product ? product.shop : (params.get('shop') || 'AuraCraft')).trim();
+  const shopId = params.get('shopId') || '';
+  const context = params.get('context') || '';
 
-  const backHref = 'shop-profile.jsp';
+  const backHref = productId ? `${context}/pages/product-detail?id=${encodeURIComponent(productId)}` : `${context}/pages/products`;
   document.getElementById('czBackLink').href = backHref;
   document.getElementById('czBackLink').textContent = `← Quay lại cửa hàng (${shopName})`;
   document.getElementById('czCancelLink').href = backHref;
   document.getElementById('czCancelLink').textContent = `Không muốn custom nữa? Quay lại cửa hàng`;
 
   document.getElementById('czTag').textContent = `Thiết kế Custom · ${cfg.label}`;
-  document.getElementById('czHeading').textContent = product ? `Custom: ${product.name}` : cfg.heading;
-  document.getElementById('czShopInfo').innerHTML =
-    `Yêu cầu Custom này sẽ gửi trực tiếp đến <strong>${shopName}</strong> — shop sẽ báo giá thực tế cho riêng bạn.`;
+  document.getElementById('czHeading').textContent = product ? product.name : cfg.heading;
+  document.getElementById('czShopInfo').textContent = product
+    ? `Sản phẩm: ${product.name} · Gian hàng: ${shopName}. Giá thiết kế được tính theo các vật liệu bạn chọn.`
+    : `Gian hàng: ${shopName}. Giá thiết kế được tính theo các vật liệu bạn chọn.`;
   const LIBRARY_ITEMS = [
     { name: 'Hạt chữ', price: 10000, image: 'https://myumemories.com/wp-content/uploads/2025/11/3-65-300x300.png' },
     { name: 'Charm hoa', price: 40000, image: 'https://myumemories.com/wp-content/uploads/2026/01/3-10-300x300.png' },
@@ -45,18 +53,13 @@ document.addEventListener('DOMContentLoaded', () => {
   let totalSlots = cfg.slotCount;
   let slots = new Array(totalSlots).fill(null);
 
-  // Demo: Tự động fill đầy charm nếu người dùng click từ product detail (có productId)
-  if (productId) {
-    for (let i = 0; i < totalSlots; i++) {
-      slots[i] = LIBRARY_ITEMS[i % Math.min(4, LIBRARY_ITEMS.length)];
-    }
-  }
-
   const sizeSelect = document.getElementById('czSlotSize');
   if (sizeSelect) {
-    if ([14, 16, 18, 20].includes(totalSlots)) {
-      sizeSelect.value = totalSlots;
-    }
+    const sizes = { bracelet: [14, 16, 18, 20], necklace: [10, 12, 14, 16], ring: [4, 6, 8], charm: [3, 4, 5] }[type];
+    sizeSelect.innerHTML = sizes.map(value => `<option value="${value}">${value} ${type === 'ring' ? 'size' : type === 'necklace' ? 'cm' : 'vị trí'}</option>`).join('');
+    sizeSelect.value = String(sizes.includes(totalSlots) ? totalSlots : sizes[0]);
+    totalSlots = Number(sizeSelect.value);
+    slots = new Array(totalSlots).fill(null);
     sizeSelect.addEventListener('change', (e) => {
       const newSize = parseInt(e.target.value, 10);
       if (newSize > totalSlots) {
@@ -141,7 +144,9 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     placed.forEach(p => {
       const li = document.createElement('li');
-      li.innerHTML = `<span>${p.name}</span><span>${formatVND(p.price)}</span>`;
+      const name = document.createElement('span'); name.textContent = p.name;
+      const price = document.createElement('span'); price.textContent = formatVND(p.price);
+      li.append(name, price);
       priceList.appendChild(li);
     });
   }
@@ -295,15 +300,42 @@ document.addEventListener('DOMContentLoaded', () => {
   const sendModalClose = document.getElementById('czSendModalClose');
   const sendShopNameEl = document.getElementById('czSendShopName');
 
-  if (saveDesignBtn) {
-    saveDesignBtn.addEventListener('click', () => {
-        if (filledCount() === 0) {
-            alert('Vui lòng thêm ít nhất một charm vào thiết kế trước khi lưu.');
-            return;
-        }
-        alert('Thiết kế của bạn đã được lưu vào Bộ sưu tập cá nhân!');
-    });
+  const draftSelect = document.getElementById('czSavedDesigns');
+  let currentDesignId = params.get('designId') || '';
+  function designPayload() {
+    return { id: currentDesignId, name: product ? `Custom · ${product.name}` : `Thiết kế ${cfg.label}`,
+      productType: product ? `Custom · ${product.name}` : `Custom · ${cfg.label}`,
+      sellerName: shopName, shopId, slots: slots.map(item => item ? {...item} : null), size: totalSlots,
+      price: slots.reduce((sum, item) => sum + (item ? Number(item.price) || 0 : 0), 0) };
   }
+  function refreshSavedDesigns(selectedId) {
+    if (!draftSelect || !window.AuraCraftCustom) return;
+    const designs = window.AuraCraftCustom.listCustomDesigns();
+    draftSelect.innerHTML = '<option value="">Chọn thiết kế để tải</option>';
+    designs.forEach(design => {
+      const option = document.createElement('option'); option.value = design.id;
+      option.textContent = `${design.name} · ${formatVND(design.price)}`; draftSelect.appendChild(option);
+    });
+    draftSelect.value = selectedId || '';
+  }
+  refreshSavedDesigns(currentDesignId);
+  if (draftSelect) draftSelect.addEventListener('change', () => {
+    const saved = window.AuraCraftCustom.listCustomDesigns().find(item => item.id === draftSelect.value);
+    if (!saved) return;
+    currentDesignId = saved.id;
+    totalSlots = Math.max(1, Number(saved.size) || cfg.slotCount);
+    slots = Array.from({length: totalSlots}, (_, i) => saved.slots?.[i] || null);
+    if (sizeSelect) sizeSelect.value = String(totalSlots);
+    refreshAll();
+  });
+  if (saveDesignBtn) saveDesignBtn.addEventListener('click', () => {
+    if (!filledCount()) { alert('Vui lòng thêm ít nhất một charm vào thiết kế trước khi lưu.'); return; }
+    try {
+      const saved = window.AuraCraftCustom.saveCustomDesign(designPayload());
+      currentDesignId = saved.id; refreshSavedDesigns(saved.id);
+      alert('Đã lưu thiết kế. Bạn có thể tải lại thiết kế này ở danh sách “Thiết kế đã lưu”.');
+    } catch (error) { alert(error.message || 'Không thể lưu thiết kế.'); }
+  });
 
   sendShopBtn.addEventListener('click', () => {
     if (filledCount() === 0) {
@@ -311,33 +343,12 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
     
-    // Tạo đơn hàng ảo
-    const total = slots.reduce((sum, p) => sum + (p ? p.price : 0), 0);
-    const virtualOrderId = "ORD-" + Math.floor(1000 + Math.random() * 9000);
-    const orderData = {
-        id: virtualOrderId,
-        productType: product ? `Custom: ${product.name}` : `Custom: ${cfg.label}`,
-        sellerName: shopName,
-        price: total,
-        days: 5,
-        paymentStatus: 'unpaid',
-        buyerName: 'Khách hàng',
-        buyerEmail: 'khachhang@example.com'
-    };
-    
-    // Lưu vào AuraCraftCustom DB giả lập
     try {
-        const stateStr = localStorage.getItem("auracraft_custom_workflow");
-        if (stateStr) {
-            const state = JSON.parse(stateStr);
-            state.orders.push(orderData);
-            localStorage.setItem("auracraft_custom_workflow", JSON.stringify(state));
-        }
-    } catch (e) {
-        console.error(e);
-    }
-    
-    window.location.href = `checkout.html?orderId=${orderData.id}`;
+      const design = designPayload();
+      const order = window.AuraCraftCustom.createDesignerOrder(design);
+      order.design = design.slots; order.designSize = design.size;
+      window.location.href = `${context}/pages/checkout.jsp?orderId=${encodeURIComponent(order.id)}`;
+    } catch (error) { alert(error.message || 'Không thể tạo đơn thiết kế.'); }
   });
   sendModalClose.addEventListener('click', () => { window.location.href = backHref; });
 });

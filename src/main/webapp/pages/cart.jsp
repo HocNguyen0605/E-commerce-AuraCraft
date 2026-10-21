@@ -34,6 +34,6 @@
 <script src="${pageContext.request.contextPath}/assets/js/cart.js"></script>
 <script src="${pageContext.request.contextPath}/assets/js/popup.js"></script>
 <script src="${pageContext.request.contextPath}/assets/js/site-shell.js"></script>
-<script src="assets/js/auth.js"></script>
+<script src="${pageContext.request.contextPath}/assets/js/auth.js"></script>
 </body>
 </html>

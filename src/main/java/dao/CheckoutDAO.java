@@ -13,7 +13,7 @@ import java.util.Map;
 /** Creates an order from the signed-in buyer's selected database cart items. */
 public class CheckoutDAO {
     private static final BigDecimal SHIPPING_FEE = new BigDecimal("25300");
-    private static final BigDecimal COIN_VALUE = new BigDecimal("1000");
+    private static final BigDecimal COIN_VALUE = new BigDecimal("10");
 
     public Map<String, Object> previewBenefits(int userId, List<Integer> productIds,
                                                 String voucherCode, boolean useCoins) throws SQLException {
@@ -22,18 +22,38 @@ public class CheckoutDAO {
             throw new IllegalArgumentException("Sản phẩm trong giỏ đã thay đổi. Vui lòng tải lại trang.");
         }
         try (Connection connection = DBConnection.getConnection()) {
-            Map<String, Object> result = calculateBenefits(connection, userId, items, voucherCode, useCoins, false);
-            BigDecimal subtotal = BigDecimal.ZERO;
-            java.util.Set<Integer> shops = new java.util.HashSet<>();
-            for (Map<String, Object> item : items) {
-                subtotal = subtotal.add(((BigDecimal) item.get("price")).multiply(BigDecimal.valueOf((Integer) item.get("quantity"))));
-                shops.add((Integer) item.get("shopId"));
+            connection.setAutoCommit(false);
+            try {
+                syncCompletedOrderRewards(connection, userId);
+                Map<String, Object> result = calculateBenefits(connection, userId, items, voucherCode, useCoins, true);
+                BigDecimal subtotal = BigDecimal.ZERO;
+                java.util.Set<Integer> shops = new java.util.HashSet<>();
+                for (Map<String, Object> item : items) {
+                    subtotal = subtotal.add(((BigDecimal) item.get("price")).multiply(BigDecimal.valueOf((Integer) item.get("quantity"))));
+                    shops.add((Integer) item.get("shopId"));
+                }
+                BigDecimal shipping = SHIPPING_FEE.multiply(BigDecimal.valueOf(shops.size()));
+                boolean hasCustomItem = false;
+                for (Map<String, Object> item : items) {
+                    String name = (String) item.get("name");
+                    if (name != null && name.toLowerCase().contains("custom")) {
+                        hasCustomItem = true;
+                        break;
+                    }
+                }
+                result.put("hasCustomItem", hasCustomItem);
+                result.put("subtotal", subtotal);
+                result.put("shipping", shipping);
+                result.put("total", subtotal.subtract((BigDecimal) result.get("discount")).add(shipping));
+                result.put("pendingCoins", findPendingRewardCoins(connection, userId));
+                connection.commit();
+                return result;
+            } catch (SQLException | RuntimeException exception) {
+                connection.rollback();
+                throw exception;
+            } finally {
+                connection.setAutoCommit(true);
             }
-            BigDecimal shipping = SHIPPING_FEE.multiply(BigDecimal.valueOf(shops.size()));
-            result.put("subtotal", subtotal);
-            result.put("shipping", shipping);
-            result.put("total", subtotal.subtract((BigDecimal) result.get("discount")).add(shipping));
-            return result;
         }
     }
 
@@ -84,15 +104,16 @@ public class CheckoutDAO {
             shopTotals.merge(shopId, line, BigDecimal::add);
         }
         BigDecimal subtotal = shopTotals.values().stream().reduce(BigDecimal.ZERO, BigDecimal::add);
-        int availableCoins;
+        int accountCoins;
         String accountSql = "SELECT loyaltyPoint FROM account WHERE id_user=?" + (lockRows ? " FOR UPDATE" : "");
         try (PreparedStatement statement = connection.prepareStatement(accountSql)) {
             statement.setInt(1, userId);
             try (ResultSet rs = statement.executeQuery()) {
                 if (!rs.next()) throw new IllegalArgumentException("Không tìm thấy tài khoản tích xu.");
-                availableCoins = rs.getInt("loyaltyPoint");
+                accountCoins = rs.getInt("loyaltyPoint");
             }
         }
+        int availableCoins = Math.max(0, accountCoins - findRewardDebt(connection, userId));
 
         int voucherId = 0;
         Integer voucherShopId = null;
@@ -190,6 +211,86 @@ public class CheckoutDAO {
         result.put("remainingCoins", availableCoins - coinsUsed);
         result.put("discount", voucherDiscount.add(coinDiscount));
         return result;
+    }
+
+    /** Reconciles order reward ledgers with the current accrual rule and each order's completion state. */
+    private void syncCompletedOrderRewards(Connection connection, int userId) throws SQLException {
+        try (PreparedStatement balanceLock = connection.prepareStatement(
+                "SELECT loyaltyPoint FROM account WHERE id_user=? FOR UPDATE")) {
+            balanceLock.setInt(1, userId);
+            try (ResultSet rs = balanceLock.executeQuery()) {
+                if (!rs.next()) throw new IllegalArgumentException("Không tìm thấy tài khoản tích xu.");
+            }
+        }
+        String sql = "SELECT o.id, " +
+                "FLOOR(GREATEST(o.amount-o.shipping_fee,0)/10000) - COALESCE(SUM(lt.points),0) AS delta " +
+                "FROM orders o " +
+                "LEFT JOIN loyaltytransactions lt ON lt.id_order=o.id AND lt.id_user=o.id_user AND lt.type IN ('earn','adjust') " +
+                "WHERE o.id_user=? AND o.status='completed' " +
+                "GROUP BY o.id, o.amount, o.shipping_fee " +
+                "HAVING delta <> 0";
+        List<int[]> deltas = new ArrayList<>();
+        try (PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setInt(1, userId);
+            try (ResultSet rs = statement.executeQuery()) {
+                while (rs.next()) {
+                    deltas.add(new int[]{rs.getInt("id"), rs.getInt("delta")});
+                }
+            }
+        }
+        for (int[] delta : deltas) {
+            applyOrderRewardDelta(connection, userId, delta[0], delta[1]);
+        }
+    }
+
+    private int getOrderRewardLedgerBalance(Connection connection, int userId, int orderId) throws SQLException {
+        try (PreparedStatement statement = connection.prepareStatement(
+                "SELECT COALESCE(SUM(points),0) FROM loyaltytransactions WHERE id_user=? AND id_order=? AND type IN ('earn','adjust')")) {
+            statement.setInt(1, userId); statement.setInt(2, orderId);
+            try (ResultSet rs = statement.executeQuery()) { return rs.next() ? rs.getInt(1) : 0; }
+        }
+    }
+
+    private void applyOrderRewardDelta(Connection connection, int userId, int orderId, int delta) throws SQLException {
+        if (delta == 0) return;
+        if (delta > 0) {
+            try (PreparedStatement balance = connection.prepareStatement(
+                    "UPDATE account SET loyaltyPoint=loyaltyPoint+? WHERE id_user=?")) {
+                balance.setInt(1, delta); balance.setInt(2, userId);
+                if (balance.executeUpdate() != 1) throw new SQLException("Không tìm thấy số dư xu của người mua.");
+            }
+            insertOrderRewardLedger(connection, userId, orderId, delta, "earn");
+        } else {
+            // Negative adjustments track points that must be recovered after refunds or reward corrections.
+            insertOrderRewardLedger(connection, userId, orderId, delta, "adjust");
+        }
+    }
+
+    private void insertOrderRewardLedger(Connection connection, int userId, int orderId, int points, String type) throws SQLException {
+        try (PreparedStatement ledger = connection.prepareStatement(
+                "INSERT INTO loyaltytransactions(id_user,id_order,points,type) VALUES(?,?,?,?)")) {
+            ledger.setInt(1, userId); ledger.setInt(2, orderId); ledger.setInt(3, points); ledger.setString(4, type);
+            ledger.executeUpdate();
+        }
+    }
+
+    private int findRewardDebt(Connection connection, int userId) throws SQLException {
+        try (PreparedStatement statement = connection.prepareStatement(
+                "SELECT COALESCE(SUM(-points),0) FROM loyaltytransactions WHERE id_user=? AND type='adjust' AND points<0")) {
+            statement.setInt(1, userId);
+            try (ResultSet rs = statement.executeQuery()) { return rs.next() ? rs.getInt(1) : 0; }
+        }
+    }
+
+    private int findPendingRewardCoins(Connection connection, int userId) throws SQLException {
+        String sql = "SELECT COALESCE(SUM(FLOOR(GREATEST(amount-shipping_fee,0)/10000)),0) " +
+                "FROM orders WHERE id_user=? AND status NOT IN ('completed','cancelled','refunded')";
+        try (PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setInt(1, userId);
+            try (ResultSet rs = statement.executeQuery()) {
+                return rs.next() ? rs.getInt(1) : 0;
+            }
+        }
     }
 
     public Map<String, String> findDefaultAddress(int userId) throws SQLException {
@@ -305,6 +406,7 @@ public class CheckoutDAO {
                     throw new IllegalArgumentException("Có sản phẩm không còn trong giỏ hoặc đã ngừng bán. Vui lòng tải lại giỏ hàng.");
                 }
 
+                syncCompletedOrderRewards(connection, userId);
                 Map<String, Object> benefits = calculateBenefits(connection, userId, items, voucherCode, useCoins, true);
                 int paymentMethodId = findPaymentMethod(connection, paymentMethod);
                 Map<Integer, List<Map<String, Object>>> byShop = new LinkedHashMap<>();
@@ -329,7 +431,7 @@ public class CheckoutDAO {
                     BigDecimal shopDiscount = voucherPart.add(coinPart);
                     BigDecimal netShopGoods = shopSubtotal.subtract(shopDiscount).max(BigDecimal.ZERO);
                     BigDecimal orderTotal = netShopGoods.add(SHIPPING_FEE);
-                    rewardCoinsPending += netShopGoods.divide(new BigDecimal("100000"), 0, RoundingMode.DOWN).intValue();
+                    rewardCoinsPending += netShopGoods.divide(new BigDecimal("10000"), 0, RoundingMode.DOWN).intValue();
                     int pointsUsedForShop = coinPart.divide(COIN_VALUE, 0, RoundingMode.DOWN).intValue();
                     Integer voucherShopId = (Integer) benefits.get("voucherShopId");
                     int voucherId = (Integer) benefits.get("voucherId");
@@ -342,12 +444,12 @@ public class CheckoutDAO {
                         statement.setBigDecimal(4, orderTotal); statement.setBigDecimal(5, SHIPPING_FEE);
                         statement.setBigDecimal(6, shopDiscount);
                         if (voucherAppliedHere && (voucherShopId == null || voucherShopId == shopId)) statement.setInt(7, voucherId);
-                        else statement.setNull(7, java.sql.Types.INTEGER);
+                        else statement.setNull(7, Types.INTEGER);
                         statement.setInt(8, pointsUsedForShop);
                         statement.setString(9, address);
                         statement.setString(10, receiver);
                         statement.setString(11, phone);
-                        if (note.isBlank()) statement.setNull(12, java.sql.Types.VARCHAR);
+                        if (note.isBlank()) statement.setNull(12, Types.VARCHAR);
                         else statement.setString(12, note);
                         statement.executeUpdate();
                         try (ResultSet keys = statement.getGeneratedKeys()) {
@@ -434,6 +536,15 @@ public class CheckoutDAO {
                 result.put("rewardCoinsPending", rewardCoinsPending);
                 result.put("total", subtotal.subtract((BigDecimal) benefits.get("discount"))
                         .add(SHIPPING_FEE.multiply(BigDecimal.valueOf(orderIds.size()))));
+                boolean hasCustomItem = false;
+                for (Map<String, Object> item : items) {
+                    String name = (String) item.get("name");
+                    if (name != null && name.toLowerCase().contains("custom")) {
+                        hasCustomItem = true;
+                        break;
+                    }
+                }
+                result.put("hasCustomItem", hasCustomItem);
                 result.put("itemCount", items.stream().mapToInt(item -> (Integer) item.get("quantity")).sum());
                 return result;
             } catch (SQLException | RuntimeException exception) {
@@ -445,7 +556,13 @@ public class CheckoutDAO {
         }
     }
 
+    private static volatile boolean shippingColumnsEnsured = false;
+
     private void ensureShippingColumns(Connection connection) throws SQLException {
+        if (shippingColumnsEnsured) return;
+        boolean migrateLegacyShipping = !hasOrderColumn(connection, "shipping_receiver")
+                || !hasOrderColumn(connection, "shipping_phone")
+                || !hasOrderColumn(connection, "shipping_note");
         ensureOrderColumn(connection, "shipping_receiver",
                 "ALTER TABLE `orders` ADD COLUMN `shipping_receiver` varchar(100) DEFAULT NULL");
         ensureOrderColumn(connection, "shipping_phone",
@@ -453,14 +570,26 @@ public class CheckoutDAO {
         ensureOrderColumn(connection, "shipping_note",
                 "ALTER TABLE `orders` ADD COLUMN `shipping_note` varchar(500) DEFAULT NULL");
 
-        // Keep historical orders readable when upgrading a database that stored all fields together.
-        try (PreparedStatement migrate = connection.prepareStatement(
-                "UPDATE orders SET shipping_receiver=SUBSTRING_INDEX(SUBSTRING_INDEX(shipping_address,' | SĐT: ',1),'Người nhận: ',-1)," +
-                        "shipping_phone=SUBSTRING_INDEX(SUBSTRING_INDEX(shipping_address,' | Địa chỉ: ',1),' | SĐT: ',-1)," +
-                        "shipping_note=CASE WHEN shipping_address LIKE '% | Ghi chú: %' THEN SUBSTRING_INDEX(shipping_address,' | Ghi chú: ',-1) ELSE NULL END," +
-                        "shipping_address=TRIM(SUBSTRING_INDEX(SUBSTRING_INDEX(shipping_address,' | Ghi chú: ',1),' | Địa chỉ: ',-1)) " +
-                        "WHERE shipping_address LIKE 'Người nhận: % | SĐT: % | Địa chỉ: %'")) {
-            migrate.executeUpdate();
+        // Keep historical orders readable on the one checkout that upgrades an old schema.
+        // Running this table-wide migration on every checkout caused increasingly slow payments.
+        if (migrateLegacyShipping) {
+            try (PreparedStatement migrate = connection.prepareStatement(
+                    "UPDATE orders SET shipping_receiver=SUBSTRING_INDEX(SUBSTRING_INDEX(shipping_address,' | SĐT: ',1),'Người nhận: ',-1)," +
+                            "shipping_phone=SUBSTRING_INDEX(SUBSTRING_INDEX(shipping_address,' | Địa chỉ: ',1),' | SĐT: ',-1)," +
+                            "shipping_note=CASE WHEN shipping_address LIKE '% | Ghi chú: %' THEN SUBSTRING_INDEX(shipping_address,' | Ghi chú: ',-1) ELSE NULL END," +
+                            "shipping_address=TRIM(SUBSTRING_INDEX(SUBSTRING_INDEX(shipping_address,' | Ghi chú: ',1),' | Địa chỉ: ',-1)) " +
+                            "WHERE shipping_address LIKE 'Người nhận: % | SĐT: % | Địa chỉ: %'")) {
+                migrate.executeUpdate();
+            }
+        }
+        ensureTxnRefIndex(connection);
+        shippingColumnsEnsured = true;
+    }
+
+    private void ensureTxnRefIndex(Connection connection) {
+        try (Statement stmt = connection.createStatement()) {
+            stmt.executeUpdate("CREATE INDEX IF NOT EXISTS idx_txn_ref ON transactions(txn_ref)");
+        } catch (SQLException ignored) {
         }
     }
 
