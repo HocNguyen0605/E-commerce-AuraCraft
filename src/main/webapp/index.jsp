@@ -160,5 +160,6 @@
     </script>
 <script src="assets/js/popup.js"></script>
     <script src="assets/js/auth.js"></script>
+    <script src="assets/js/chatbot.js"></script>
 </body>
 </html>

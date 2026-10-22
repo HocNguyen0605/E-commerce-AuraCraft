@@ -116,7 +116,7 @@ public class ProductServlet extends HttpServlet {
             } catch (NumberFormatException ignored) {
             }
 
-            // Tim kiem gian hang theo tu khoa (Shopee style)
+            // Tim kiem gian hang theo tu khoa
             Map<String, Object> matchedShop = null;
             if (keyword != null && !keyword.isBlank()) {
                 matchedShop = shopDAO.findMatchingShop(keyword);
