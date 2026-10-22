@@ -254,30 +254,30 @@
 
 <div id="footer-placeholder"></div>
 <script>
-    <%--const appContextPath = '${pageContext.request.contextPath}';--%>
-    <%--fetch(appContextPath + '/components/header.html')--%>
-    <%--    .then(response => response.text())--%>
-    <%--    .then(html => {--%>
-    <%--        html = html.replace(/href="index\.html"/g, 'href="' + appContextPath + '/index.html"');--%>
-    <%--        html = html.replace(/href="login\.html"/g, 'href="' + appContextPath + '/pages/login.html"').replace(/href="profile\.html"/g, 'href="' + appContextPath + '/profile"').replace(/href="cart\.jsp"/g, 'href="' + appContextPath + '/pages/cart.jsp"');--%>
-    <%--        html = html.replace(/href="pages\/products"/g, 'href="' + appContextPath + '/pages/products"').replace(/href="\.\.\/products"/g, 'href="' + appContextPath + '/pages/products"');--%>
-    <%--        document.getElementById('header-placeholder').innerHTML = html;--%>
-    <%--    })--%>
-    <%--    .catch(error => console.error('Không thể tải header:', error));--%>
-    <%--fetch(appContextPath + '/components/footer.html')--%>
-    <%--    .then(response => response.text())--%>
-    <%--    .then(html => {--%>
-    <%--        html = html.replace(/href="index\.html"/g, 'href="' + appContextPath + '/index.html"');--%>
-    <%--        html = html.replace(/href="pages\/products"/g, 'href="' + appContextPath + '/pages/products"').replace(/href="\.\.\/products"/g, 'href="' + appContextPath + '/pages/products"');--%>
-    <%--        document.getElementById('footer-placeholder').innerHTML = html;--%>
-    <%--    })--%>
-    <%--    .catch(error => console.error('Không thể tải footer:', error));--%>
-    <%--document.querySelectorAll('img[data-fallback]').forEach(image => {--%>
-    <%--    image.addEventListener('error', () => {--%>
-    <%--        image.src = image.dataset.fallback;--%>
-    <%--        image.removeAttribute('data-fallback');--%>
-    <%--    }, {once: true});--%>
-    <%--});--%>
+    const appContextPath = '${pageContext.request.contextPath}';
+    fetch(appContextPath + '/components/header.html')
+        .then(response => response.text())
+        .then(html => {
+            html = html.replace(/href="index\.html"/g, 'href="' + appContextPath + '/index.html"');
+            html = html.replace(/href="login\.html"/g, 'href="' + appContextPath + '/pages/login.html"').replace(/href="profile\.html"/g, 'href="' + appContextPath + '/profile"').replace(/href="cart\.jsp"/g, 'href="' + appContextPath + '/pages/cart.jsp"');
+            html = html.replace(/href="pages\/products"/g, 'href="' + appContextPath + '/pages/products"').replace(/href="\.\.\/products"/g, 'href="' + appContextPath + '/pages/products"');
+            document.getElementById('header-placeholder').innerHTML = html;
+        })
+        .catch(error => console.error('Không thể tải header:', error));
+    fetch(appContextPath + '/components/footer.html')
+        .then(response => response.text())
+        .then(html => {
+            html = html.replace(/href="index\.html"/g, 'href="' + appContextPath + '/index.html"');
+            html = html.replace(/href="pages\/products"/g, 'href="' + appContextPath + '/pages/products"').replace(/href="\.\.\/products"/g, 'href="' + appContextPath + '/pages/products"');
+            document.getElementById('footer-placeholder').innerHTML = html;
+        })
+        .catch(error => console.error('Không thể tải footer:', error));
+    document.querySelectorAll('img[data-fallback]').forEach(image => {
+        image.addEventListener('error', () => {
+            image.src = image.dataset.fallback;
+            image.removeAttribute('data-fallback');
+        }, {once: true});
+    });
     const selectAllCategories = document.getElementById('select-all-categories');
     const categoryCheckboxes = Array.from(document.querySelectorAll('.sidebar-filter input[name="category"]'));
     const submittedFilters = new URLSearchParams(window.location.search);
