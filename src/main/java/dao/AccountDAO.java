@@ -13,6 +13,10 @@ public class AccountDAO {
       public AccountInfoDTO findByEmail(String email) throws SQLException {
         return findByLogin(email);
     }
+    //--------------------VIẾT ĐẠI ĐỂ CHẠY-------------
+    public String findEmailByUserId(int id){
+          return "abc@gmail.com";
+    }
 
     /** Tìm tài khoản theo email HOẶC tên đăng nhập (cả hai đều lưu chữ thường). */
     public AccountInfoDTO findByLogin(String login) throws SQLException {
