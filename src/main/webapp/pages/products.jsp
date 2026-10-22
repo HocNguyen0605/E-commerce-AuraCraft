@@ -86,6 +86,8 @@
                                       <c:if test="${rating2Selected}">checked</c:if>> 2 sao</label></li>
                     <li><label><input type="checkbox" name="rating" value="1"
                                       <c:if test="${rating1Selected}">checked</c:if>> 1 sao</label></li>
+                    <li><label><input type="checkbox" name="rating" value="0"
+                                      <c:if test="${rating0Selected}">checked</c:if>> Chưa có đánh giá (0 sao)</label></li>
                 </ul>
             </div>
             <button class="btn-filter" type="submit">Áp dụng lọc</button>
@@ -309,6 +311,6 @@
 </script>
 <script src="${pageContext.request.contextPath}/assets/js/popup.js"></script>
 <script src="${pageContext.request.contextPath}/assets/js/site-shell.js"></script>
-<script src="assets/js/auth.js"></script>
+<script src="${pageContext.request.contextPath}/assets/js/auth.js"></script>
 </body>
 </html>
