@@ -41,6 +41,7 @@
 
             <form id="checkoutForm" novalidate data-context="${pageContext.request.contextPath}"
                   data-database-checkout="${databaseCheckoutAvailable}"
+                  data-has-custom="${hasCustomItem}"
                   data-product-ids="<c:out value='${checkoutProductIds}'/>">
                 <div class="checkout-layout">
 
@@ -82,6 +83,15 @@
                             </div>
 
                             <div class="form-group">
+                                <label for="province">Tỉnh / thành phố <span class="required">*</span></label>
+                                <select id="province" class="form-control" required>
+                                    <option value="">Chọn tỉnh / thành phố</option>
+                                    <option>An Giang</option><option>Bắc Ninh</option><option>Cà Mau</option><option>Cao Bằng</option><option>TP. Cần Thơ</option><option>TP. Đà Nẵng</option><option>Đắk Lắk</option><option>Điện Biên</option><option>Đồng Nai</option><option>Đồng Tháp</option><option>Gia Lai</option><option>TP. Hà Nội</option><option>Hà Tĩnh</option><option>TP. Hải Phòng</option><option>TP. Huế</option><option>TP. Hồ Chí Minh</option><option>Hưng Yên</option><option>Khánh Hòa</option><option>Lai Châu</option><option>Lâm Đồng</option><option>Lạng Sơn</option><option>Lào Cai</option><option>Nghệ An</option><option>Ninh Bình</option><option>Phú Thọ</option><option>Quảng Ngãi</option><option>Quảng Ninh</option><option>Quảng Trị</option><option>Sơn La</option><option>Tây Ninh</option><option>Thái Nguyên</option><option>Thanh Hóa</option><option>Tuyên Quang</option><option>Vĩnh Long</option>
+                                </select>
+                                <span class="field-error-msg">Vui lòng chọn tỉnh / thành phố.</span>
+                            </div>
+
+                            <div class="form-group">
                                 <label for="orderNote">Ghi chú cho thợ thủ công / Shipper (tùy chọn)</label>
                                 <textarea id="orderNote" class="form-control" maxlength="100"
                                     placeholder="Ví dụ: Giao giờ hành chính, gọi trước khi giao, kích cỡ cổ tay 15cm..."></textarea>
@@ -96,29 +106,45 @@
                             </h2>
 
                             <div class="payment-methods-grid">
-                                <label class="payment-method-card active" for="paymentCOD" id="paymentCodCard">
-                                    <input type="radio" id="paymentCOD" name="paymentMethod" value="cod" checked>
+                                <!-- 1. COD 100% khi nhận hàng (Dành cho sản phẩm có sẵn) -->
+                                <label class="payment-method-card active" for="paymentCODStandard" id="paymentCodStandardCard">
+                                    <input type="radio" id="paymentCODStandard" name="paymentMethod" value="cod_standard" checked>
                                     <div class="payment-method-info">
                                         <div class="payment-method-name">
-                                            <span>Thanh toán khi nhận hàng (COD)</span>
-                                            <span class="payment-badge">Phổ biến</span>
+                                            <span>Thanh toán 100% khi nhận hàng (COD)</span>
+                                            <span class="payment-badge badge-standard">Sản phẩm có sẵn</span>
                                         </div>
-                                        <p class="payment-method-desc">Bạn chỉ thanh toán bằng tiền mặt khi shipper giao
-                                            kiện hàng tận tay và được kiểm tra trước.</p>
+                                        <p class="payment-method-desc">Nhận hàng và thanh toán 100% cho shipper. Áp dụng cho các sản phẩm có sẵn (không yêu cầu đặt cọc trước).</p>
                                     </div>
                                     <div class="payment-method-icon">
                                         <i class="fa-solid fa-hand-holding-dollar"></i>
                                     </div>
                                 </label>
 
-                                <label class="payment-method-card" for="paymentVNPay">
+                                <!-- 2. COD Đặt cọc 50% & 50% khi nhận hàng (Dành cho sản phẩm thiết kế) -->
+                                <label class="payment-method-card" for="paymentCODCustom" id="paymentCodCustomCard">
+                                    <input type="radio" id="paymentCODCustom" name="paymentMethod" value="cod_custom">
+                                    <div class="payment-method-info">
+                                        <div class="payment-method-name">
+                                            <span>Đặt cọc 50% & COD 50% khi nhận hàng</span>
+                                            <span class="payment-badge badge-custom">Sản phẩm thiết kế</span>
+                                        </div>
+                                        <p class="payment-method-desc">Dành riêng cho sản phẩm thiết kế theo yêu cầu (Custom). Cọc trước 50% qua mô phỏng để thợ bắt đầu chế tác, 50% còn lại thanh toán khi nhận hàng.</p>
+                                    </div>
+                                    <div class="payment-method-icon">
+                                        <i class="fa-solid fa-wand-magic-sparkles"></i>
+                                    </div>
+                                </label>
+
+                                <!-- 3. VNPay trực tuyến 100% -->
+                                <label class="payment-method-card" for="paymentVNPay" id="paymentVnpayCard">
                                     <input type="radio" id="paymentVNPay" name="paymentMethod" value="vnpay">
                                     <div class="payment-method-info">
                                         <div class="payment-method-name">
-                                            <span>VNPay (mô phỏng)</span>
-                                            <span class="payment-badge">Demo</span>
+                                            <span>VNPay - Thanh toán trực tuyến</span>
+                                            <span class="payment-badge badge-online">Thanh toán 100%</span>
                                         </div>
-                                        <p class="payment-method-desc">Mô phỏng xác nhận thanh toán VNPay. Không chuyển tiền thật và không cần thông tin thẻ/ngân hàng.</p>
+                                        <p class="payment-method-desc">Thanh toán trực tuyến toàn bộ đơn hàng (100%) qua cổng VNPay mô phỏng (không trừ tiền thật). Áp dụng cho cả sản phẩm có sẵn và sản phẩm thiết kế.</p>
                                     </div>
                                     <div class="payment-method-icon">
                                         <i class="fa-solid fa-qrcode"></i>
@@ -165,7 +191,7 @@
                                 <label for="voucherCode">Mã voucher</label>
                                 <div class="checkout-voucher-controls">
                                     <input type="text" id="voucherCode" maxlength="50" placeholder="Nhập mã voucher">
-                                    <button type="button" id="btnApplyVoucher" class="btn btn-outline">Áp dụng</button>
+                                    <button type="button" id="btnClearVoucher" class="btn btn-outline" aria-label="Bỏ voucher">Bỏ mã</button>
                                 </div>
                                 <p id="voucherMessage" class="checkout-benefit-message" aria-live="polite">Voucher chỉ dùng được trong thời hạn và khi đơn đạt giá trị tối thiểu.</p>
                                 <c:if test="${not empty availableVouchers}">
@@ -183,7 +209,7 @@
                                     <span>Bạn có <strong id="availableCoins">0 xu</strong></span>
                                     <button type="button" id="btnUseCoins" class="btn btn-outline" disabled>Dùng xu</button>
                                 </div>
-                                <p id="coinsMessage" class="checkout-benefit-message">1 xu giảm 1.000đ. Tích 1 xu mỗi 100.000đ tiền hàng sau giảm khi đơn của shop hoàn tất.</p>
+                                <p id="coinsMessage" class="checkout-benefit-message">100 xu giảm 1.000đ. Tích 1 xu mỗi 10.000đ tiền hàng thực trả khi đơn hoàn tất.</p>
                             </section>
 
                             <!-- Chi phí & Phí vận chuyển -->
@@ -260,7 +286,7 @@
     <div id="footer-placeholder"></div>
 
     <script src="${pageContext.request.contextPath}/assets/js/custom-workflow.js"></script>
-    <script src="${pageContext.request.contextPath}/assets/js/checkout.js?v=checkout-benefits-1"></script>
+    <script src="${pageContext.request.contextPath}/assets/js/checkout.js?v=loyalty-10k-100-10-v2"></script>
     <script>
         const contextPath = '${pageContext.request.contextPath}';
         fetch(contextPath + '/components/header.html')
@@ -279,7 +305,7 @@
     </script>
 <script src="${pageContext.request.contextPath}/assets/js/popup.js"></script>
 <script src="${pageContext.request.contextPath}/assets/js/site-shell.js"></script>
-<script src="assets/js/auth.js"></script>
+<script src="${pageContext.request.contextPath}/assets/js/auth.js"></script>
 </body>
 
 </html>

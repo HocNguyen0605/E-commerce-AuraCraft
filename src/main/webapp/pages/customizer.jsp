@@ -6,9 +6,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Thiết kế Custom — AuraCraft</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-<link rel="stylesheet" href="../assets/css/style.css">
-<link rel="stylesheet" href="../assets/css/header-footer.css">
-<link rel="stylesheet" href="../assets/css/pages/styleCustomizer.css">
+<link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/style.css">
+<link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/header-footer.css">
+<link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/pages/styleCustomizer.css">
 </head>
 <body>
 
@@ -17,7 +17,7 @@
 <main class="cz-wrap">
   <div class="container cz-headbar">
     <div>
-      <a href="detail.html" class="cz-back-link" id="czBackLink">← Quay lại sản phẩm</a>
+      <a href="${pageContext.request.contextPath}/pages/products" class="cz-back-link" id="czBackLink">← Quay lại sản phẩm</a>
       <span class="tag" id="czTag">Thiết kế Custom</span>
       <h1 id="czHeading">Vòng tay của bạn</h1>
       <p class="cz-hint" id="czHint">Chọn charm từ thư viện bên dưới rồi bấm hoặc kéo vào một vị trí trống trên dải — mỗi vị trí giữ đúng 1 charm, bạn có thể kéo lại để đổi chỗ.</p>
@@ -38,6 +38,10 @@
             <option value="18">18 vị trí (Rất lớn)</option>
             <option value="20">20 vị trí (Đặc biệt)</option>
           </select>
+        </div>
+        <div class="cz-size-selector card">
+          <label for="czSavedDesigns">Thiết kế đã lưu:</label>
+          <select id="czSavedDesigns" class="form-control"><option value="">Chọn thiết kế để tải</option></select>
         </div>
 
         <div class="cz-text-autofill card">
@@ -81,7 +85,7 @@
         <div class="cz-price-actions">
           <button type="button" class="btn btn-outline cz-save-btn" id="czSaveDesignBtn">Lưu thiết kế</button>
           <button type="button" class="btn btn-primary cz-request-btn" id="czSendShopBtn">Thanh toán ngay</button>
-          <a href="product-detail.jsp" class="cz-cancel-link" id="czCancelLink">Không muốn custom nữa? Quay lại sản phẩm</a>
+          <a href="${pageContext.request.contextPath}/pages/products" class="cz-cancel-link" id="czCancelLink">Không muốn custom nữa? Quay lại sản phẩm</a>
         </div>
       </div>
     </section>
@@ -99,14 +103,15 @@
   </div>
 </div>
 
-<script src="../assets/js/products-data.js"></script>
-<script src="../assets/js/customizer.js"></script>
+<script src="${pageContext.request.contextPath}/assets/js/custom-workflow.js"></script>
+<script src="${pageContext.request.contextPath}/assets/js/customizer.js?v=product-shop-names-v1"></script>
 <script>
         fetch('../components/header.html').then(response => response.text()).then(data => { let html = data.replace(/href="index\.html"/g, 'href="../index.jsp"'); document.getElementById('header-placeholder').innerHTML = html; }).catch(error => console.error('Error loading header:', error));
 
         fetch('../components/footer.html').then(response => response.text()).then(data => { let html = data.replace(/href="index\.html"/g, 'href="../index.jsp"'); document.getElementById('footer-placeholder').innerHTML = html; }).catch(error => console.error('Error loading footer:', error));
     </script>
-<script src="../assets/js/popup.js"></script>
+<script src="${pageContext.request.contextPath}/assets/js/popup.js"></script>
  <script src="${pageContext.request.contextPath}/assets/js/auth.js"></script>
+<script src="${pageContext.request.contextPath}/assets/js/site-shell.js"></script>
 </body>
 </html>
