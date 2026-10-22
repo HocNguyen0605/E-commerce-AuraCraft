@@ -3,11 +3,8 @@ package dao;
 import util.DBConnection;
 
 import java.math.BigDecimal;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.math.RoundingMode;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -16,6 +13,184 @@ import java.util.Map;
 /** Creates an order from the signed-in buyer's selected database cart items. */
 public class CheckoutDAO {
     private static final BigDecimal SHIPPING_FEE = new BigDecimal("25300");
+    private static final BigDecimal COIN_VALUE = new BigDecimal("1000");
+
+    public Map<String, Object> previewBenefits(int userId, List<Integer> productIds,
+                                                String voucherCode, boolean useCoins) throws SQLException {
+        List<Map<String, Object>> items = findSelectedCartItems(userId, productIds);
+        if (items.size() != productIds.size()) {
+            throw new IllegalArgumentException("Sản phẩm trong giỏ đã thay đổi. Vui lòng tải lại trang.");
+        }
+        try (Connection connection = DBConnection.getConnection()) {
+            Map<String, Object> result = calculateBenefits(connection, userId, items, voucherCode, useCoins, false);
+            BigDecimal subtotal = BigDecimal.ZERO;
+            java.util.Set<Integer> shops = new java.util.HashSet<>();
+            for (Map<String, Object> item : items) {
+                subtotal = subtotal.add(((BigDecimal) item.get("price")).multiply(BigDecimal.valueOf((Integer) item.get("quantity"))));
+                shops.add((Integer) item.get("shopId"));
+            }
+            BigDecimal shipping = SHIPPING_FEE.multiply(BigDecimal.valueOf(shops.size()));
+            result.put("subtotal", subtotal);
+            result.put("shipping", shipping);
+            result.put("total", subtotal.subtract((BigDecimal) result.get("discount")).add(shipping));
+            return result;
+        }
+    }
+
+    public List<Map<String, Object>> findAvailableVouchers(int userId, List<Integer> productIds) throws SQLException {
+        List<Map<String, Object>> items = findSelectedCartItems(userId, productIds);
+        Map<Integer, BigDecimal> shopTotals = new LinkedHashMap<>();
+        for (Map<String, Object> item : items) {
+            BigDecimal line = ((BigDecimal) item.get("price")).multiply(BigDecimal.valueOf((Integer) item.get("quantity")));
+            shopTotals.merge((Integer) item.get("shopId"), line, BigDecimal::add);
+        }
+        String sql = "SELECT v.id,v.code,v.discount_type,v.value,v.min_order,v.end_date,v.id_shop " +
+                "FROM vouchers v WHERE v.start_date<=CURRENT_TIMESTAMP AND v.end_date>=CURRENT_TIMESTAMP AND v.quota>0 " +
+                "AND NOT EXISTS(SELECT 1 FROM voucherusage u WHERE u.id_voucher=v.id AND u.id_user=?) " +
+                "ORDER BY v.end_date ASC,v.code ASC";
+        List<Map<String, Object>> vouchers = new ArrayList<>();
+        try (Connection connection = DBConnection.getConnection(); PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setInt(1, userId);
+            try (ResultSet rs = statement.executeQuery()) {
+                while (rs.next()) {
+                    int shopId = rs.getInt("id_shop");
+                    Integer voucherShop = rs.wasNull() ? null : shopId;
+                    BigDecimal eligible = voucherShop == null ? shopTotals.values().stream().reduce(BigDecimal.ZERO, BigDecimal::add)
+                            : shopTotals.getOrDefault(voucherShop, BigDecimal.ZERO);
+                    if (eligible.compareTo(rs.getBigDecimal("min_order")) < 0) continue;
+                    String discount = "percent".equals(rs.getString("discount_type"))
+                            ? rs.getBigDecimal("value").stripTrailingZeros().toPlainString() + "%"
+                            : rs.getBigDecimal("value").stripTrailingZeros().toPlainString() + "đ";
+                    Map<String, Object> voucher = new LinkedHashMap<>();
+                    voucher.put("code", rs.getString("code"));
+                    voucher.put("discountText", discount);
+                    voucher.put("minOrder", rs.getBigDecimal("min_order"));
+                    voucher.put("endDate", new java.text.SimpleDateFormat("dd/MM/yyyy HH:mm").format(rs.getTimestamp("end_date")));
+                    vouchers.add(voucher);
+                }
+            }
+        }
+        return vouchers;
+    }
+
+    private Map<String, Object> calculateBenefits(Connection connection, int userId,
+                                                    List<Map<String, Object>> items,
+                                                    String voucherCode, boolean useCoins,
+                                                    boolean lockRows) throws SQLException {
+        Map<Integer, BigDecimal> shopTotals = new LinkedHashMap<>();
+        for (Map<String, Object> item : items) {
+            int shopId = (Integer) item.get("shopId");
+            BigDecimal line = ((BigDecimal) item.get("price")).multiply(BigDecimal.valueOf((Integer) item.get("quantity")));
+            shopTotals.merge(shopId, line, BigDecimal::add);
+        }
+        BigDecimal subtotal = shopTotals.values().stream().reduce(BigDecimal.ZERO, BigDecimal::add);
+        int availableCoins;
+        String accountSql = "SELECT loyaltyPoint FROM account WHERE id_user=?" + (lockRows ? " FOR UPDATE" : "");
+        try (PreparedStatement statement = connection.prepareStatement(accountSql)) {
+            statement.setInt(1, userId);
+            try (ResultSet rs = statement.executeQuery()) {
+                if (!rs.next()) throw new IllegalArgumentException("Không tìm thấy tài khoản tích xu.");
+                availableCoins = rs.getInt("loyaltyPoint");
+            }
+        }
+
+        int voucherId = 0;
+        Integer voucherShopId = null;
+        BigDecimal voucherDiscount = BigDecimal.ZERO;
+        Map<Integer, BigDecimal> voucherByShop = new LinkedHashMap<>();
+        String code = voucherCode == null ? "" : voucherCode.trim().toUpperCase(java.util.Locale.ROOT);
+        if (!code.isBlank()) {
+            String voucherSql = "SELECT id,discount_type,value,min_order,quota,id_shop " +
+                    "FROM vouchers WHERE code=? AND start_date<=CURRENT_TIMESTAMP AND end_date>=CURRENT_TIMESTAMP AND quota>0" +
+                    (lockRows ? " FOR UPDATE" : "");
+            try (PreparedStatement statement = connection.prepareStatement(voucherSql)) {
+                statement.setString(1, code);
+                try (ResultSet rs = statement.executeQuery()) {
+                    if (!rs.next()) throw new IllegalArgumentException("Voucher không tồn tại, chưa đến hạn, đã hết hạn hoặc hết lượt.");
+                    voucherId = rs.getInt("id");
+                    String type = rs.getString("discount_type");
+                    BigDecimal value = rs.getBigDecimal("value");
+                    BigDecimal minOrder = rs.getBigDecimal("min_order");
+                    int quota = rs.getInt("quota");
+                    int rawShopId = rs.getInt("id_shop");
+                    voucherShopId = rs.wasNull() ? null : rawShopId;
+                    if (quota < 1) {
+                        throw new IllegalArgumentException("Voucher chưa đến hạn, đã hết hạn hoặc hết lượt sử dụng.");
+                    }
+                    try (PreparedStatement used = connection.prepareStatement(
+                            "SELECT 1 FROM voucherusage WHERE id_voucher=? AND id_user=? LIMIT 1")) {
+                        used.setInt(1, voucherId); used.setInt(2, userId);
+                        try (ResultSet usedRs = used.executeQuery()) {
+                            if (usedRs.next()) throw new IllegalArgumentException("Bạn đã sử dụng voucher này rồi.");
+                        }
+                    }
+                    BigDecimal eligible = voucherShopId == null ? subtotal : shopTotals.getOrDefault(voucherShopId, BigDecimal.ZERO);
+                    if (eligible.compareTo(minOrder) < 0) {
+                        throw new IllegalArgumentException("Đơn chưa đạt giá trị tối thiểu của voucher.");
+                    }
+                    BigDecimal discount = "percent".equalsIgnoreCase(type)
+                            ? eligible.multiply(value).divide(new BigDecimal("100"), 0, RoundingMode.DOWN)
+                            : value;
+                    discount = discount.min(eligible);
+                    if (discount.signum() <= 0) {
+                        throw new IllegalArgumentException("Giá trị đơn chưa đủ để voucher tạo ra mức giảm.");
+                    }
+                    if (voucherShopId == null && "fixed".equalsIgnoreCase(type)) {
+                        BigDecimal remaining = discount;
+                        for (Map.Entry<Integer, BigDecimal> entry : shopTotals.entrySet()) {
+                            BigDecimal part = remaining.min(entry.getValue());
+                            if (part.signum() > 0) voucherByShop.put(entry.getKey(), part);
+                            remaining = remaining.subtract(part);
+                        }
+                    } else if (voucherShopId == null) {
+                        for (Map.Entry<Integer, BigDecimal> entry : shopTotals.entrySet()) {
+                            voucherByShop.put(entry.getKey(), entry.getValue().multiply(value)
+                                    .divide(new BigDecimal("100"), 0, RoundingMode.DOWN));
+                        }
+                        BigDecimal allocated = voucherByShop.values().stream().reduce(BigDecimal.ZERO, BigDecimal::add);
+                        BigDecimal remainder = discount.subtract(allocated);
+                        for (Map.Entry<Integer, BigDecimal> entry : shopTotals.entrySet()) {
+                            if (remainder.signum() <= 0) break;
+                            BigDecimal room = entry.getValue().subtract(voucherByShop.getOrDefault(entry.getKey(), BigDecimal.ZERO));
+                            BigDecimal part = room.min(remainder);
+                            voucherByShop.merge(entry.getKey(), part, BigDecimal::add);
+                            remainder = remainder.subtract(part);
+                        }
+                    } else {
+                        voucherByShop.put(voucherShopId, discount);
+                    }
+                    voucherDiscount = discount;
+                }
+            }
+        }
+
+        BigDecimal afterVoucher = subtotal.subtract(voucherDiscount).max(BigDecimal.ZERO);
+        int maxUsableCoins = afterVoucher.divide(COIN_VALUE, 0, RoundingMode.DOWN).intValue();
+        int coinsUsed = useCoins ? Math.min(availableCoins, maxUsableCoins) : 0;
+        BigDecimal coinDiscount = COIN_VALUE.multiply(BigDecimal.valueOf(coinsUsed));
+        Map<Integer, BigDecimal> coinsByShopDiscount = new LinkedHashMap<>();
+        BigDecimal remainingCoinsDiscount = coinDiscount;
+        for (Map.Entry<Integer, BigDecimal> entry : shopTotals.entrySet()) {
+            BigDecimal shopAfterVoucher = entry.getValue().subtract(voucherByShop.getOrDefault(entry.getKey(), BigDecimal.ZERO));
+            BigDecimal part = remainingCoinsDiscount.min(shopAfterVoucher);
+            if (part.signum() > 0) coinsByShopDiscount.put(entry.getKey(), part);
+            remainingCoinsDiscount = remainingCoinsDiscount.subtract(part);
+        }
+
+        Map<String, Object> result = new LinkedHashMap<>();
+        result.put("voucherId", voucherId);
+        result.put("voucherShopId", voucherShopId);
+        result.put("voucherDiscount", voucherDiscount);
+        result.put("voucherByShop", voucherByShop);
+        result.put("coinsByShopDiscount", coinsByShopDiscount);
+        result.put("coinDiscount", coinDiscount);
+        result.put("coinsUsed", coinsUsed);
+        result.put("coinsAvailableToUse", maxUsableCoins);
+        result.put("availableCoins", availableCoins);
+        result.put("remainingCoins", availableCoins - coinsUsed);
+        result.put("discount", voucherDiscount.add(coinDiscount));
+        return result;
+    }
 
     public Map<String, String> findDefaultAddress(int userId) throws SQLException {
         String sql = "SELECT receiver,phone,address FROM addresses WHERE id_user=? ORDER BY is_default DESC,id DESC LIMIT 1";
@@ -66,10 +241,15 @@ public class CheckoutDAO {
 
     public Map<String, Object> placeOrder(int userId, List<Integer> productIds,
                                           String receiver, String phone, String address,
-                                          String note, String paymentMethod) throws SQLException {
+                                          String note, String paymentMethod,
+                                          String voucherCode, boolean useCoins, String paymentReference) throws SQLException {
         if (productIds == null || productIds.isEmpty()) throw new IllegalArgumentException("Vui lòng chọn sản phẩm cần đặt.");
         String placeholders = String.join(",", java.util.Collections.nCopies(productIds.size(), "?"));
         try (Connection connection = DBConnection.getConnection()) {
+            // Older local databases may not yet have the split recipient columns.
+            // Add nullable columns before opening the order transaction so DDL cannot commit it implicitly.
+            connection.setAutoCommit(true);
+            ensureShippingColumns(connection);
             connection.setAutoCommit(false);
             try {
                 try (PreparedStatement findAddress = connection.prepareStatement(
@@ -125,6 +305,7 @@ public class CheckoutDAO {
                     throw new IllegalArgumentException("Có sản phẩm không còn trong giỏ hoặc đã ngừng bán. Vui lòng tải lại giỏ hàng.");
                 }
 
+                Map<String, Object> benefits = calculateBenefits(connection, userId, items, voucherCode, useCoins, true);
                 int paymentMethodId = findPaymentMethod(connection, paymentMethod);
                 Map<Integer, List<Map<String, Object>>> byShop = new LinkedHashMap<>();
                 for (Map<String, Object> item : items) {
@@ -132,6 +313,7 @@ public class CheckoutDAO {
                 }
                 List<Integer> orderIds = new ArrayList<>();
                 BigDecimal subtotal = BigDecimal.ZERO;
+                int rewardCoinsPending = 0;
                 for (Map.Entry<Integer, List<Map<String, Object>>> entry : byShop.entrySet()) {
                     BigDecimal shopSubtotal = BigDecimal.ZERO;
                     for (Map<String, Object> item : entry.getValue()) {
@@ -139,22 +321,67 @@ public class CheckoutDAO {
                         int quantity = (Integer) item.get("quantity");
                         shopSubtotal = shopSubtotal.add(price.multiply(BigDecimal.valueOf(quantity)));
                     }
-                    BigDecimal orderTotal = shopSubtotal.add(SHIPPING_FEE);
-                    String shippingAddress = "Người nhận: " + receiver + " | SĐT: " + phone + " | Địa chỉ: " + address
-                            + (note.isBlank() ? "" : " | Ghi chú: " + note);
+                    int shopId = entry.getKey();
+                    BigDecimal voucherPart = ((Map<Integer, BigDecimal>) benefits.get("voucherByShop"))
+                            .getOrDefault(shopId, BigDecimal.ZERO);
+                    BigDecimal coinPart = ((Map<Integer, BigDecimal>) benefits.get("coinsByShopDiscount"))
+                            .getOrDefault(shopId, BigDecimal.ZERO);
+                    BigDecimal shopDiscount = voucherPart.add(coinPart);
+                    BigDecimal netShopGoods = shopSubtotal.subtract(shopDiscount).max(BigDecimal.ZERO);
+                    BigDecimal orderTotal = netShopGoods.add(SHIPPING_FEE);
+                    rewardCoinsPending += netShopGoods.divide(new BigDecimal("100000"), 0, RoundingMode.DOWN).intValue();
+                    int pointsUsedForShop = coinPart.divide(COIN_VALUE, 0, RoundingMode.DOWN).intValue();
+                    Integer voucherShopId = (Integer) benefits.get("voucherShopId");
+                    int voucherId = (Integer) benefits.get("voucherId");
+                    boolean voucherAppliedHere = voucherId > 0 && voucherPart.signum() > 0;
                     int orderId;
-                    String insertOrder = "INSERT INTO orders(id_user,id_payment_method,id_shop,amount,shipping_fee,shipping_address,status) " +
-                            "VALUES(?,?,?,?,?,?,'pending')";
+                    String insertOrder = "INSERT INTO orders(id_user,id_payment_method,id_shop,amount,shipping_fee,discount,id_voucher,points_used,shipping_address,shipping_receiver,shipping_phone,shipping_note,status) " +
+                            "VALUES(?,?,?,?,?,?,?,?,?,?,?,?,'pending')";
                     try (PreparedStatement statement = connection.prepareStatement(insertOrder, Statement.RETURN_GENERATED_KEYS)) {
-                        statement.setInt(1, userId); statement.setInt(2, paymentMethodId); statement.setInt(3, entry.getKey());
+                        statement.setInt(1, userId); statement.setInt(2, paymentMethodId); statement.setInt(3, shopId);
                         statement.setBigDecimal(4, orderTotal); statement.setBigDecimal(5, SHIPPING_FEE);
-                        statement.setString(6, shippingAddress); statement.executeUpdate();
+                        statement.setBigDecimal(6, shopDiscount);
+                        if (voucherAppliedHere && (voucherShopId == null || voucherShopId == shopId)) statement.setInt(7, voucherId);
+                        else statement.setNull(7, java.sql.Types.INTEGER);
+                        statement.setInt(8, pointsUsedForShop);
+                        statement.setString(9, address);
+                        statement.setString(10, receiver);
+                        statement.setString(11, phone);
+                        if (note.isBlank()) statement.setNull(12, java.sql.Types.VARCHAR);
+                        else statement.setString(12, note);
+                        statement.executeUpdate();
                         try (ResultSet keys = statement.getGeneratedKeys()) {
                             if (!keys.next()) throw new SQLException("Không nhận được mã đơn hàng.");
                             orderId = keys.getInt(1);
                         }
                     }
                     orderIds.add(orderId);
+                    String gateway = "VNPay".equalsIgnoreCase(paymentMethod) ? "vnpay" : "cod";
+                    String transactionReference = paymentReference + "-" + orderId;
+                    try (PreparedStatement transaction = connection.prepareStatement(
+                            "INSERT INTO transactions(id_order,gateway,txn_ref,amount,status) VALUES(?,?,?,?, 'pending')")) {
+                        transaction.setInt(1, orderId);
+                        transaction.setString(2, gateway);
+                        transaction.setString(3, transactionReference);
+                        transaction.setBigDecimal(4, orderTotal);
+                        transaction.executeUpdate();
+                    }
+                    if (pointsUsedForShop > 0) {
+                        try (PreparedStatement ledger = connection.prepareStatement(
+                                "INSERT INTO loyaltytransactions(id_user,id_order,points,type) VALUES(?,?,?,'redeem')")) {
+                            ledger.setInt(1, userId);
+                            ledger.setInt(2, orderId);
+                            ledger.setInt(3, -pointsUsedForShop);
+                            ledger.executeUpdate();
+                        }
+                    }
+                    if (voucherAppliedHere && (voucherShopId == null || voucherShopId == shopId)) {
+                        try (PreparedStatement usage = connection.prepareStatement(
+                                "INSERT INTO voucherusage(id_voucher,id_user,id_order) VALUES(?,?,?)")) {
+                            usage.setInt(1, voucherId); usage.setInt(2, userId); usage.setInt(3, orderId);
+                            usage.executeUpdate();
+                        }
+                    }
                     for (Map<String, Object> item : entry.getValue()) {
                         int productId = (Integer) item.get("id");
                         int quantity = (Integer) item.get("quantity");
@@ -178,11 +405,35 @@ public class CheckoutDAO {
                     for (int i = 0; i < productIds.size(); i++) statement.setInt(i + 2, productIds.get(i));
                     statement.executeUpdate();
                 }
+                int coinsUsed = (Integer) benefits.get("coinsUsed");
+                if (coinsUsed > 0) {
+                    try (PreparedStatement statement = connection.prepareStatement(
+                            "UPDATE account SET loyaltyPoint=loyaltyPoint-? WHERE id_user=? AND loyaltyPoint>=?")) {
+                        statement.setInt(1, coinsUsed); statement.setInt(2, userId); statement.setInt(3, coinsUsed);
+                        if (statement.executeUpdate() != 1) throw new IllegalArgumentException("Số xu đã thay đổi. Vui lòng tải lại trang.");
+                    }
+                }
+                int voucherId = (Integer) benefits.get("voucherId");
+                if (voucherId > 0) {
+                    try (PreparedStatement statement = connection.prepareStatement(
+                            "UPDATE vouchers SET quota=quota-1 WHERE id=? AND quota>0")) {
+                        statement.setInt(1, voucherId);
+                        if (statement.executeUpdate() != 1) throw new IllegalArgumentException("Voucher vừa hết lượt sử dụng. Vui lòng chọn mã khác.");
+                    }
+                }
                 connection.commit();
                 Map<String, Object> result = new LinkedHashMap<>();
                 result.put("orderIds", orderIds); result.put("orderId", orderIds.get(0));
+                result.put("paymentReference", paymentReference);
                 result.put("subtotal", subtotal); result.put("shipping", SHIPPING_FEE.multiply(BigDecimal.valueOf(orderIds.size())));
-                result.put("total", subtotal.add(SHIPPING_FEE.multiply(BigDecimal.valueOf(orderIds.size()))));
+                result.put("voucherDiscount", benefits.get("voucherDiscount"));
+                result.put("coinDiscount", benefits.get("coinDiscount"));
+                result.put("discount", benefits.get("discount"));
+                result.put("coinsUsed", benefits.get("coinsUsed"));
+                result.put("remainingCoins", benefits.get("remainingCoins"));
+                result.put("rewardCoinsPending", rewardCoinsPending);
+                result.put("total", subtotal.subtract((BigDecimal) benefits.get("discount"))
+                        .add(SHIPPING_FEE.multiply(BigDecimal.valueOf(orderIds.size()))));
                 result.put("itemCount", items.stream().mapToInt(item -> (Integer) item.get("quantity")).sum());
                 return result;
             } catch (SQLException | RuntimeException exception) {
@@ -192,6 +443,44 @@ public class CheckoutDAO {
                 connection.setAutoCommit(true);
             }
         }
+    }
+
+    private void ensureShippingColumns(Connection connection) throws SQLException {
+        ensureOrderColumn(connection, "shipping_receiver",
+                "ALTER TABLE `orders` ADD COLUMN `shipping_receiver` varchar(100) DEFAULT NULL");
+        ensureOrderColumn(connection, "shipping_phone",
+                "ALTER TABLE `orders` ADD COLUMN `shipping_phone` varchar(20) DEFAULT NULL");
+        ensureOrderColumn(connection, "shipping_note",
+                "ALTER TABLE `orders` ADD COLUMN `shipping_note` varchar(500) DEFAULT NULL");
+
+        // Keep historical orders readable when upgrading a database that stored all fields together.
+        try (PreparedStatement migrate = connection.prepareStatement(
+                "UPDATE orders SET shipping_receiver=SUBSTRING_INDEX(SUBSTRING_INDEX(shipping_address,' | SĐT: ',1),'Người nhận: ',-1)," +
+                        "shipping_phone=SUBSTRING_INDEX(SUBSTRING_INDEX(shipping_address,' | Địa chỉ: ',1),' | SĐT: ',-1)," +
+                        "shipping_note=CASE WHEN shipping_address LIKE '% | Ghi chú: %' THEN SUBSTRING_INDEX(shipping_address,' | Ghi chú: ',-1) ELSE NULL END," +
+                        "shipping_address=TRIM(SUBSTRING_INDEX(SUBSTRING_INDEX(shipping_address,' | Ghi chú: ',1),' | Địa chỉ: ',-1)) " +
+                        "WHERE shipping_address LIKE 'Người nhận: % | SĐT: % | Địa chỉ: %'")) {
+            migrate.executeUpdate();
+        }
+    }
+
+    private void ensureOrderColumn(Connection connection, String column, String alterSql) throws SQLException {
+        if (hasOrderColumn(connection, column)) return;
+        try (PreparedStatement alter = connection.prepareStatement(alterSql)) {
+            alter.executeUpdate();
+        } catch (SQLException exception) {
+            // If another checkout request added the same column concurrently, proceed normally.
+            if (exception.getErrorCode() != 1060 && !hasOrderColumn(connection, column)) throw exception;
+        }
+    }
+
+    private boolean hasOrderColumn(Connection connection, String column) throws SQLException {
+        try (ResultSet columns = connection.getMetaData().getColumns(connection.getCatalog(), null, "orders", null)) {
+            while (columns.next()) {
+                if (column.equalsIgnoreCase(columns.getString("COLUMN_NAME"))) return true;
+            }
+        }
+        return false;
     }
 
     private int findPaymentMethod(Connection connection, String method) throws SQLException {
