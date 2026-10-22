@@ -269,4 +269,48 @@ public class ProductDAO {
             statement.setObject(index + 1, parameters.get(index));
         }
     }
+    //---------------------COPY ĐẠI CHO CODE KHÔNG BÁO LỖI ĐỂ CHẠY THOI-----------------
+    public List<Map<String, Object>> getFeaturedProducts() throws SQLException {
+        String sql = "SELECT c.id, c.name, COUNT(p.id) AS product_count " +
+                "FROM categories c " +
+                "JOIN products p ON p.id_category = c.id AND p.status = 'active' " +
+                "JOIN shops s ON s.id = p.id_shop AND s.status = 'active' " +
+                "GROUP BY c.id, c.name ORDER BY c.name";
+        List<Map<String, Object>> categories = new ArrayList<>();
+        try (Connection connection = DBConnection.getConnection();
+             PreparedStatement statement = connection.prepareStatement(sql);
+             ResultSet result = statement.executeQuery()) {
+            while (result.next()) {
+                Map<String, Object> category = new LinkedHashMap<>();
+                category.put("id", result.getInt("id"));
+                category.put("name", result.getString("name"));
+                category.put("productCount", result.getInt("product_count"));
+                categories.add(category);
+            }
+        }
+        return categories;
+    }
+    public List<Map<String, Object>> searchActiveProducts(String q, int x) throws SQLException {
+        String sql = "SELECT c.id, c.name, COUNT(p.id) AS product_count " +
+                "FROM categories c " +
+                "JOIN products p ON p.id_category = c.id AND p.status = 'active' " +
+                "JOIN shops s ON s.id = p.id_shop AND s.status = 'active' " +
+                "GROUP BY c.id, c.name ORDER BY c.name";
+        List<Map<String, Object>> categories = new ArrayList<>();
+        try (Connection connection = DBConnection.getConnection();
+             PreparedStatement statement = connection.prepareStatement(sql);
+             ResultSet result = statement.executeQuery()) {
+            while (result.next()) {
+                Map<String, Object> category = new LinkedHashMap<>();
+                category.put("id", result.getInt("id"));
+                category.put("name", result.getString("name"));
+                category.put("productCount", result.getInt("product_count"));
+                categories.add(category);
+            }
+        }
+        return categories;
+    }
+    public boolean updateFeaturedProducts( List<Integer> ids){
+        return true;
+    }
 }
