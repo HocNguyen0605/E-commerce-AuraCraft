@@ -69,7 +69,7 @@ public class GeminiService {
             if (history != null) {
                 for (ChatMessageDTO msg : history) {
                     JsonObject turn = new JsonObject();
-                    turn.addProperty("role", "user".equalsIgnoreCase(msg.getRole()) ? "user" : "model");
+                    turn.addProperty("role", "user".equalsIgnoreCase(msg.getSenderRole()) ? "user" : "model");
                     JsonArray parts = new JsonArray();
                     JsonObject part = new JsonObject();
                     part.addProperty("text", msg.getContent());

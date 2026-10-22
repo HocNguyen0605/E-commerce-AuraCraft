@@ -54,8 +54,17 @@ public class ChatbotServlet extends HttpServlet {
             String reply = GeminiService.chat(message, history);
 
             // Lưu tin nhắn mới vào session
-            history.add(new ChatMessageDTO("user", message));
-            history.add(new ChatMessageDTO("model", reply));
+            ChatMessageDTO userMsg = new ChatMessageDTO();
+            userMsg.setSenderRole("user");
+            userMsg.setContent(message);
+            userMsg.setCreatedAt(new java.util.Date());
+            history.add(userMsg);
+
+            ChatMessageDTO botMsg = new ChatMessageDTO();
+            botMsg.setSenderRole("model");
+            botMsg.setContent(reply);
+            botMsg.setCreatedAt(new java.util.Date());
+            history.add(botMsg);
 
             jsonResponse.addProperty("status", "success");
             jsonResponse.addProperty("reply", reply);

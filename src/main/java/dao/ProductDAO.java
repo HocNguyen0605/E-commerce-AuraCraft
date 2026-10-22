@@ -269,48 +269,146 @@ public class ProductDAO {
             statement.setObject(index + 1, parameters.get(index));
         }
     }
-    //---------------------COPY ĐẠI CHO CODE KHÔNG BÁO LỖI ĐỂ CHẠY THOI-----------------
+    /**
+     * Lấy danh sách sản phẩm nổi bật từ bảng featured_products
+     */
     public List<Map<String, Object>> getFeaturedProducts() throws SQLException {
-        String sql = "SELECT c.id, c.name, COUNT(p.id) AS product_count " +
-                "FROM categories c " +
-                "JOIN products p ON p.id_category = c.id AND p.status = 'active' " +
-                "JOIN shops s ON s.id = p.id_shop AND s.status = 'active' " +
-                "GROUP BY c.id, c.name ORDER BY c.name";
-        List<Map<String, Object>> categories = new ArrayList<>();
+        String sql = "SELECT p.id, p.name, p.price, p.description, p.stock, p.sold_count, " +
+                "c.id AS category_id, c.name AS category_name, s.name AS shop_name, " +
+                "COALESCE(review_stats.average_rating, 0) AS rating, " +
+                "COALESCE(review_stats.review_count, 0) AS review_count, " +
+                "(SELECT pi.url FROM productimages pi WHERE pi.id_product = p.id ORDER BY pi.id LIMIT 1) AS image, " +
+                "fp.display_order " +
+                "FROM featured_products fp " +
+                "JOIN products p ON p.id = fp.product_id " +
+                "JOIN categories c ON c.id = p.id_category " +
+                "JOIN shops s ON s.id = p.id_shop " +
+                "LEFT JOIN (SELECT id_product, AVG(rating) AS average_rating, COUNT(*) AS review_count " +
+                "           FROM reviews GROUP BY id_product) review_stats ON review_stats.id_product = p.id " +
+                "WHERE p.status = 'active' AND s.status = 'active' " +
+                "ORDER BY fp.display_order ASC";
+
+        List<Map<String, Object>> products = new ArrayList<>();
         try (Connection connection = DBConnection.getConnection();
              PreparedStatement statement = connection.prepareStatement(sql);
-             ResultSet result = statement.executeQuery()) {
-            while (result.next()) {
-                Map<String, Object> category = new LinkedHashMap<>();
-                category.put("id", result.getInt("id"));
-                category.put("name", result.getString("name"));
-                category.put("productCount", result.getInt("product_count"));
-                categories.add(category);
+             ResultSet rs = statement.executeQuery()) {
+            while (rs.next()) {
+                Map<String, Object> product = new LinkedHashMap<>();
+                product.put("id", rs.getInt("id"));
+                product.put("name", rs.getString("name"));
+                product.put("price", rs.getBigDecimal("price"));
+                product.put("description", rs.getString("description"));
+                product.put("stock", rs.getInt("stock"));
+                product.put("soldCount", rs.getInt("sold_count"));
+                product.put("categoryId", rs.getInt("category_id"));
+                product.put("categoryName", rs.getString("category_name"));
+                product.put("shopName", rs.getString("shop_name"));
+                product.put("rating", rs.getBigDecimal("rating"));
+                product.put("reviewCount", rs.getInt("review_count"));
+                product.put("image", rs.getString("image"));
+                product.put("displayOrder", rs.getInt("display_order"));
+                products.add(product);
             }
         }
-        return categories;
+        return products;
     }
-    public List<Map<String, Object>> searchActiveProducts(String q, int x) throws SQLException {
-        String sql = "SELECT c.id, c.name, COUNT(p.id) AS product_count " +
-                "FROM categories c " +
-                "JOIN products p ON p.id_category = c.id AND p.status = 'active' " +
-                "JOIN shops s ON s.id = p.id_shop AND s.status = 'active' " +
-                "GROUP BY c.id, c.name ORDER BY c.name";
-        List<Map<String, Object>> categories = new ArrayList<>();
+
+    /**
+     * Tìm kiếm sản phẩm active cho trang quản trị sản phẩm nổi bật
+     */
+    public List<Map<String, Object>> searchActiveProducts(String keyword, int limit) throws SQLException {
+        StringBuilder sql = new StringBuilder(
+                "SELECT p.id, p.name, p.price, p.description, p.stock, p.sold_count, " +
+                "c.id AS category_id, c.name AS category_name, s.name AS shop_name, " +
+                "COALESCE(review_stats.average_rating, 0) AS rating, " +
+                "COALESCE(review_stats.review_count, 0) AS review_count, " +
+                "(SELECT pi.url FROM productimages pi WHERE pi.id_product = p.id ORDER BY pi.id LIMIT 1) AS image " +
+                "FROM products p " +
+                "JOIN categories c ON c.id = p.id_category " +
+                "JOIN shops s ON s.id = p.id_shop " +
+                "LEFT JOIN (SELECT id_product, AVG(rating) AS average_rating, COUNT(*) AS review_count " +
+                "           FROM reviews GROUP BY id_product) review_stats ON review_stats.id_product = p.id " +
+                "WHERE p.status = 'active' AND s.status = 'active'");
+
+        List<Object> params = new ArrayList<>();
+        if (keyword != null && !keyword.trim().isEmpty()) {
+            sql.append(" AND (p.name LIKE ? OR c.name LIKE ? OR s.name LIKE ?)");
+            String pattern = "%" + keyword.trim() + "%";
+            params.add(pattern);
+            params.add(pattern);
+            params.add(pattern);
+        }
+
+        sql.append(" ORDER BY p.sold_count DESC, p.id DESC LIMIT ?");
+        params.add(limit <= 0 ? 50 : limit);
+
+        List<Map<String, Object>> products = new ArrayList<>();
         try (Connection connection = DBConnection.getConnection();
-             PreparedStatement statement = connection.prepareStatement(sql);
-             ResultSet result = statement.executeQuery()) {
-            while (result.next()) {
-                Map<String, Object> category = new LinkedHashMap<>();
-                category.put("id", result.getInt("id"));
-                category.put("name", result.getString("name"));
-                category.put("productCount", result.getInt("product_count"));
-                categories.add(category);
+             PreparedStatement statement = connection.prepareStatement(sql.toString())) {
+            for (int i = 0; i < params.size(); i++) {
+                statement.setObject(i + 1, params.get(i));
+            }
+            try (ResultSet rs = statement.executeQuery()) {
+                while (rs.next()) {
+                    Map<String, Object> product = new LinkedHashMap<>();
+                    product.put("id", rs.getInt("id"));
+                    product.put("name", rs.getString("name"));
+                    product.put("price", rs.getBigDecimal("price"));
+                    product.put("description", rs.getString("description"));
+                    product.put("stock", rs.getInt("stock"));
+                    product.put("soldCount", rs.getInt("sold_count"));
+                    product.put("categoryId", rs.getInt("category_id"));
+                    product.put("categoryName", rs.getString("category_name"));
+                    product.put("shopName", rs.getString("shop_name"));
+                    product.put("rating", rs.getBigDecimal("rating"));
+                    product.put("reviewCount", rs.getInt("review_count"));
+                    product.put("image", rs.getString("image"));
+                    products.add(product);
+                }
             }
         }
-        return categories;
+        return products;
     }
-    public boolean updateFeaturedProducts( List<Integer> ids){
-        return true;
+
+    /**
+     * Cập nhật danh sách và thứ tự sản phẩm nổi bật vào bảng featured_products
+     */
+    public boolean updateFeaturedProducts(List<Integer> ids) {
+        String deleteSql = "DELETE FROM featured_products";
+        String insertSql = "INSERT INTO featured_products (product_id, display_order) VALUES (?, ?)";
+
+        try (Connection connection = DBConnection.getConnection()) {
+            connection.setAutoCommit(false);
+            try {
+                try (PreparedStatement deleteStmt = connection.prepareStatement(deleteSql)) {
+                    deleteStmt.executeUpdate();
+                }
+
+                if (ids != null && !ids.isEmpty()) {
+                    try (PreparedStatement insertStmt = connection.prepareStatement(insertSql)) {
+                        int order = 1;
+                        for (Integer id : ids) {
+                            if (id != null) {
+                                insertStmt.setInt(1, id);
+                                insertStmt.setInt(2, order++);
+                                insertStmt.addBatch();
+                            }
+                        }
+                        insertStmt.executeBatch();
+                    }
+                }
+
+                connection.commit();
+                return true;
+            } catch (SQLException e) {
+                connection.rollback();
+                throw e;
+            } finally {
+                connection.setAutoCommit(true);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
     }
 }
