@@ -578,6 +578,45 @@ public class ProductDAO {
             statement.setObject(index + 1, parameters.get(index));
         }
     }
+    /**
+     * Lấy danh sách sản phẩm nổi bật từ bảng featured_products
+     */
+    public List<Map<String, Object>> getFeaturedProducts() throws SQLException {
+        String sql = "SELECT p.id, p.name, p.price, p.description, p.stock, p.sold_count, " +
+                "c.id AS category_id, c.name AS category_name, s.name AS shop_name, " +
+                "COALESCE(review_stats.average_rating, 0) AS rating, " +
+                "COALESCE(review_stats.review_count, 0) AS review_count, " +
+                "(SELECT pi.url FROM productimages pi WHERE pi.id_product = p.id ORDER BY pi.id LIMIT 1) AS image, " +
+                "fp.display_order " +
+                "FROM featured_products fp " +
+                "JOIN products p ON p.id = fp.product_id " +
+                "JOIN categories c ON c.id = p.id_category " +
+                "JOIN shops s ON s.id = p.id_shop " +
+                "LEFT JOIN (SELECT id_product, AVG(rating) AS average_rating, COUNT(*) AS review_count " +
+                "           FROM reviews GROUP BY id_product) review_stats ON review_stats.id_product = p.id " +
+                "WHERE p.status = 'active' AND s.status = 'active' " +
+                "ORDER BY fp.display_order ASC";
+
+        List<Map<String, Object>> products = new ArrayList<>();
+        try (Connection connection = DBConnection.getConnection();
+             PreparedStatement statement = connection.prepareStatement(sql);
+             ResultSet rs = statement.executeQuery()) {
+            while (rs.next()) {
+                Map<String, Object> product = new LinkedHashMap<>();
+                product.put("id", rs.getInt("id"));
+                product.put("name", rs.getString("name"));
+                product.put("price", rs.getBigDecimal("price"));
+                product.put("description", rs.getString("description"));
+                product.put("stock", rs.getInt("stock"));
+                product.put("soldCount", rs.getInt("sold_count"));
+                product.put("categoryId", rs.getInt("category_id"));
+                product.put("categoryName", rs.getString("category_name"));
+                product.put("shopName", rs.getString("shop_name"));
+                product.put("rating", rs.getBigDecimal("rating"));
+                product.put("reviewCount", rs.getInt("review_count"));
+                product.put("image", rs.getString("image"));
+                product.put("displayOrder", rs.getInt("display_order"));
+                products.add(product);
 
     public void initFeaturedProductsTable() {
         String sql = "CREATE TABLE IF NOT EXISTS featured_products (" +
@@ -604,66 +643,86 @@ public class ProductDAO {
             }
         } catch (SQLException ignored) {
         }
+        return products;
     }
 
-    public List<Map<String, Object>> getFeaturedProducts() throws SQLException {
-        initFeaturedProductsTable();
-        String sql = "SELECT p.id, p.name, p.price, p.stock, p.sold_count, p.id_category, " +
-                "c.name AS category_name, s.id AS shop_id, s.name AS shop_name, " +
-                "COALESCE(rs.average_rating, 0) AS rating, " +
-                "COALESCE(rs.review_count, 0) AS review_count, " +
-                "(SELECT pi.url FROM productimages pi WHERE pi.id_product = p.id ORDER BY pi.id LIMIT 1) AS image, " +
-                "fp.display_order " +
-                "FROM featured_products fp " +
-                "JOIN products p ON p.id = fp.product_id " +
+    /**
+     * Tìm kiếm sản phẩm active cho trang quản trị sản phẩm nổi bật
+     */
+    public List<Map<String, Object>> searchActiveProducts(String keyword, int limit) throws SQLException {
+        StringBuilder sql = new StringBuilder(
+                "SELECT p.id, p.name, p.price, p.description, p.stock, p.sold_count, " +
+                "c.id AS category_id, c.name AS category_name, s.name AS shop_name, " +
+                "COALESCE(review_stats.average_rating, 0) AS rating, " +
+                "COALESCE(review_stats.review_count, 0) AS review_count, " +
+                "(SELECT pi.url FROM productimages pi WHERE pi.id_product = p.id ORDER BY pi.id LIMIT 1) AS image " +
+                "FROM products p " +
                 "JOIN categories c ON c.id = p.id_category " +
                 "JOIN shops s ON s.id = p.id_shop " +
-                "LEFT JOIN (SELECT id_product, AVG(rating) average_rating, COUNT(*) review_count " +
-                "           FROM reviews GROUP BY id_product) rs ON rs.id_product = p.id " +
-                "WHERE p.status = 'active' AND s.status = 'active' " +
-                "ORDER BY fp.display_order ASC, fp.id ASC";
+                "LEFT JOIN (SELECT id_product, AVG(rating) AS average_rating, COUNT(*) AS review_count " +
+                "           FROM reviews GROUP BY id_product) review_stats ON review_stats.id_product = p.id " +
+                "WHERE p.status = 'active' AND s.status = 'active'");
+
+        List<Object> params = new ArrayList<>();
+        if (keyword != null && !keyword.trim().isEmpty()) {
+            sql.append(" AND (p.name LIKE ? OR c.name LIKE ? OR s.name LIKE ?)");
+            String pattern = "%" + keyword.trim() + "%";
+            params.add(pattern);
+            params.add(pattern);
+            params.add(pattern);
+        }
+
+        sql.append(" ORDER BY p.sold_count DESC, p.id DESC LIMIT ?");
+        params.add(limit <= 0 ? 50 : limit);
 
         List<Map<String, Object>> products = new ArrayList<>();
         try (Connection connection = DBConnection.getConnection();
-             PreparedStatement statement = connection.prepareStatement(sql);
-             ResultSet result = statement.executeQuery()) {
-            while (result.next()) {
-                Map<String, Object> product = new LinkedHashMap<>();
-                product.put("id", result.getInt("id"));
-                product.put("name", result.getString("name"));
-                product.put("price", result.getBigDecimal("price"));
-                product.put("stock", result.getInt("stock"));
-                product.put("soldCount", result.getInt("sold_count"));
-                product.put("categoryId", result.getInt("id_category"));
-                product.put("categoryName", result.getString("category_name"));
-                product.put("shopId", result.getInt("shop_id"));
-                product.put("shopName", result.getString("shop_name"));
-                product.put("rating", result.getBigDecimal("rating"));
-                product.put("reviewCount", result.getInt("review_count"));
-                product.put("image", result.getString("image"));
-                product.put("displayOrder", result.getInt("display_order"));
-                products.add(product);
+             PreparedStatement statement = connection.prepareStatement(sql.toString())) {
+            for (int i = 0; i < params.size(); i++) {
+                statement.setObject(i + 1, params.get(i));
+            }
+            try (ResultSet rs = statement.executeQuery()) {
+                while (rs.next()) {
+                    Map<String, Object> product = new LinkedHashMap<>();
+                    product.put("id", rs.getInt("id"));
+                    product.put("name", rs.getString("name"));
+                    product.put("price", rs.getBigDecimal("price"));
+                    product.put("description", rs.getString("description"));
+                    product.put("stock", rs.getInt("stock"));
+                    product.put("soldCount", rs.getInt("sold_count"));
+                    product.put("categoryId", rs.getInt("category_id"));
+                    product.put("categoryName", rs.getString("category_name"));
+                    product.put("shopName", rs.getString("shop_name"));
+                    product.put("rating", rs.getBigDecimal("rating"));
+                    product.put("reviewCount", rs.getInt("review_count"));
+                    product.put("image", rs.getString("image"));
+                    products.add(product);
+                }
             }
         }
         return products;
     }
 
-    public boolean updateFeaturedProducts(List<Integer> productIds) throws SQLException {
-        initFeaturedProductsTable();
+    /**
+     * Cập nhật danh sách và thứ tự sản phẩm nổi bật vào bảng featured_products
+     */
+    public boolean updateFeaturedProducts(List<Integer> ids) {
+        String deleteSql = "DELETE FROM featured_products";
+        String insertSql = "INSERT INTO featured_products (product_id, display_order) VALUES (?, ?)";
+
         try (Connection connection = DBConnection.getConnection()) {
             connection.setAutoCommit(false);
             try {
-                try (PreparedStatement deleteStmt = connection.prepareStatement("DELETE FROM featured_products")) {
+                try (PreparedStatement deleteStmt = connection.prepareStatement(deleteSql)) {
                     deleteStmt.executeUpdate();
                 }
 
-                if (productIds != null && !productIds.isEmpty()) {
-                    String insertSql = "INSERT INTO featured_products (product_id, display_order) VALUES (?, ?)";
+                if (ids != null && !ids.isEmpty()) {
                     try (PreparedStatement insertStmt = connection.prepareStatement(insertSql)) {
                         int order = 1;
-                        for (Integer pid : productIds) {
-                            if (pid != null && pid > 0) {
-                                insertStmt.setInt(1, pid);
+                        for (Integer id : ids) {
+                            if (id != null) {
+                                insertStmt.setInt(1, id);
                                 insertStmt.setInt(2, order++);
                                 insertStmt.addBatch();
                             }
@@ -671,6 +730,7 @@ public class ProductDAO {
                         insertStmt.executeBatch();
                     }
                 }
+
                 connection.commit();
                 return true;
             } catch (SQLException e) {
@@ -679,50 +739,9 @@ public class ProductDAO {
             } finally {
                 connection.setAutoCommit(true);
             }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
         }
-    }
-
-    public List<Map<String, Object>> searchActiveProducts(String keyword, int limit) throws SQLException {
-        initFeaturedProductsTable();
-        StringBuilder sql = new StringBuilder(
-                "SELECT p.id, p.name, p.price, p.sold_count, p.id_category, s.name AS shop_name, " +
-                        "(SELECT pi.url FROM productimages pi WHERE pi.id_product = p.id ORDER BY pi.id LIMIT 1) AS image, " +
-                        "EXISTS(SELECT 1 FROM featured_products fp WHERE fp.product_id = p.id) AS is_featured " +
-                        "FROM products p " +
-                        "JOIN shops s ON s.id = p.id_shop " +
-                        "WHERE p.status = 'active' AND s.status = 'active' "
-        );
-        if (keyword != null && !keyword.trim().isEmpty()) {
-            sql.append("AND (p.name LIKE ? OR s.name LIKE ?) ");
-        }
-        sql.append("ORDER BY p.sold_count DESC, p.id DESC LIMIT ?");
-
-        List<Map<String, Object>> list = new ArrayList<>();
-        try (Connection connection = DBConnection.getConnection();
-             PreparedStatement stmt = connection.prepareStatement(sql.toString())) {
-            int paramIndex = 1;
-            if (keyword != null && !keyword.trim().isEmpty()) {
-                String search = "%" + keyword.trim() + "%";
-                stmt.setString(paramIndex++, search);
-                stmt.setString(paramIndex++, search);
-            }
-            stmt.setInt(paramIndex, limit <= 0 ? 20 : limit);
-
-            try (ResultSet rs = stmt.executeQuery()) {
-                while (rs.next()) {
-                    Map<String, Object> map = new LinkedHashMap<>();
-                    map.put("id", rs.getInt("id"));
-                    map.put("name", rs.getString("name"));
-                    map.put("price", rs.getBigDecimal("price"));
-                    map.put("soldCount", rs.getInt("sold_count"));
-                    map.put("categoryId", rs.getInt("id_category"));
-                    map.put("shopName", rs.getString("shop_name"));
-                    map.put("image", rs.getString("image"));
-                    map.put("isFeatured", rs.getBoolean("is_featured"));
-                    list.add(map);
-                }
-            }
-        }
-        return list;
     }
 }
