@@ -14,7 +14,6 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -30,12 +29,21 @@ public class CheckoutServlet extends HttpServlet {
         boolean buyer = userId instanceof Number id && id.intValue() > 0 && "buyer".equals(role);
         request.setAttribute("databaseCheckoutAvailable", buyer);
         request.setAttribute("checkoutProductIds", request.getParameter("productIds"));
+        Object sessionEmail = request.getSession(false) == null ? null
+                : request.getSession(false).getAttribute("email");
+        request.setAttribute("checkoutEmail", sessionEmail);
         if (request.getSession(false) != null) {
-            request.setAttribute("checkoutFullName", request.getSession(false).getAttribute("fullName"));
-            request.setAttribute("checkoutEmail", request.getSession(false).getAttribute("email"));
+            Object savedName = request.getSession(false).getAttribute("fullName");
+            if (savedName == null) savedName = request.getSession(false).getAttribute("userName");
+            request.setAttribute("checkoutFullName", savedName);
         }
         if (buyer) {
             try {
+                if (sessionEmail == null || sessionEmail.toString().isBlank()) {
+                    String email = new dao.AccountDAO().findEmailByUserId(((Number) userId).intValue());
+                    request.setAttribute("checkoutEmail", email);
+                    if (email != null) request.getSession(false).setAttribute("email", email);
+                }
                 String requestedIds = request.getParameter("productIds");
                 if ("1".equals(request.getParameter("fromCart")) || requestedIds != null) {
                     List<Integer> productIds = parseIds(requestedIds);
@@ -63,6 +71,7 @@ public class CheckoutServlet extends HttpServlet {
                     request.setAttribute("checkoutSubtotal", subtotal);
                     request.setAttribute("checkoutShipping", shipping);
                     request.setAttribute("checkoutTotal", subtotal.add(shipping));
+                    request.setAttribute("availableVouchers", checkoutDAO.findAvailableVouchers(((Number) userId).intValue(), productIds));
                 }
                 Map<String, String> savedAddress = checkoutDAO.findDefaultAddress(((Number) userId).intValue());
                 if (!savedAddress.isEmpty()) {
@@ -95,6 +104,25 @@ public class CheckoutServlet extends HttpServlet {
             return;
         }
 
+        if ("preview-benefits".equals(request.getParameter("action"))) {
+            List<Integer> ids = parseIds(request.getParameter("productIds"));
+            if (ids.isEmpty()) {
+                writeError(response, 400, "Không có sản phẩm hợp lệ để tính ưu đãi.");
+                return;
+            }
+            try {
+                Map<String, Object> quote = checkoutDAO.previewBenefits(number.intValue(), ids,
+                        request.getParameter("voucherCode"), "true".equals(request.getParameter("useCoins")));
+                response.getWriter().write(gson.toJson(quote));
+            } catch (IllegalArgumentException exception) {
+                writeError(response, 400, exception.getMessage());
+            } catch (SQLException exception) {
+                getServletContext().log("Unable to calculate checkout benefits", exception);
+                writeError(response, 503, "Chưa thể kiểm tra voucher và xu. Vui lòng thử lại.");
+            }
+            return;
+        }
+
         CheckoutRequestDTO checkoutRequest = new CheckoutRequestDTO();
         checkoutRequest.setProductIds(request.getParameter("productIds"));
         checkoutRequest.setFullName(request.getParameter("fullName"));
@@ -102,6 +130,8 @@ public class CheckoutServlet extends HttpServlet {
         checkoutRequest.setAddress(request.getParameter("address"));
         checkoutRequest.setNote(request.getParameter("note"));
         checkoutRequest.setPaymentMethod(request.getParameter("paymentMethod"));
+        String voucherCode = trim(request.getParameter("voucherCode")).toUpperCase(java.util.Locale.ROOT);
+        boolean useCoins = "true".equals(request.getParameter("useCoins"));
 
         String receiver = trim(checkoutRequest.getFullName());
         String phone = trim(checkoutRequest.getPhone()).replaceAll("\\s+", "");
@@ -117,25 +147,52 @@ public class CheckoutServlet extends HttpServlet {
             return;
         }
         try {
+            String paymentReference = java.util.UUID.randomUUID().toString().replace("-", "");
             Map<String, Object> result = checkoutDAO.placeOrder(
-                    number.intValue(), productIds, receiver, phone, address, note, payment);
+                    number.intValue(), productIds, receiver, phone, address, note, payment, voucherCode, useCoins, paymentReference);
             CheckoutResponseDTO checkoutResponse = new CheckoutResponseDTO();
             checkoutResponse.setOrderId(((Number) result.get("orderId")).intValue());
             @SuppressWarnings("unchecked")
             List<Integer> orderIds = (List<Integer>) result.get("orderIds");
             checkoutResponse.setOrderIds(orderIds);
-            checkoutResponse.setSubtotal((java.math.BigDecimal) result.get("subtotal"));
-            checkoutResponse.setShipping((java.math.BigDecimal) result.get("shipping"));
-            checkoutResponse.setTotal((java.math.BigDecimal) result.get("total"));
+            checkoutResponse.setSubtotal((BigDecimal) result.get("subtotal"));
+            checkoutResponse.setShipping((BigDecimal) result.get("shipping"));
+            checkoutResponse.setTotal((BigDecimal) result.get("total"));
             checkoutResponse.setItemCount(((Number) result.get("itemCount")).intValue());
             checkoutResponse.setPaymentMethod(payment);
+            // COD also waits for a simulated 50% deposit before the success page.
+            checkoutResponse.setPaymentReference(paymentReference);
+            checkoutResponse.setVoucherDiscount((BigDecimal) result.get("voucherDiscount"));
+            checkoutResponse.setCoinDiscount((BigDecimal) result.get("coinDiscount"));
+            checkoutResponse.setDiscount((BigDecimal) result.get("discount"));
+            checkoutResponse.setCoinsUsed((Integer) result.get("coinsUsed"));
+            checkoutResponse.setRemainingCoins((Integer) result.get("remainingCoins"));
+            checkoutResponse.setRewardCoinsPending((Integer) result.get("rewardCoinsPending"));
             response.getWriter().write(gson.toJson(checkoutResponse));
         } catch (IllegalArgumentException exception) {
             writeError(response, 400, exception.getMessage());
         } catch (SQLException exception) {
             getServletContext().log("Unable to place checkout order", exception);
-            writeError(response, 503, "Chưa thể tạo đơn hàng lúc này. Vui lòng thử lại.");
+            if (isMissingShippingColumns(exception)) {
+                writeError(response, 503,
+                        "Cơ sở dữ liệu chưa có cột thông tin giao hàng mới. Hãy chạy file db_order_shipping_fields.sql một lần, sau đó thử lại.");
+            } else {
+                writeError(response, 503, "Chưa thể tạo đơn hàng (DB " + exception.getErrorCode() +
+                        ", SQLState " + (exception.getSQLState() == null ? "unknown" : exception.getSQLState()) +
+                        "). Hãy kiểm tra log Tomcat để xem chi tiết.");
+            }
         }
+    }
+
+    private boolean isMissingShippingColumns(SQLException exception) {
+        for (SQLException current = exception; current != null; current = current.getNextException()) {
+            String message = current.getMessage();
+            if (current.getErrorCode() == 1054 && message != null &&
+                    (message.contains("shipping_receiver") || message.contains("shipping_phone") || message.contains("shipping_note"))) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private List<Integer> parseIds(String value) {
@@ -156,7 +213,17 @@ public class CheckoutServlet extends HttpServlet {
     private String checkoutImageUrl(HttpServletRequest request, String storedPath, int categoryId) {
         String path = storedPath == null ? "" : storedPath.trim();
         if (path.startsWith("https://") || path.startsWith("http://")) return path;
-        // Keep the same fallback used by CartDAO so checkout previews match the cart.
+        if (!path.isBlank()) {
+            path = path.replace('\\', '/').replaceFirst("^/+", "");
+            String webPath = path.startsWith("assets/") ? path : "assets/img/" + path;
+            try {
+                if (getServletContext().getResource("/" + webPath) != null) {
+                    return request.getContextPath() + "/" + webPath;
+                }
+            } catch (IOException ignored) {
+                // Use the same category fallback as the product page when the stored file is missing.
+            }
+        }
         String fallback = switch (categoryId) {
             case 2 -> "necklace_02.jpg";
             case 3 -> "phoneStrap_01.jpg";

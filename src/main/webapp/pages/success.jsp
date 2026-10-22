@@ -1,4 +1,3 @@
-<%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <!DOCTYPE html>
 <html lang="vi">
 
@@ -13,109 +12,109 @@
 </head>
 
 <body>
-    <div id="header-placeholder"></div>
+<div id="header-placeholder"></div>
 
-    <main class="success-page">
-        <div class="container">
-            <div class="success-card">
-                <div class="success-icon-wrap">
-                    <i class="fa-solid fa-circle-check"></i>
-                </div>
+<main class="success-page">
+    <div class="container">
+        <div class="success-card">
+            <div class="success-icon-wrap">
+                <i class="fa-solid fa-circle-check"></i>
+            </div>
 
-                <h1>Đặt hàng thành công!</h1>
-                <p class="success-subtext">
-                    Cảm ơn bạn đã lựa chọn AuraCraft. Đơn hàng của bạn đã được chuyển tới các nghệ nhân thủ công để
-                    chuẩn bị chế tác và giao đến tay bạn trong thời gian sớm nhất.
-                </p>
+            <h1>Đặt hàng thành công!</h1>
+            <p class="success-subtext">
+                Cảm ơn bạn đã lựa chọn AuraCraft. Đơn hàng của bạn đã được chuyển tới các nghệ nhân thủ công để
+                chuẩn bị chế tác và giao đến tay bạn trong thời gian sớm nhất.
+            </p>
 
-                <div class="order-code-box">
-                    <span>Mã đơn hàng:</span>
-                    <strong id="displayOrderCode">#AC-982415</strong>
-                    <button type="button" class="btn-copy-code" id="btnCopyCode" title="Sao chép mã đơn hàng"
+            <div class="order-code-box">
+                <span>Mã đơn hàng:</span>
+                <strong id="displayOrderCode">#AC-982415</strong>
+                <button type="button" class="btn-copy-code" id="btnCopyCode" title="Sao chép mã đơn hàng"
                         aria-label="Sao chép mã đơn hàng">
-                        <i class="fa-regular fa-copy"></i>
-                    </button>
+                    <i class="fa-regular fa-copy"></i>
+                </button>
+            </div>
+
+            <!-- Chi tiết đơn hàng -->
+            <div class="success-order-details">
+                <h3><i class="fa-solid fa-file-invoice"></i> Chi tiết đơn hàng</h3>
+
+                <div class="detail-line">
+                    <span class="detail-label">Người nhận:</span>
+                    <span class="detail-val" id="detailCustomer">Nguyễn Văn A (0912345678)</span>
                 </div>
 
-                <!-- Chi tiết đơn hàng -->
-                <div class="success-order-details">
-                    <h3><i class="fa-solid fa-file-invoice"></i> Chi tiết đơn hàng</h3>
-
-                    <div class="detail-line">
-                        <span class="detail-label">Người nhận:</span>
-                        <span class="detail-val" id="detailCustomer">Nguyễn Văn A (0912345678)</span>
-                    </div>
-
-                    <div class="detail-line">
-                        <span class="detail-label">Địa chỉ giao hàng:</span>
-                        <span class="detail-val" id="detailAddress">Số 123 Đường Thủ Đức, TP. Hồ Chí Minh</span>
-                    </div>
-
-                    <div class="detail-line">
-                        <span class="detail-label">Ghi chú:</span>
-                        <span class="detail-val" id="detailNote">Vui lòng giao hàng vào buổi chiều</span>
-                    </div>
-
-                    <div class="detail-line">
-                        <span class="detail-label">Phương thức thanh toán:</span>
-                        <span class="detail-val" id="detailPayment">Thanh toán khi nhận hàng (COD)</span>
-                    </div>
-
-                    <div class="detail-line">
-                        <span class="detail-label">Phí vận chuyển:</span>
-                        <span class="detail-val" id="detailShipping">30.000đ</span>
-                    </div>
-
-                    <div class="detail-line">
-                        <span class="detail-label">Tổng thanh toán:</span>
-                        <span class="detail-val" id="detailTotal"
-                            style="color:var(--primary-blue); font-weight:700;">420.000đ</span>
-                    </div>
-
-                    <div class="detail-line">
-                        <span class="detail-label">Thời gian đặt:</span>
-                        <span class="detail-val" id="detailTime">Vừa xong</span>
-                    </div>
+                <div class="detail-line">
+                    <span class="detail-label">Địa chỉ giao hàng:</span>
+                    <span class="detail-val" id="detailAddress">Số 123 Đường Thủ Đức, TP. Hồ Chí Minh</span>
                 </div>
 
+                <div class="detail-line">
+                    <span class="detail-label">Ghi chú:</span>
+                    <span class="detail-val" id="detailNote">Vui lòng giao hàng vào buổi chiều</span>
+                </div>
 
+                <div class="detail-line">
+                    <span class="detail-label">Phương thức thanh toán:</span>
+                    <span class="detail-val" id="detailPayment">Thanh toán khi nhận hàng (COD)</span>
+                </div>
 
-                <div class="success-actions">
-                    <a href="tracking.html" id="btnGoTracking" class="btn btn-primary">
-                        <i class="fa-solid fa-truck-fast"></i> Theo dõi đơn hàng
-                    </a>
-                    <a href="products.html" class="btn btn-outline">
-                        <i class="fa-solid fa-bag-shopping"></i> Tiếp tục mua sắm
-                    </a>
-                    <a href="../index.jsp" class="btn btn-outline">
-                        <i class="fa-solid fa-house"></i> Về trang chủ
-                    </a>
+                <div class="detail-line">
+                    <span class="detail-label">Phí vận chuyển:</span>
+                    <span class="detail-val" id="detailShipping">30.000đ</span>
+                </div>
+
+                <div class="detail-line">
+                    <span class="detail-label">Tổng thanh toán:</span>
+                    <span class="detail-val" id="detailTotal"
+                          style="color:var(--primary-blue); font-weight:700;">420.000đ</span>
+                </div>
+
+                <div class="detail-line">
+                    <span class="detail-label">Thời gian đặt:</span>
+                    <span class="detail-val" id="detailTime">Vừa xong</span>
                 </div>
             </div>
+
+
+
+            <div class="success-actions">
+                <a href="tracking.html" id="btnGoTracking" class="btn btn-primary">
+                    <i class="fa-solid fa-truck-fast"></i> Theo dõi đơn hàng
+                </a>
+                <a href="products" class="btn btn-outline">
+                    <i class="fa-solid fa-bag-shopping"></i> Tiếp tục mua sắm
+                </a>
+                <a href="../index.html" class="btn btn-outline">
+                    <i class="fa-solid fa-house"></i> Về trang chủ
+                </a>
+            </div>
         </div>
-    </main>
+    </div>
+</main>
 
-    <div id="footer-placeholder"></div>
+<div id="footer-placeholder"></div>
 
-    <script src="../assets/js/checkout.js"></script>
-    <script>
-        fetch('../components/header.html')
-            .then(r => r.text())
-            .then(html => {
-                document.getElementById('header-placeholder').innerHTML = html.replace(/href="index\.html"/g, 'href="../index.jsp"');
-            })
-            .catch(err => console.error('Lỗi tải Header:', err));
+<script src="../assets/js/checkout.js"></script>
+<script>
+    fetch('../components/header.html')
+        .then(r => r.text())
+        .then(html => {
+            document.getElementById('header-placeholder').innerHTML = html.replace(/href="index\.html"/g, 'href="../index.html"');
+        })
+        .catch(err => console.error('Lỗi tải Header:', err));
 
-        fetch('../components/footer.html')
-            .then(r => r.text())
-            .then(html => {
-                document.getElementById('footer-placeholder').innerHTML = html.replace(/href="index\.html"/g, 'href="../index.jsp"');
-            })
-            .catch(err => console.error('Lỗi tải Footer:', err));
-    </script>
-<script src="../assets/js/popup.js"></script>
-    <script src="${pageContext.request.contextPath}/assets/js/auth.js"></script>
-
+    fetch('../components/footer.html')
+        .then(r => r.text())
+        .then(html => {
+            document.getElementById('footer-placeholder').innerHTML = html.replace(/href="index\.html"/g, 'href="../index.html"');
+        })
+        .catch(err => console.error('Lỗi tải Footer:', err));
+</script>
+<%--<script src="../assets/js/popup.js"></script>--%>
+<script src="../assets/js/site-shell.js"></script>
+<script src="assets/js/auth.js"></script>
 </body>
 
 </html>

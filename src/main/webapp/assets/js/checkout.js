@@ -148,6 +148,65 @@ document.addEventListener("DOMContentLoaded", () => {
     const checkedRadio = document.querySelector('input[name="paymentMethod"]:checked');
     if (checkedRadio) updateDepositUI(checkedRadio);
 
+    // Voucher and loyalty coin previews are calculated by the server against the
+    // selected database cart, so the displayed total matches the order transaction.
+    if (checkoutForm.dataset.databaseCheckout === "true" && !customOrder && checkoutForm.dataset.productIds) {
+      const voucherInput = document.getElementById("voucherCode");
+      const voucherMessage = document.getElementById("voucherMessage");
+      const coinsMessage = document.getElementById("coinsMessage");
+      const useCoinsButton = document.getElementById("btnUseCoins");
+      let useCoins = false;
+      const money = value => `${Number(value || 0).toLocaleString("vi-VN")}đ`;
+      const preview = async () => {
+        const params = new URLSearchParams({
+          action: "preview-benefits",
+          productIds: checkoutForm.dataset.productIds,
+          voucherCode: voucherInput?.value.trim() || "",
+          useCoins: String(useCoins)
+        });
+        try {
+          const response = await fetch(checkoutForm.dataset.context + "/pages/checkout", {
+            method: "POST",
+            headers: { "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8", "Accept": "application/json" },
+            body: params
+          });
+          const quote = await response.json();
+          if (!response.ok) throw new Error(quote.message || "Không thể kiểm tra ưu đãi.");
+          document.getElementById("summarySubtotal").textContent = money(quote.subtotal);
+          document.getElementById("summaryShipping").textContent = money(quote.shipping);
+          document.getElementById("summaryTotal").textContent = money(quote.total);
+          const voucherRow = document.getElementById("voucherDiscountRow");
+          const coinRow = document.getElementById("coinDiscountRow");
+          voucherRow.hidden = Number(quote.voucherDiscount || 0) <= 0;
+          coinRow.hidden = Number(quote.coinDiscount || 0) <= 0;
+          document.getElementById("summaryVoucherDiscount").textContent = `-${money(quote.voucherDiscount)}`;
+          document.getElementById("summaryCoinDiscount").textContent = `-${money(quote.coinDiscount)}`;
+          document.getElementById("summaryCoinsUsed").textContent = quote.coinsUsed || 0;
+          document.getElementById("availableCoins").textContent = `${quote.availableCoins || 0} xu`;
+          if (useCoinsButton) useCoinsButton.disabled = Number(quote.coinsAvailableToUse || 0) <= 0;
+          if (voucherMessage) voucherMessage.textContent = quote.voucherDiscount > 0
+            ? `Đã áp dụng voucher, giảm ${money(quote.voucherDiscount)}.`
+            : (voucherInput?.value.trim() ? "Mã voucher hợp lệ nhưng không tạo ưu đãi." : "Nhập mã voucher để kiểm tra điều kiện.");
+          if (coinsMessage) coinsMessage.textContent = useCoins
+            ? `Đang dùng ${quote.coinsUsed || 0} xu, còn ${quote.remainingCoins || 0} xu.`
+            : `Bạn có ${quote.availableCoins || 0} xu. 1 xu giảm 1.000đ.`;
+        } catch (error) {
+          if (voucherMessage) voucherMessage.textContent = error.message;
+          if (coinsMessage && useCoins) coinsMessage.textContent = error.message;
+        }
+      };
+      document.getElementById("btnApplyVoucher")?.addEventListener("click", preview);
+      voucherInput?.addEventListener("keydown", event => {
+        if (event.key === "Enter") { event.preventDefault(); preview(); }
+      });
+      useCoinsButton?.addEventListener("click", () => { useCoins = !useCoins; useCoinsButton.textContent = useCoins ? "Bỏ dùng xu" : "Dùng xu"; preview(); });
+      document.querySelectorAll(".checkout-voucher-option").forEach(option => option.addEventListener("click", () => {
+        voucherInput.value = option.dataset.voucherCode || "";
+        preview();
+      }));
+      preview();
+    }
+
     // Submit form đặt hàng
     checkoutForm.addEventListener("submit", async (e) => {
       e.preventDefault();
@@ -216,27 +275,70 @@ document.addEventListener("DOMContentLoaded", () => {
               phone: phone.value.trim(),
               address: address.value.trim(),
               note: note ? note.value.trim() : "",
-              paymentMethod: document.querySelector('input[name="paymentMethod"]:checked')?.value || "cod"
+              paymentMethod: document.querySelector('input[name="paymentMethod"]:checked')?.value || "cod",
+              voucherCode: document.getElementById("voucherCode")?.value.trim() || "",
+              useCoins: document.getElementById("coinDiscountRow")?.hidden === false ? "true" : "false"
             })
           });
           const result = await response.json();
           if (!response.ok) throw new Error(result.message || "Không thể tạo đơn hàng.");
 
+          const isOnlinePayment = result.paymentMethod === "VNPay";
+          const modal = document.getElementById("qrPaymentModal");
+          if (modal) {
+            document.getElementById("mockPaymentTitle").textContent = isOnlinePayment ? "Mô phỏng thanh toán VNPay" : "Mô phỏng thanh toán cọc COD";
+            document.getElementById("mockPaymentDescription").innerHTML = isOnlinePayment
+              ? `Xác nhận thanh toán mô phỏng <strong>${Number(result.total || 0).toLocaleString("vi-VN")}đ</strong>. Không có giao dịch ngân hàng thật.`
+              : `Xác nhận cọc mô phỏng 50% (<strong>${(Number(result.total || 0) / 2).toLocaleString("vi-VN")}đ</strong>). Phần còn lại thanh toán khi nhận hàng.`;
+            document.getElementById("mockPaymentDemoNote").textContent = "CHẾ ĐỘ DEMO · KHÔNG GIAO DỊCH NGÂN HÀNG";
+            document.getElementById("mockPaymentReference").textContent = result.paymentReference || "";
+            const confirmPayment = () => new Promise(resolve => {
+              modal.hidden = false;
+              const confirmButton = document.getElementById("btnSuccessQr");
+              const cancelButton = document.getElementById("btnCancelQr");
+              const finish = value => {
+                modal.hidden = true;
+                confirmButton.removeEventListener("click", onConfirm);
+                cancelButton.removeEventListener("click", onCancel);
+                resolve(value);
+              };
+              const onConfirm = () => finish(true);
+              const onCancel = () => finish(false);
+              confirmButton.addEventListener("click", onConfirm, { once: true });
+              cancelButton.addEventListener("click", onCancel, { once: true });
+            });
+            const confirmed = await confirmPayment();
+            const paymentAction = confirmed
+              ? (isOnlinePayment ? "confirm" : "confirm-cod-deposit")
+              : (isOnlinePayment ? "cancel" : "cancel-cod-deposit");
+            const paymentResponse = await fetch(checkoutForm.dataset.context + "/vnpay/simulate", {
+              method: "POST",
+              headers: { "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8", "Accept": "application/json" },
+              body: new URLSearchParams({ action: paymentAction, paymentReference: result.paymentReference || "" })
+            });
+            const paymentResult = await paymentResponse.json();
+            if (!paymentResponse.ok || !paymentResult.success) throw new Error(paymentResult.message || "Không thể xác nhận giao dịch mô phỏng.");
+            if (!confirmed) {
+              window.alert("Đã hủy đơn hàng và khôi phục sản phẩm vào giỏ hàng.");
+              window.location.href = checkoutForm.dataset.context + "/pages/cart.jsp";
+              return;
+            }
+          }
+
           const total = Number(result.total || 0);
           const subtotal = Number(result.subtotal || 0);
           const shipping = Number(result.shipping || 0);
-          const method = result.paymentMethod === "VNPay"
-            ? "VNPay (đơn đang chờ thanh toán)"
-            : "Thanh toán khi nhận hàng (COD)";
           sessionStorage.setItem("auracraft_latest_order", JSON.stringify({
             orderId: "#AC-" + result.orderId,
             orderIds: result.orderIds,
             fullName: fullName.value.trim(), phone: phone.value.trim(),
             address: address.value.trim(), note: note ? note.value.trim() : "",
-            paymentMethod: method,
+            paymentMethod: isOnlinePayment ? "VNPay (đã thanh toán mô phỏng)" : "COD (đã thanh toán cọc 50% mô phỏng)",
             shippingFee: shipping.toLocaleString("vi-VN") + "đ",
             subtotal: subtotal.toLocaleString("vi-VN") + "đ",
             total: total.toLocaleString("vi-VN") + "đ",
+            paid: isOnlinePayment ? total.toLocaleString("vi-VN") + "đ" : (total / 2).toLocaleString("vi-VN") + "đ",
+            remaining: isOnlinePayment ? "0đ" : (total / 2).toLocaleString("vi-VN") + "đ",
             createdAt: new Date().toLocaleString("vi-VN")
           }));
           const boughtIds = new Set(productIds.map(String));
@@ -247,7 +349,7 @@ document.addEventListener("DOMContentLoaded", () => {
           localStorage.removeItem("AuraCraftCheckoutCart");
           localStorage.removeItem("AuraCraftCheckoutSource");
           sessionStorage.removeItem("AuraCraftCartSelected");
-          window.location.href = checkoutForm.dataset.context + "/pages/success.html?orderId=" + encodeURIComponent("#AC-" + result.orderId);
+          window.location.href = checkoutForm.dataset.context + "/pages/success.jsp?orderId=" + encodeURIComponent("#AC-" + result.orderId);
         } catch (error) {
           window.alert(error.message);
           button.disabled = false;
@@ -363,7 +465,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         setTimeout(() => {
-          window.location.href = `${checkoutForm.dataset.context || ""}/pages/success.html?orderId=${encodeURIComponent(virtualOrderId)}`;
+          window.location.href = `${checkoutForm.dataset.context || ""}/pages/success.jsp?orderId=${encodeURIComponent(virtualOrderId)}`;
         }, 400);
       }
 

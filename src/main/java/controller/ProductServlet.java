@@ -1,7 +1,6 @@
 package controller;
 
 import dao.ProductDAO;
-import dao.ShopDAO;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -13,7 +12,6 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 @WebServlet(urlPatterns = {"/pages/products", "/products"})
@@ -21,12 +19,10 @@ public class ProductServlet extends HttpServlet {
     private static final int MAX_KEYWORD_LENGTH = 100;
     private static final int PAGE_SIZE = 12;
     private ProductDAO productDAO;
-    private ShopDAO shopDAO;
 
     @Override
     public void init() {
         productDAO = new ProductDAO();
-        shopDAO = new ShopDAO();
     }
 
     @Override
@@ -107,27 +103,8 @@ public class ProductServlet extends HttpServlet {
                 if (keyword.isBlank()) keyword = null;
             }
 
-            Integer shopId = null;
-            try {
-                String shopParam = request.getParameter("shopId");
-                if (shopParam != null && !shopParam.isBlank()) {
-                    shopId = Integer.parseInt(shopParam);
-                }
-            } catch (NumberFormatException ignored) {
-            }
-
-            // Tim kiem gian hang theo tu khoa
-            Map<String, Object> matchedShop = null;
-            if (keyword != null && !keyword.isBlank()) {
-                matchedShop = shopDAO.findMatchingShop(keyword);
-            } else if (shopId != null) {
-                matchedShop = shopDAO.getShopById(shopId);
-            }
-            request.setAttribute("matchedShop", matchedShop);
-            request.setAttribute("shopId", shopId);
-
             int totalProducts = productDAO.countActiveProducts(
-                    selectedCategories, selectedPrices, selectedRatings, keyword, shopId);
+                    selectedCategories, selectedPrices, selectedRatings, keyword);
             int totalPages = Math.max(1, totalProducts / PAGE_SIZE
                     + (totalProducts % PAGE_SIZE == 0 ? 0 : 1));
             int page = 1;
@@ -169,7 +146,7 @@ public class ProductServlet extends HttpServlet {
             request.setAttribute("pageStart", pageStart);
             request.setAttribute("pageEnd", pageEnd);
             request.setAttribute("products", productDAO.findActiveProducts(
-                    selectedCategories, selectedPrices, selectedRatings, keyword, shopId, sort, PAGE_SIZE, offset));
+                    selectedCategories, selectedPrices, selectedRatings, keyword, sort, PAGE_SIZE, offset));
             request.setAttribute("databaseAvailable", true);
         } catch (SQLException | RuntimeException exception) {
             getServletContext().log("Unable to load product catalogue from database", exception);

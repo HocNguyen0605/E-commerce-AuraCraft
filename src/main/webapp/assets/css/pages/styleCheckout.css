@@ -284,6 +284,114 @@ textarea.form-control {
     white-space: nowrap;
 }
 
+.checkout-benefits {
+    margin: 8px 0 18px;
+    padding: 16px;
+    border: 1px solid var(--gray-light);
+    border-radius: 10px;
+    background: #fbfaf8;
+}
+
+.checkout-benefits[hidden],
+.checkout-discount-row[hidden] {
+    display: none;
+}
+
+.checkout-benefits h3 {
+    margin: 0 0 12px;
+    color: var(--primary-brown);
+    font-family: var(--font-title);
+    font-size: 16px;
+}
+
+.checkout-benefits label {
+    display: block;
+    margin-bottom: 6px;
+    color: var(--text-muted);
+    font-size: 13px;
+}
+
+.checkout-voucher-controls,
+.checkout-coins-controls {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.checkout-voucher-controls input {
+    min-width: 0;
+    flex: 1;
+    height: 42px;
+    padding: 0 12px;
+    border: 1px solid var(--gray-light);
+    border-radius: 7px;
+    background: #fff;
+    text-transform: uppercase;
+}
+
+.checkout-benefits .btn {
+    min-height: 40px;
+    padding: 8px 12px;
+    white-space: nowrap;
+}
+
+.checkout-coins-controls {
+    justify-content: space-between;
+    margin-top: 14px;
+    color: var(--primary-brown);
+    font-size: 14px;
+}
+
+.checkout-benefit-message {
+    margin: 6px 0 0;
+    color: var(--text-muted);
+    font-size: 12px;
+    line-height: 1.45;
+}
+
+.checkout-benefit-message.is-error {
+    color: #a83232;
+}
+
+.checkout-benefit-message.is-success {
+    color: #28734a;
+}
+
+.checkout-voucher-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 10px;
+}
+
+.checkout-voucher-option {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 3px;
+    max-width: 100%;
+    padding: 8px 10px;
+    border: 1px dashed var(--primary-blue);
+    border-radius: 7px;
+    background: #fff;
+    color: var(--primary-brown);
+    cursor: pointer;
+    text-align: left;
+}
+
+.checkout-voucher-option strong {
+    color: var(--primary-blue);
+}
+
+.checkout-voucher-option span,
+.checkout-voucher-option small {
+    font-size: 11px;
+}
+
+.checkout-voucher-option:hover {
+    background: rgba(66, 91, 154, 0.07);
+}
+
 .summary-cost-table {
     border-top: 1px solid var(--gray-light);
     padding-top: 16px;
@@ -299,6 +407,11 @@ textarea.form-control {
     font-family: var(--font-content);
     font-size: 14px;
     color: var(--text-muted);
+}
+
+/* Author display rules on .cost-row must not override the HTML hidden state. */
+.cost-row[hidden] {
+    display: none !important;
 }
 
 .cost-row.shipping-fee-row {
@@ -432,7 +545,15 @@ textarea.form-control {
 
 .qr-code-placeholder i {
     color: #333;
-    font-size: 120px;
+    font-size: 72px;
+}
+
+.qr-code-placeholder p {
+    margin: 12px 0 0;
+    color: #a53b35;
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: .04em;
 }
 
 .qr-payment-actions {
