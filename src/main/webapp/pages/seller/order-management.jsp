@@ -1,17 +1,6 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" pageEncoding="UTF-8" %>
 <%@ taglib prefix="c" uri="jakarta.tags.core" %>
 <%@ taglib prefix="fmt" uri="jakarta.tags.fmt" %>
-<%--
-  Đặt tại: webapp/pages/order-management.jsp  (SellerOrdersServlet forward tới đây)
-
-  Servlet set (request attribute):
-    shop      : Shop (name, avatar) - dùng cho sidebar
-    orders    : List<SellerOrder> (id, buyerId, buyerName, productNames, amount, dateCreate, address,
-                                   status, deadline, latestNote, pendingExtension, uiStatus, overdueDays)
-    lateCount : số đơn trễ hạn
-    success / error : flash message
-  POST /seller/orders  action = start | progress | extend | deliver, orderId, (note | reason + days)
---%>
 <fmt:setLocale value="vi_VN"/>
 <c:set var="ctx" value="${pageContext.request.contextPath}"/>
 <c:set var="sellerTab" value="orders" scope="request"/>
@@ -27,22 +16,16 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
 
     <!-- Styles -->
-    <link rel="stylesheet" href="${ctx}/src/main/webapp/assets/css/style.css">
-    <link rel="stylesheet" href="${ctx}/src/main/webapp/assets/css/header-footer.css">
-    <link rel="stylesheet" href="${ctx}/src/main/webapp/assets/css/pages/styleSeller.css">
-    <link rel="stylesheet" href="${ctx}/src/main/webapp/assets/css/pages/styleOrders.css">
-    <style>
-        .alert { padding: 15px; margin-bottom: 20px; border-radius: 4px; }
-        .alert-success { background:#d4edda; color:#155724; border:1px solid #c3e6cb; }
-        .alert-danger  { background:#f8d7da; color:#721c24; border:1px solid #f5c6cb; }
-        .empty-orders { text-align:center; padding: 30px; color: var(--text-muted); }
-    </style>
+    <link rel="stylesheet" href="${ctx}/assets/css/style.css">
+    <link rel="stylesheet" href="${ctx}/assets/css/header-footer.css">
+    <link rel="stylesheet" href="${ctx}/assets/css/pages/styleSeller.css">
+    <link rel="stylesheet" href="${ctx}/assets/css/pages/styleOrders.css">
 </head>
 <body>
-<jsp:include page="/src/main/webapp/components/header.html"/>
+<jsp:include page="/components/header.html"/>
 
 <main class="seller-layout container">
-    <%@ include file="/src/main/webapp/components/seller-sidebar.jspf" %>
+    <%@ include file="/components/seller-sidebar.jsp" %>
 
     <!-- Content -->
     <section class="seller-content">
@@ -156,7 +139,7 @@
     </section>
 </main>
 
-<jsp:include page="/src/main/webapp/components/footer.html"/>
+<jsp:include page="/components/footer.html"/>
 
 <!-- Form ẩn dùng chung cho các hành động (start / progress / extend / deliver) -->
 <form id="orderActionForm" action="${ctx}/seller/orders" method="POST" style="display:none;">
@@ -197,8 +180,8 @@
 </div>
 
 <!-- Scripts -->
-<script src="${ctx}/src/main/webapp/assets/js/custom-workflow.js"></script>
-<script src="${ctx}/src/main/webapp/assets/js/custom-order-management.js"></script>
+<script src="${ctx}/assets/js/custom-workflow.js"></script>
+<script src="${ctx}/assets/js/custom-order-management.js"></script>
 <script>
     // --- LỌC THEO TAB ---
     const tabs = document.querySelectorAll('.tab-item');
@@ -274,7 +257,7 @@
         }
     }
 </script>
-<script src="assets/js/auth.js"></script>
-<script src="${ctx}/src/main/webapp/assets/js/popup.js"></script>
+<script src="${ctx}/assets/js/auth.js"></script>
+<script src="${ctx}/assets/js/popup.js"></script>
 </body>
 </html>

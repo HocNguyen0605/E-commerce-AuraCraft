@@ -14,21 +14,16 @@
     <title>Chat với Khách hàng - Kênh Thợ</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
-    <link rel="stylesheet" href="${ctx}/src/main/webapp/assets/css/style.css">
-    <link rel="stylesheet" href="${ctx}/src/main/webapp/assets/css/header-footer.css">
-    <link rel="stylesheet" href="${ctx}/src/main/webapp/assets/css/pages/styleChat.css">
-    <link rel="stylesheet" href="${ctx}/src/main/webapp/assets/css/pages/styleSeller.css">
-    <style>
-        .chat-item { cursor: pointer; }
-        .chat-search form { display:flex; align-items:center; width:100%; }
-        .chat-empty { padding: 30px; text-align: center; color: #888; }
-    </style>
+    <link rel="stylesheet" href="${ctx}/assets/css/style.css">
+    <link rel="stylesheet" href="${ctx}/assets/css/header-footer.css">
+    <link rel="stylesheet" href="${ctx}/assets/css/pages/styleChat.css">
+    <link rel="stylesheet" href="${ctx}/assets/css/pages/styleSeller.css">
 </head>
 <body>
-<jsp:include page="/src/main/webapp/components/header.html"/>
+<jsp:include page="/components/header.html"/>
 
 <main class="seller-layout container">
-    <%@ include file="/src/main/webapp/components/seller-sidebar.jspf" %>
+    <%@ include file="/components/seller-sidebar.jsp" %>
 
     <section class="seller-content">
         <div class="chat-layout" style="height: 75vh; min-height: 600px; border-radius: 20px; overflow: hidden; box-shadow: var(--shadow);">
@@ -123,12 +118,12 @@
     </section>
 </main>
 
-<jsp:include page="/src/main/webapp/components/footer.html"/>
-<script src="${ctx}/src/main/webapp/assets/js/popup.js"></script>
+<jsp:include page="/components/footer.html"/>
+<script src="${ctx}/assets/js/popup.js"></script>
 <script>
     var box = document.getElementById('customMessages');
     if (box) box.scrollTop = box.scrollHeight;
 </script>
-<script src="assets/js/auth.js"></script>
+<script src="${ctx}/assets/js/auth.js"></script>
 </body>
 </html>
