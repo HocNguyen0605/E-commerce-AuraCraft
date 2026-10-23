@@ -1,6 +1,6 @@
 package dao;
 
-import dto.SellerOrder;
+import dto.SellerOrderDTO;
 import util.DBConnection;
 
 import java.sql.*;
@@ -16,7 +16,7 @@ import java.util.List;
 public class SellerOrderDAO {
 
     /** Đơn của shop mà seller cần xử lý (không gồm đơn chưa thanh toán / đã huỷ / hoàn tiền). */
-    public List<SellerOrder> findByShop(int shopId) throws SQLException {
+    public List<SellerOrderDTO> findByShop(int shopId) throws SQLException {
         String sql =
                 "SELECT o.id, o.id_user, u.name AS buyer_name, o.amount, o.date_create, o.shipping_address, " +
                         "       o.status, o.deadline, " +
@@ -29,13 +29,13 @@ public class SellerOrderDAO {
                         "  FROM orders o JOIN users u ON u.id = o.id_user " +
                         " WHERE o.id_shop = ? AND o.status IN ('paid','processing','shipping','completed') " +
                         " ORDER BY o.date_create DESC LIMIT 200";
-        List<SellerOrder> list = new ArrayList<>();
+        List<SellerOrderDTO> list = new ArrayList<>();
         try (Connection con = DBConnection.getConnection();
              PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setInt(1, shopId);
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
-                    SellerOrder o = new SellerOrder();
+                    SellerOrderDTO o = new SellerOrderDTO();
                     o.setId(rs.getInt("id"));
                     o.setBuyerId(rs.getInt("id_user"));
                     o.setBuyerName(rs.getString("buyer_name"));

@@ -1,7 +1,7 @@
 package dao;
 
-import dto.ChatMessage;
-import dto.Conversation;
+import dto.ChatMessageDTO;
+import dto.ConversationDTO;
 import util.DBConnection;
 
 import java.sql.*;
@@ -11,13 +11,13 @@ import java.util.List;
 public class ChatDAO {
 
     /** Danh sách hội thoại của shop, có thể tìm theo tên khách. */
-    public List<Conversation> findConversations(long shopId, String keyword) throws SQLException {
+    public List<ConversationDTO> findConversations(long shopId, String keyword) throws SQLException {
         boolean hasKw = keyword != null && !keyword.isBlank();
         String sql = "SELECT c.*, u.name AS full_name, NULL AS avatar FROM conversations c " +
                 "JOIN users u ON u.id = c.buyer_id WHERE c.shop_id = ? " +
                 (hasKw ? "AND u.name LIKE ? " : "") +
                 "ORDER BY c.last_message_at DESC";
-        List<Conversation> list = new ArrayList<>();
+        List<ConversationDTO> list = new ArrayList<>();
         try (Connection con = DBConnection.getConnection();
              PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setLong(1, shopId);
@@ -30,7 +30,7 @@ public class ChatDAO {
     }
 
     /** Lấy 1 hội thoại, kiểm tra thuộc đúng shop (chống xem trộm bằng cách đổi id). */
-    public Conversation findByIdAndShop(long id, long shopId) throws SQLException {
+    public ConversationDTO findByIdAndShop(long id, long shopId) throws SQLException {
         String sql = "SELECT c.*, u.name AS full_name, NULL AS avatar FROM conversations c " +
                 "JOIN users u ON u.id = c.buyer_id WHERE c.id = ? AND c.shop_id = ?";
         try (Connection con = DBConnection.getConnection();
@@ -43,15 +43,15 @@ public class ChatDAO {
         }
     }
 
-    public List<ChatMessage> findMessages(long conversationId) throws SQLException {
+    public List<ChatMessageDTO> findMessages(long conversationId) throws SQLException {
         String sql = "SELECT * FROM messages WHERE conversation_id = ? ORDER BY created_at, id";
-        List<ChatMessage> list = new ArrayList<>();
+        List<ChatMessageDTO> list = new ArrayList<>();
         try (Connection con = DBConnection.getConnection();
              PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setLong(1, conversationId);
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
-                    ChatMessage m = new ChatMessage();
+                    ChatMessageDTO m = new ChatMessageDTO();
                     m.setId(rs.getLong("id"));
                     m.setConversationId(rs.getLong("conversation_id"));
                     m.setSenderRole(rs.getString("sender_role"));
@@ -136,8 +136,8 @@ public class ChatDAO {
         }
     }
 
-    private Conversation map(ResultSet rs) throws SQLException {
-        Conversation c = new Conversation();
+    private ConversationDTO map(ResultSet rs) throws SQLException {
+        ConversationDTO c = new ConversationDTO();
         c.setId(rs.getLong("id"));
         c.setShopId(rs.getLong("shop_id"));
         c.setBuyerId(rs.getLong("buyer_id"));

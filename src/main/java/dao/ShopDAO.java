@@ -1,6 +1,6 @@
 package dao;
 
-import dto.Shop;
+import dto.ShopDTO;
 import util.DBConnection;
 
 import java.sql.*;
@@ -8,13 +8,13 @@ import java.sql.*;
 public class ShopDAO {
 
     /** Shop của chủ shop (users.id), chỉ lấy shop đang hoạt động. Null nếu không có. */
-    public Shop findActiveByOwner(int ownerId) throws SQLException {
+    public ShopDTO findActiveByOwner(int ownerId) throws SQLException {
         String sql = "SELECT * FROM shops WHERE id_owner = ? AND status = 'active' ORDER BY id LIMIT 1";
         try (Connection c = DBConnection.getConnection(); PreparedStatement ps = c.prepareStatement(sql)) {
             ps.setInt(1, ownerId);
             try (ResultSet rs = ps.executeQuery()) {
                 if (!rs.next()) return null;
-                Shop s = new Shop();
+                ShopDTO s = new ShopDTO();
                 s.setId(rs.getInt("id"));
                 s.setOwnerId(rs.getInt("id_owner"));
                 s.setName(rs.getString("name"));

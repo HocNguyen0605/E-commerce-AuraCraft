@@ -1,7 +1,7 @@
 package dao;
 
-import dto.DailyRevenue;
-import dto.LedgerEntry;
+import dto.DailyRevenueDTO;
+import dto.LedgerEntryDTO;
 import util.DBConnection;
 
 import java.sql.*;
@@ -45,7 +45,7 @@ public class SellerStatsDAO {
     }
 
     /** Doanh thu 7 ngày gần nhất (đơn không bị hủy/hoàn tiền/chưa thanh toán), đủ 7 mốc kể cả ngày 0 đồng. */
-    public List<DailyRevenue> last7Days(int shopId) throws SQLException {
+    public List<DailyRevenueDTO> last7Days(int shopId) throws SQLException {
         Map<LocalDate, Long> byDay = new HashMap<>();
         String sql = "SELECT DATE(o.date_create) AS d, SUM(oi.price * oi.quantity) AS total " +
                      "FROM orderitems oi JOIN orders o ON o.id = oi.id_order " +
@@ -57,12 +57,12 @@ public class SellerStatsDAO {
                 while (rs.next()) byDay.put(rs.getDate("d").toLocalDate(), rs.getLong("total"));
             }
         }
-        List<DailyRevenue> list = new ArrayList<>();
+        List<DailyRevenueDTO> list = new ArrayList<>();
         LocalDate today = LocalDate.now();
         DateTimeFormatter f = DateTimeFormatter.ofPattern("dd/MM");
         for (int i = 6; i >= 0; i--) {
             LocalDate d = today.minusDays(i);
-            DailyRevenue r = new DailyRevenue();
+            DailyRevenueDTO r = new DailyRevenueDTO();
             r.setLabel(d.format(f));
             r.setAmount(byDay.getOrDefault(d, 0L));
             list.add(r);
@@ -71,8 +71,8 @@ public class SellerStatsDAO {
     }
 
     /** Lịch sử giao dịch: tiền bán hàng (+) của đơn hoàn thành và các lần rút tiền (−), mới nhất trước. */
-    public List<LedgerEntry> ledger(int shopId, int limit) throws SQLException {
-        List<LedgerEntry> list = new ArrayList<>();
+    public List<LedgerEntryDTO> ledger(int shopId, int limit) throws SQLException {
+        List<LedgerEntryDTO> list = new ArrayList<>();
         try (Connection c = DBConnection.getConnection()) {
             try (PreparedStatement ps = c.prepareStatement(
                     "SELECT o.id, o.date_create, " + NET + " AS net FROM orders o JOIN orderitems oi ON oi.id_order = o.id " +
@@ -80,7 +80,7 @@ public class SellerStatsDAO {
                 ps.setInt(1, shopId);
                 try (ResultSet rs = ps.executeQuery()) {
                     while (rs.next()) {
-                        LedgerEntry e = new LedgerEntry();
+                        LedgerEntryDTO e = new LedgerEntryDTO();
                         e.setCode("#ORD-" + rs.getInt("id"));
                         e.setDate(rs.getTimestamp("date_create"));
                         e.setType("Bán hàng (Đơn #" + rs.getInt("id") + ")");
@@ -95,7 +95,7 @@ public class SellerStatsDAO {
                 ps.setInt(1, shopId);
                 try (ResultSet rs = ps.executeQuery()) {
                     while (rs.next()) {
-                        LedgerEntry e = new LedgerEntry();
+                        LedgerEntryDTO e = new LedgerEntryDTO();
                         e.setCode("#WD-" + rs.getInt("id"));
                         e.setDate(rs.getTimestamp("date_create"));
                         e.setType("Rút tiền về " + rs.getString("bank_name"));
