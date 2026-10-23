@@ -3,8 +3,8 @@ package controller;
 import dao.SellerStatsDAO;
 import dao.ShopDAO;
 import dao.WithdrawalDAO;
-import dto.DailyRevenue;
-import dto.Shop;
+import dto.DailyRevenueDTO;
+import dto.ShopDTO;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.*;
@@ -21,19 +21,19 @@ public class SellerDashboardServlet extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        Shop shop = getShop(req, resp);
+        ShopDTO shop = getShop(req, resp);
         if (shop == null) return;
         Flash.transfer(req);
         try {
-            List<DailyRevenue> chart = stats.last7Days(shop.getId());
+            List<DailyRevenueDTO> chart = stats.last7Days(shop.getId());
             long max = 1;
-            for (DailyRevenue d : chart) max = Math.max(max, d.getAmount());
+            for (DailyRevenueDTO d : chart) max = Math.max(max, d.getAmount());
             req.setAttribute("shop", shop);
             req.setAttribute("balance", stats.availableBalance(shop.getId()));
             req.setAttribute("revenueMonth", stats.revenueThisMonth(shop.getId()));
             req.setAttribute("pendingOrders", stats.pendingOrders(shop.getId()));
             req.setAttribute("chart", chart);
-            req.setAttribute("chartMax", max); // chiều cao cột = amount * 100 / chartMax (%)
+            req.setAttribute("chartMax", max);
             req.setAttribute("ledger", stats.ledger(shop.getId(), 10));
         } catch (Exception e) {
             req.setAttribute("error", "Không tải được số liệu: " + e.getMessage());
@@ -43,7 +43,7 @@ public class SellerDashboardServlet extends HttpServlet {
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-        Shop shop = getShop(req, resp);
+        ShopDTO shop = getShop(req, resp);
         if (shop == null) return;
 
         try {
@@ -82,7 +82,7 @@ public class SellerDashboardServlet extends HttpServlet {
     }
 
     /** Lấy shop đang hoạt động của user đăng nhập; trả null (và đã redirect/báo lỗi) nếu không hợp lệ. */
-    private Shop getShop(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+    private ShopDTO getShop(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         HttpSession session = req.getSession(false);
         if (session == null || session.getAttribute("userId") == null) {
             resp.sendRedirect(req.getContextPath() + "/pages/login.jsp");
@@ -90,9 +90,9 @@ public class SellerDashboardServlet extends HttpServlet {
         }
         try {
             int userId = ((Number) session.getAttribute("userId")).intValue();
-            Shop shop = shopDAO.findActiveByOwner(userId);
+            ShopDTO shop = shopDAO.findActiveByOwner(userId);
             if (shop == null) {
-                resp.sendRedirect(req.getContextPath() + "/index.html");
+                resp.sendRedirect(req.getContextPath() + "/index.jsp");
             }
             return shop;
         } catch (Exception e) {

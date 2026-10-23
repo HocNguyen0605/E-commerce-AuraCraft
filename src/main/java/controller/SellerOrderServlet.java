@@ -2,8 +2,8 @@ package controller;
 
 import dao.SellerOrderDAO;
 import dao.ShopDAO;
-import dto.SellerOrder;
-import dto.Shop;
+import dto.SellerOrderDTO;
+import dto.ShopDTO;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.*;
@@ -23,14 +23,14 @@ public class SellerOrderServlet extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        Shop shop = getShop(req, resp);
+        ShopDTO shop = getShop(req, resp);
         if (shop == null) return;
 
         Flash.transfer(req);
 
         try {
-            List<SellerOrder> orders = orderDAO.findByShop(shop.getId());
-            long lateCount = orders.stream().filter(SellerOrder::isOverdue).count();
+            List<SellerOrderDTO> orders = orderDAO.findByShop(shop.getId());
+            long lateCount = orders.stream().filter(SellerOrderDTO::isOverdue).count();
 
             req.setAttribute("shop", shop);
             req.setAttribute("orders", orders);
@@ -43,7 +43,7 @@ public class SellerOrderServlet extends HttpServlet {
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        Shop shop = getShop(req, resp);
+        ShopDTO shop = getShop(req, resp);
         if (shop == null) return;
 
         String action = req.getParameter("action");
@@ -94,7 +94,7 @@ public class SellerOrderServlet extends HttpServlet {
     }
 
     /** Lấy shop đang hoạt động của user đăng nhập; trả null (và đã redirect/báo lỗi) nếu không hợp lệ. */
-    private Shop getShop(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+    private ShopDTO getShop(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         HttpSession session = req.getSession(false);
         if (session == null || session.getAttribute("userId") == null) {
             resp.sendRedirect(req.getContextPath() + "/pages/login.html");
@@ -102,9 +102,9 @@ public class SellerOrderServlet extends HttpServlet {
         }
         try {
             int userId = ((Number) session.getAttribute("userId")).intValue();
-            Shop shop = shopDAO.findActiveByOwner(userId);
+            ShopDTO shop = shopDAO.findActiveByOwner(userId);
             if (shop == null) {
-                resp.sendRedirect(req.getContextPath() + "/index.html");
+                resp.sendRedirect(req.getContextPath() + "/index.jsp");
             }
             return shop;
         } catch (Exception e) {

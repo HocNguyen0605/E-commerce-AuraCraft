@@ -2,9 +2,9 @@ package controller;
 
 import dao.ChatDAO;
 import dao.ShopDAO;
-import dto.ChatMessage;
-import dto.Conversation;
-import dto.Shop;
+import dto.ChatMessageDTO;
+import dto.ConversationDTO;
+import dto.ShopDTO;
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -21,7 +21,7 @@ public class SellerChatServlet extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        Shop shop = getShop(req, resp);
+        ShopDTO shop = getShop(req, resp);
         if (shop == null) return;
 
         try {
@@ -33,9 +33,9 @@ public class SellerChatServlet extends HttpServlet {
             }
 
             String q = req.getParameter("q");
-            List<Conversation> conversations = chatDAO.findConversations(shop.getId(), q);
+            List<ConversationDTO> conversations = chatDAO.findConversations(shop.getId(), q);
 
-            Conversation active = null;
+            ConversationDTO active = null;
             long cid = parseLong(req.getParameter("c"));
             if (cid > 0) {
                 active = chatDAO.findByIdAndShop(cid, shop.getId());
@@ -44,7 +44,7 @@ public class SellerChatServlet extends HttpServlet {
             }
 
             if (active != null) {
-                List<ChatMessage> messages = chatDAO.findMessages(active.getId());
+                List<ChatMessageDTO> messages = chatDAO.findMessages(active.getId());
                 chatDAO.markReadForSeller(active.getId());
                 active.setSellerUnread(0);
                 req.setAttribute("messages", messages);
@@ -62,7 +62,7 @@ public class SellerChatServlet extends HttpServlet {
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        Shop shop = getShop(req, resp);
+        ShopDTO shop = getShop(req, resp);
         if (shop == null) return;
 
         long cid = parseLong(req.getParameter("conversationId"));
@@ -81,7 +81,7 @@ public class SellerChatServlet extends HttpServlet {
     }
 
     /** Lấy shop đang hoạt động của user đăng nhập; trả null (và đã redirect/báo lỗi) nếu không hợp lệ. */
-    private Shop getShop(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+    private ShopDTO getShop(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         HttpSession session = req.getSession(false);
         if (session == null || session.getAttribute("userId") == null) {
             resp.sendRedirect(req.getContextPath() + "/pages/login.html");
@@ -89,9 +89,9 @@ public class SellerChatServlet extends HttpServlet {
         }
         try {
             int userId = ((Number) session.getAttribute("userId")).intValue();
-            Shop shop = shopDAO.findActiveByOwner(userId);
+            ShopDTO shop = shopDAO.findActiveByOwner(userId);
             if (shop == null) {
-                resp.sendRedirect(req.getContextPath() + "/index.html");
+                resp.sendRedirect(req.getContextPath() + "/index.jsp");
             }
             return shop;
         } catch (Exception e) {

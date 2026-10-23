@@ -3,8 +3,9 @@ package controller;
 import dao.CategoryDAO;
 import dao.ProductDAO;
 import dao.ShopDAO;
+import dto.Charm;
 import dto.Product;
-import dto.Shop;
+import dto.ShopDTO;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.MultipartConfig;
 import jakarta.servlet.annotation.WebServlet;
@@ -27,12 +28,28 @@ public class SellerProductServlet extends HttpServlet {
     private final ProductDAO productDAO = new ProductDAO();
     private final CategoryDAO categoryDAO = new CategoryDAO();
     private final ShopDAO shopDAO = new ShopDAO();
+    private static final List<String> BASE_TYPES = Arrays.asList("bracelet", "ring", "necklace", "other");
+    private static final int MAX_CHARMS = 30;
 
+    /** Lưu 1 ảnh hợp lệ, trả đường dẫn tương đối; null nếu không có file hoặc file không hợp lệ. */
+    private String saveOne(Part part) throws IOException {
+        if (part == null || part.getSize() == 0) return null;
+        File dir = new File(getServletContext().getRealPath("/uploads/products"));
+        if (!dir.exists()) dir.mkdirs();
+        String original = Paths.get(part.getSubmittedFileName()).getFileName().toString().toLowerCase();
+        int dot = original.lastIndexOf('.');
+        String ext = dot >= 0 ? original.substring(dot) : "";
+        if (!EXT.contains(ext) || part.getContentType() == null || !part.getContentType().startsWith("image/")) return null;
+        String name = UUID.randomUUID() + ext;
+        part.write(new File(dir, name).getAbsolutePath());
+        return "uploads/products/" + name;
+    }
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        Shop shop = getShop(req, resp);
+        ShopDTO shop = getShop(req, resp);
         if (shop == null) return;
         Flash.transfer(req);
+        req.setAttribute("shop", shop);   // sidebar cần shop.name / shop.avatar (giống SellerDashboardServlet)
         try {
             req.setAttribute("categories", categoryDAO.findAllWithCount(shop.getId()));
             if ("form".equals(req.getParameter("action"))) {
@@ -64,7 +81,7 @@ public class SellerProductServlet extends HttpServlet {
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        Shop shop = getShop(req, resp);
+        ShopDTO shop = getShop(req, resp);
         if (shop == null) return;
         String back = req.getContextPath() + "/seller/products";
         try {
@@ -74,6 +91,9 @@ public class SellerProductServlet extends HttpServlet {
                 resp.sendRedirect(back);
                 return;
             }
+
+            String id = req.getParameter("id");
+            boolean isNew = (id == null || id.isEmpty());
 
             Product p = new Product();
             p.setShopId(shop.getId());
@@ -89,9 +109,68 @@ public class SellerProductServlet extends HttpServlet {
                 return;
             }
 
+            // ===== Tùy chỉnh charm (fieldset bị tắt thì trình duyệt không gửi gì) =====
+            boolean custom = "1".equals(req.getParameter("customizable"));
+            p.setCustomizable(custom);
+            List<Charm> charms = new ArrayList<>();
+
+            if (custom) {
+                String baseType = req.getParameter("baseType");
+                if (!BASE_TYPES.contains(baseType)) {
+                    Flash.error(req, "Loại sản phẩm để gắn charm không hợp lệ.");
+                    resp.sendRedirect(back + "?action=form" + idQuery(req));
+                    return;
+                }
+                Part basePart = req.getPart("baseImage");
+                if (isNew && (basePart == null || basePart.getSize() == 0)) {
+                    Flash.error(req, "Vui lòng tải ảnh nền để gắn charm.");
+                    resp.sendRedirect(back + "?action=form");
+                    return;
+                }
+
+                String[] ids    = req.getParameterValues("charmId");
+                String[] names  = req.getParameterValues("charmName");
+                String[] prices = req.getParameterValues("charmPrice");
+                List<Part> imgs = new ArrayList<>();
+                for (Part part : req.getParts()) {
+                    if ("charmImage".equals(part.getName())) imgs.add(part);
+                }
+
+                int n = names == null ? 0 : names.length;
+                if (n > MAX_CHARMS || ids == null && n > 0 || prices == null && n > 0
+                        || (n > 0 && (ids.length != n || prices.length != n || imgs.size() != n))) {
+                    Flash.error(req, "Dữ liệu charm không hợp lệ (tối đa " + MAX_CHARMS + " charm).");
+                    resp.sendRedirect(back + "?action=form" + idQuery(req));
+                    return;
+                }
+
+                // Kiểm tra hết trước khi ghi file, tránh để lại ảnh mồ côi khi báo lỗi
+                for (int i = 0; i < n; i++) {
+                    int charmId = ids[i].isBlank() ? 0 : Integer.parseInt(ids[i].trim());
+                    String cname = names[i].trim();
+                    long cprice = prices[i].isBlank() ? 0 : Long.parseLong(prices[i].trim());
+                    if (cname.isEmpty() || cname.length() > 100 || cprice < 0
+                            || (charmId == 0 && imgs.get(i).getSize() == 0)) {
+                        Flash.error(req, "Charm thứ " + (i + 1) + " thiếu tên, ảnh hoặc giá không hợp lệ.");
+                        resp.sendRedirect(back + "?action=form" + idQuery(req));
+                        return;
+                    }
+                    Charm ch = new Charm();
+                    ch.setId(charmId);
+                    ch.setName(cname);
+                    ch.setPrice(cprice);
+                    charms.add(ch);
+                }
+
+                // Ghi file: saveOne trả null nếu không chọn ảnh mới (DAO giữ ảnh cũ)
+                p.setBaseType(baseType);
+                p.setBaseImage(saveOne(basePart));
+                for (int i = 0; i < n; i++) charms.get(i).setImage(saveOne(imgs.get(i)));
+            }
+            p.setCharms(charms);   // rỗng + customizable=false => DAO xóa charm cũ của sản phẩm
+
             List<String> urls = saveImages(req);
-            String id = req.getParameter("id");
-            if (id == null || id.isEmpty()) {
+            if (isNew) {
                 productDAO.insert(p, urls);
                 Flash.success(req, "Đã thêm sản phẩm.");
             } else {
@@ -100,7 +179,7 @@ public class SellerProductServlet extends HttpServlet {
                 else Flash.error(req, "Không tìm thấy sản phẩm.");
             }
         } catch (NumberFormatException e) {
-            Flash.error(req, "Dữ liệu số không hợp lệ (giá, tồn kho, danh mục).");
+            Flash.error(req, "Dữ liệu số không hợp lệ (giá, tồn kho, danh mục, giá charm).");
         } catch (Exception e) {
             Flash.error(req, "Lỗi: " + e.getMessage());
         }
@@ -108,7 +187,7 @@ public class SellerProductServlet extends HttpServlet {
     }
 
     /** Lấy shop đang hoạt động của user đăng nhập; trả null (và đã redirect/báo lỗi) nếu không hợp lệ. */
-    private Shop getShop(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+    private ShopDTO getShop(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         HttpSession session = req.getSession(false);
         if (session == null || session.getAttribute("userId") == null) {
             resp.sendRedirect(req.getContextPath() + "/pages/login.html");
@@ -116,9 +195,9 @@ public class SellerProductServlet extends HttpServlet {
         }
         try {
             int userId = ((Number) session.getAttribute("userId")).intValue();
-            Shop shop = shopDAO.findActiveByOwner(userId);
+            ShopDTO shop = shopDAO.findActiveByOwner(userId);
             if (shop == null) {
-                resp.sendRedirect(req.getContextPath() + "/index.html");
+                resp.sendRedirect(req.getContextPath() + "/index.jsp");
             }
             return shop;
         } catch (Exception e) {
@@ -156,4 +235,5 @@ public class SellerProductServlet extends HttpServlet {
     private static int parseIntOrDefault(String s, int d) {
         try { return Integer.parseInt(s); } catch (Exception e) { return d; }
     }
+
 }
