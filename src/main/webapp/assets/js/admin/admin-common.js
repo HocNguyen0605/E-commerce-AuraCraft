@@ -57,7 +57,7 @@ document.addEventListener('click', e => {
     const home = e.target.closest('[data-home]');
     if (home) {
         e.preventDefault();
-        location.href = window.CTX + '/pages/home';
+        location.href = window.CTX + '/pages/admin/admin-orders.jsp';
         return;
     }
     const out = e.target.closest('[data-logout]');
