@@ -29,7 +29,7 @@ public class AuthFilter implements Filter {
 
         HttpSession session = req.getSession(false);
         if (session == null || session.getAttribute("userId") == null) {
-            resp.sendRedirect(req.getContextPath() + "/pages/login.jsp");
+            resp.sendRedirect(req.getContextPath() + "/pages/login");
             return;
         }
 
@@ -38,7 +38,7 @@ public class AuthFilter implements Filter {
         boolean isSeller = role.equals("seller") || role.equals("artisan");
 
         if ((isAdminPage && !isAdmin) || (isSellerPage && !isSeller && !isAdmin)) {
-            resp.sendRedirect(req.getContextPath() + "/index.jsp");
+            resp.sendRedirect(req.getContextPath() + "/pages/home");
             return;
         }
 

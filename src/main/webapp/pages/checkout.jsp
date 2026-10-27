@@ -31,7 +31,7 @@
             <div class="checkout-header-bar">
                 <h1 class="section-title">Thanh toán đơn hàng</h1>
                 <nav class="checkout-breadcrumb" aria-label="Breadcrumb">
-                    <a href="${pageContext.request.contextPath}/pages/cart.jsp">Giỏ hàng</a>
+                    <a href="${pageContext.request.contextPath}/pages/cart">Giỏ hàng</a>
                     <span><i class="fa-solid fa-chevron-right"></i></span>
                     <span class="active">Thông tin giao hàng & Thanh toán</span>
                     <span><i class="fa-solid fa-chevron-right"></i></span>
@@ -292,14 +292,14 @@
         fetch(contextPath + '/components/header.html')
             .then(r => r.text())
             .then(html => {
-                document.getElementById('header-placeholder').innerHTML = html.replace(/href="index\.html"/g, 'href="${pageContext.request.contextPath}/index.html"').replace(/href="login\.html"/g, 'href="${pageContext.request.contextPath}/pages/login.html"').replace(/href="profile\.html"/g, 'href="${pageContext.request.contextPath}/profile"').replace(/href="pages\/products"/g, 'href="${pageContext.request.contextPath}/pages/products"').replace(/href="cart\.jsp"/g, 'href="${pageContext.request.contextPath}/pages/cart.jsp"').replace(/href="pages\/cart\.jsp"/g, 'href="${pageContext.request.contextPath}/pages/cart.jsp"');
+                document.getElementById('header-placeholder').innerHTML = html;
             })
             .catch(err => console.error('Lỗi tải Header:', err));
 
         fetch(contextPath + '/components/footer.html')
             .then(r => r.text())
             .then(html => {
-                document.getElementById('footer-placeholder').innerHTML = html.replace(/href="index\.html"/g, 'href="${pageContext.request.contextPath}/index.html"').replace(/href="pages\/products"/g, 'href="${pageContext.request.contextPath}/pages/products"');
+                document.getElementById('footer-placeholder').innerHTML = html;
             })
             .catch(err => console.error('Lỗi tải Footer:', err));
     </script>

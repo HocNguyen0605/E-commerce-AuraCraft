@@ -37,11 +37,11 @@
             <!-- Form đăng nhập bên phải -->
             <div class="form-side">
                 <div class="top-header">
-                    <a href="../index.jsp" class="brand-logo">
+                    <a href="${pageContext.request.contextPath}/pages/home" class="brand-logo">
                         <span class="logo-icon">A</span>
                         <span class="logo-text">uraCraft</span>
                     </a>
-                    <a href="../index.jsp" class="auth-nav-back">← Trang chủ</a>
+                    <a href="${pageContext.request.contextPath}/pages/home" class="auth-nav-back">← Trang chủ</a>
                 </div>
 
                 <div class="form-header">
@@ -63,7 +63,7 @@
                     <div class="input-group" id="passGroup">
                         <div class="form-label-row">
                             <label for="password">Mật khẩu</label>
-                            <a href="forgot.jsp" class="forgot-pass-link">Quên mật khẩu?</a>
+                            <a href="${pageContext.request.contextPath}/pages/forgot" class="forgot-pass-link">Quên mật khẩu?</a>
                         </div>
                         <div class="input-wrapper">
                             <i class="fa-solid fa-lock field-icon"></i>
@@ -94,7 +94,7 @@
                 <div id="googleBtn"></div>
 
                 <div class="auth-footer-text">
-                    Chưa có tài khoản? <a href="register.jsp">Tạo tài khoản mới</a>
+                    Chưa có tài khoản? <a href="${pageContext.request.contextPath}/pages/register">Tạo tài khoản mới</a>
                 </div>
             </div>
 
@@ -127,7 +127,7 @@
             admin:  '/pages/admin/admin-users.jsp',
             seller: '/pages/seller/seller-dashboard.jsp'
         };
-        location.href = base + (routes[role] || '/index.jsp');
+        location.href = base + (routes[role] || '/pages/home');
     }
 
     // Đăng nhập thường

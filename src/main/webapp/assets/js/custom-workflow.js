@@ -218,7 +218,7 @@
         description: "Thợ nhận làm vòng sau 3 ngày thì hủy đơn, làm lỡ ngày sinh nhật của bạn mình.",
         status: "resolved_buyer",
         adminNote: "Đã xác minh thợ đơn phương hủy đơn không báo trước.",
-        resolution: "Hoàn tiền 100% cho Buyer (520.000 đ) và trừ điểm uy tín của Thợ (BR48).",
+        resolution: "Hoàn tiền 100% cho Buyer (520.000đ) và trừ điểm uy tín của Thợ (BR48).",
         createdAt: "2026-09-25T11:00:00.000Z",
         updatedAt: "2026-09-26T14:30:00.000Z"
       }
@@ -255,7 +255,8 @@
     ],
     messages: [],
     changes: [],
-    adminActions: []
+    adminActions: [],
+    customDesigns: []
   };
 
   function readState() {
@@ -279,7 +280,8 @@
         changes: Array.isArray(stored.changes) ? stored.changes : [],
         disputes: Array.isArray(stored.disputes) && stored.disputes.length > 0 ? stored.disputes : defaultWorkflowState.disputes,
         violations: Array.isArray(stored.violations) && stored.violations.length > 0 ? stored.violations : defaultWorkflowState.violations,
-        adminActions: Array.isArray(stored.adminActions) ? stored.adminActions : []
+        adminActions: Array.isArray(stored.adminActions) ? stored.adminActions : [],
+        customDesigns: Array.isArray(stored.customDesigns) ? stored.customDesigns : []
       };
     } catch (error) {
       return defaultWorkflowState;
@@ -298,6 +300,75 @@
 
   function listRequests() {
     return readState().requests;
+  }
+
+  function listCustomDesigns() {
+    return readState().customDesigns.slice().sort((a, b) => new Date(b.updatedAt || b.createdAt) - new Date(a.updatedAt || a.createdAt));
+  }
+
+  function saveCustomDesign(design) {
+    const state = readState();
+    const slots = Array.isArray(design.slots) ? design.slots : [];
+    if (!slots.some(Boolean) && !design.baseMaterial) throw new Error("Thiết kế cần có dây nền, hạt hoặc charm.");
+    const saved = {
+      ...design,
+      id: design.id || makeId("DESIGN"),
+      slots: slots.map(item => item ? { ...item } : null),
+      baseMaterial: design.baseMaterial ? { ...design.baseMaterial } : null,
+      price: (Number(design.baseMaterial?.price) || 0) + slots.reduce((sum, item) => sum + (item ? Number(item.price) || 0 : 0), 0),
+      updatedAt: new Date().toISOString()
+    };
+    const index = state.customDesigns.findIndex(item => item.id === saved.id);
+    if (index >= 0) state.customDesigns[index] = saved;
+    else {
+      saved.createdAt = saved.updatedAt;
+      state.customDesigns.unshift(saved);
+    }
+    writeState(state);
+    return saved;
+  }
+
+  function createDesignerOrder(design) {
+    const state = readState();
+    const slots = Array.isArray(design.slots) ? design.slots : [];
+    const materials = slots.map((item, index) => item ? `Vị trí ${index + 1}: ${item.name}` : null).filter(Boolean);
+    if (design.baseMaterial?.name) materials.unshift(`Dây nền: ${design.baseMaterial.name}`);
+    const price = (Number(design.baseMaterial?.price) || 0) + slots.reduce((sum, item) => sum + (item ? Number(item.price) || 0 : 0), 0);
+    if (!materials.length || price < 1) throw new Error("Thiết kế cần có ít nhất một vật liệu có giá hợp lệ.");
+
+    const now = new Date().toISOString();
+    const requestId = makeId("REQ-CUSTOM");
+    const quoteId = makeId("QUOTE-CUSTOM");
+    const order = {
+      id: makeId("AC"), requestId, quoteId,
+      buyerName: "Khách hàng AuraCraft", buyerEmail: "",
+      sellerName: design.sellerName || "AuraCraft", sellerEmail: "",
+      productType: design.productType || design.name || "Thiết kế sản phẩm riêng",
+      price, days: 5, status: "pending_payment", paymentStatus: "unpaid",
+      customDesignId: design.customDesignId || design.id || null,
+      design: slots.map(item => item ? { ...item } : null),
+      baseMaterial: design.baseMaterial ? { ...design.baseMaterial } : null,
+      designSize: Number(design.size) || slots.length,
+      shopId: design.shopId || "", createdAt: now,
+      paymentDeadlineAt: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString()
+    };
+    const request = {
+      id: requestId, buyerName: order.buyerName, buyerEmail: order.buyerEmail,
+      productType: order.productType, materials: [...new Set([
+        design.baseMaterial?.name, ...slots.filter(Boolean).map(item => item.name)
+      ].filter(Boolean))].join(", "),
+      charmDescription: materials.join("\n"), budget: price, status: "awarded",
+      selectedQuoteId: quoteId, sourceId: "designer", createdAt: now, updatedAt: now
+    };
+    const quote = {
+      id: quoteId, requestId, sellerName: order.sellerName, sellerEmail: "",
+      price, days: order.days, status: "selected", createdAt: now
+    };
+    state.requests.unshift(request);
+    state.quotes.push(quote);
+    state.orders.unshift(order);
+    writeState(state);
+    return order;
   }
 
   function getRequest(requestId) {
@@ -827,6 +898,7 @@
 
   window.AuraCraftCustom = {
     listRequests, getRequest, createRequest, updateRequest, cancelRequest,
+    listCustomDesigns, saveCustomDesign, createDesignerOrder,
     listOpenRequests, listQuotes, addQuote, selectQuote, getOrder, listOrders, listTransactions, getOrderForRequest, saveOrderDetails, recordPayment,
     listDisputes, listViolations, clearViolation, listAdminActions, extendOrderDeadline, reviewLateOrder,
     advanceOrderStatus, cancelOrder, processRefund, createDispute, updateDispute, resolveDispute,

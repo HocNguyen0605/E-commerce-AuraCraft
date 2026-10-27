@@ -69,7 +69,7 @@
 
       <div class="rf-field">
         <label for="budget"><span class="rf-step">5</span>Giá tiền mong muốn thợ làm sản phẩm <em class="rf-required">*</em></label>
-        <input type="text" id="budget" placeholder="Ví dụ: 120.000 ₫" required>
+        <input type="text" id="budget" placeholder="Ví dụ: 120.000đ" required>
       </div>
 
       <button type="submit" class="btn btn-primary rf-submit">Gửi yêu cầu &amp; xem báo giá</button>
@@ -91,12 +91,13 @@
 <script src="../assets/js/custom-workflow.js"></script>
 <script src="../assets/js/buyer-request-form.js"></script>
 <script>
-        fetch('../components/header.html').then(response => response.text()).then(data => { let html = data.replace(/href="index\.html"/g, 'href="../index.jsp"'); document.getElementById('header-placeholder').innerHTML = html; }).catch(error => console.error('Error loading header:', error));
+        fetch('../components/header.html').then(response => response.text()).then(data => { document.getElementById('header-placeholder').innerHTML = data; }).catch(error => console.error('Error loading header:', error));
 
-        fetch('../components/footer.html').then(response => response.text()).then(data => { let html = data.replace(/href="index\.html"/g, 'href="../index.jsp"'); document.getElementById('footer-placeholder').innerHTML = html; }).catch(error => console.error('Error loading footer:', error));
+        fetch('../components/footer.html').then(response => response.text()).then(data => { document.getElementById('footer-placeholder').innerHTML = data; }).catch(error => console.error('Error loading footer:', error));
 </script>
 <script src="../assets/js/popup.js"></script>
  <script src="${pageContext.request.contextPath}/assets/js/auth.js"></script>
+ <script src="${pageContext.request.contextPath}/assets/js/site-shell.js"></script>
 
 </body>
 </html>

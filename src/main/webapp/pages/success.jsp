@@ -85,13 +85,13 @@
 
 
             <div class="success-actions">
-                <a href="${pageContext.request.contextPath}/pages/profile-orders.jsp" id="btnGoTracking" class="btn btn-primary">
+                <a href="${pageContext.request.contextPath}/pages/profile-orders" id="btnGoTracking" class="btn btn-primary">
                     <i class="fa-solid fa-truck-fast"></i> Theo dõi đơn hàng
                 </a>
                 <a href="${pageContext.request.contextPath}/pages/products" class="btn btn-outline">
                     <i class="fa-solid fa-bag-shopping"></i> Tiếp tục mua sắm
                 </a>
-                <a href="${pageContext.request.contextPath}/index.jsp" class="btn btn-outline">
+                <a href="${pageContext.request.contextPath}/pages/home" class="btn btn-outline">
                     <i class="fa-solid fa-house"></i> Về trang chủ
                 </a>
             </div>

@@ -13,8 +13,8 @@ document.addEventListener("DOMContentLoaded", function() {
 
 // format tiền VND
 function formatVND(amount) {
-    if (amount == null || isNaN(amount)) return '0 đ';
-    return new Intl.NumberFormat('vi-VN').format(Math.round(amount)) + ' đ';
+    if (amount == null || isNaN(amount)) return '0đ';
+    return new Intl.NumberFormat('vi-VN').format(Math.round(amount)) + 'đ';
 }
 
 // Load dữ liệu từ Servlet 
@@ -82,13 +82,13 @@ function renderBarChart(data) {
             labels: labels,
             datasets: [
                 {
-                    label: 'Giá trị giao dịch (GMV - Triệu đ)',
+                    label: 'Giá trị giao dịch (GMV - triệu đồng)',
                     data: gmvData,
                     backgroundColor: '#425B9A',
                     borderRadius: 4
                 },
                 {
-                    label: 'Phí sàn thu được (Triệu đ)',
+                    label: 'Phí sàn thu được (triệu đồng)',
                     data: feeData,
                     backgroundColor: '#D4AF37',
                     borderRadius: 4
@@ -103,7 +103,7 @@ function renderBarChart(data) {
                     callbacks: {
                         label: function(context) {
                             const val = context.raw || 0;
-                            return context.dataset.label + ': ' + val.toFixed(2) + ' Triệu đ';
+                            return context.dataset.label + ': ' + val.toFixed(2) + ' triệu đồng';
                         }
                     }
                 }

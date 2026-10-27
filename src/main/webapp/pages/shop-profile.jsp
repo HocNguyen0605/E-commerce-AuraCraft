@@ -1,6 +1,7 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <%@ taglib prefix="c" uri="jakarta.tags.core" %>
 <%@ taglib prefix="fmt" uri="jakarta.tags.fmt" %>
+<fmt:setLocale value="vi_VN"/>
 <%@ taglib prefix="fn" uri="jakarta.tags.functions" %>
 <%
     if (request.getAttribute("shop") == null) {
@@ -26,7 +27,7 @@
 <div id="header-placeholder"></div>
 <main class="container shop-profile-page">
     <nav class="shop-breadcrumb" aria-label="Điều hướng">
-        <a href="${pageContext.request.contextPath}/index.jsp">Trang chủ</a><span>›</span>
+        <a href="${pageContext.request.contextPath}/pages/home">Trang chủ</a><span>›</span>
         <a href="${pageContext.request.contextPath}/pages/products">Sản phẩm</a><span>›</span>
         <span aria-current="page"><c:out value="${shop.name}"/></span>
     </nav>

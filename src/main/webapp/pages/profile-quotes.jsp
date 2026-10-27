@@ -1,4 +1,6 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
+<%@ taglib prefix="c" uri="jakarta.tags.core" %>
+<c:set var="ctx" value="${pageContext.request.contextPath}"/>
 <!DOCTYPE html>
 <html lang="vi">
 <head>
@@ -16,17 +18,23 @@
 
 <main>
     <div class="container">
-        <img class="avatar" src="../assets/img/profile/avatar.png" alt="Avatar">
-        <p class="info_name"><b>Họ và tên</b>  <a href="profile-info.jsp"><i class="fa-solid fa-pencil"></i></a></p>
-        <p class="email">CongchuaBongBong@gmail.com</p>
+        <img class="avatar" src="${ctx}/assets/img/profile/avatar.png" alt="Avatar">
+        <p class="info_name"><b><c:out value="${profile.name}"/></b>
+            <a href="${ctx}/pages/profile-info"><i class="fa-solid fa-pencil"></i></a></p>
+        <p class="email"><c:out value="${profile.email}"/></p>
         <div class="row body">
             <!--Thanh menu -->
             <div class="col-3 over_content">
                 <ul class="menu_function">
-                    <li class="funciton_item"><a href="profile-info.jsp">Thông tin cá nhân</a></li>
-                    <li class="funciton_item"><a href="profile.jsp">Đơn hàng</a></li>
-                    <li class="funciton_item"><a href="profile-favorites.jsp">Yêu thích</a></li>
-                    <li class="funciton_item active"><a href="profile-quotes.html">Báo giá</a></li>
+                    <li class="funciton_item "><a href="${ctx}/pages/profile-info">Thông tin cá nhân</a></li>
+                    <li class="funciton_item"><a href="${ctx}/pages/profile-orders">Đơn hàng</a></li>
+                    <li class="funciton_item"><a href="${ctx}/pages/profile-designs">Thiết kế đã lưu</a></li>
+                    <li class="funciton_item active"><a href="${ctx}/pages/profile-quotes">Báo giá</a></li>
+                    <li class="funciton_item">
+                        <a href="#" data-logout style="color: #E74C3C;">
+                            <i class="fa-solid fa-arrow-right-from-bracket"></i> Đăng xuất
+                        </a>
+                    </li>
                 </ul>
             </div>
             <!--Màn hình hiển thị thông tin -->
@@ -71,7 +79,7 @@
                             <p>Số lượng: 50</p>
                             <p>Ngày gửi: 20/09/2026 · Hiệu lực đến: 30/09/2026</p>
                         </div>
-                        <div class="col-2 right"><p>2.250.000 VND</p></div>
+                        <div class="col-2 right"><p>2.250.000đ</p></div>
                     </div>
                     <div class="order-actions">
                         <a href="#" class="btn btn-outline btn-sm">Thương lượng</a>
@@ -91,7 +99,7 @@
                             <p>Số lượng: 50</p>
                             <p>Ngày gửi: 20/09/2026 · Hiệu lực đến: 30/09/2026</p>
                         </div>
-                        <div class="col-2 right"><p>2.250.000 VND</p></div>
+                        <div class="col-2 right"><p>2.250.000đ</p></div>
                     </div>
                     <div class="order-actions">
                         <a href="#" class="btn btn-outline btn-sm">Xem đơn hàng</a>
@@ -109,7 +117,7 @@
                             <p>Số lượng: 50</p>
                             <p>Ngày gửi: 20/09/2026 · Hiệu lực đến: 30/09/2026</p>
                         </div>
-                        <div class="col-2 right"><p>2.400.000 VND</p></div>
+                        <div class="col-2 right"><p>2.400.000đ</p></div>
                     </div>
                     <div class="order-actions">
                         <a href="#" class="btn btn-primary btn-sm">Yêu cầu báo giá lại</a>
@@ -143,9 +151,9 @@
         cards.forEach(c => c.style.display = (s === 'all' || c.dataset.status === s) ? '' : 'none');
     }));
 </script>
-<script src="../assets/js/popup.js"></script>
+<script src="${pageContext.request.contextPath}/assets/js/popup.js"></script>
+<script src="${pageContext.request.contextPath}/assets/js/site-shell.js"></script>
 <script src="${pageContext.request.contextPath}/assets/js/auth.js"></script>
-
 </body>
 </html>
 

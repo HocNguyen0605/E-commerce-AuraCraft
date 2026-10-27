@@ -28,8 +28,8 @@ document.addEventListener("DOMContentLoaded", function() {
 
 // Định dạng tiền tệ VNĐ
 window.formatMoney = function(value) {
-    if (!value && value !== 0) return "0 đ";
-    return Number(value).toLocaleString("vi-VN") + " đ";
+    if (!value && value !== 0) return "0đ";
+    return Number(value).toLocaleString("vi-VN") + "đ";
 };
 
 // Định dạng ngày tháng
@@ -57,13 +57,13 @@ document.addEventListener('click', e => {
     const home = e.target.closest('[data-home]');
     if (home) {
         e.preventDefault();
-        location.href = window.CTX + '/index.jsp';
+        location.href = window.CTX + '/pages/home';
         return;
     }
     const out = e.target.closest('[data-logout]');
     if (out) {
         e.preventDefault();
         fetch(window.CTX + '/logout', { method: 'POST' })
-            .finally(() => location.href = window.CTX + '/index.jsp');
+            .finally(() => location.href = window.CTX + '/pages/home');
     }
 });

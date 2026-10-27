@@ -1,5 +1,6 @@
 package dao;
 
+//import dto.Charm;
 import dto.Charm;
 import dto.Product;
 import util.DBConnection;
@@ -128,6 +129,7 @@ public class ProductDAO {
             }
         }
     }
+
 
     public int insert(Product p, List<String> imageUrls) throws SQLException {
         String sql = "INSERT INTO products (name, price, description, id_shop, stock, id_category, status, customizable, base_type, base_image) VALUES (?,?,?,?,?,?,?,?,?,?)";
@@ -343,6 +345,9 @@ public class ProductDAO {
 
     public Map<String, Object> findActiveProductDetails(int productId) throws SQLException {
         String sql = "SELECT p.id, p.name, p.price, p.description, p.stock, p.sold_count, " +
+                "p.customizable, p.base_type, p.base_image, " +
+                "EXISTS (SELECT 1 FROM product_charms pc JOIN products cp ON cp.id=pc.id_product " +
+                "WHERE cp.id_shop=p.id_shop AND cp.status='active' AND cp.customizable=1) AS shop_has_design_charms, " +
                 "c.id AS category_id, c.name AS category_name, s.id AS shop_id, s.name AS shop_name, " +
                 "s.avatar AS shop_avatar, s.rating AS shop_rating, " +
                 "COALESCE(rs.average_rating, 0) AS rating, COALESCE(rs.review_count, 0) AS review_count " +
@@ -360,6 +365,10 @@ public class ProductDAO {
                 product.put("id", rs.getInt("id")); product.put("name", rs.getString("name"));
                 product.put("price", rs.getBigDecimal("price")); product.put("description", rs.getString("description"));
                 product.put("stock", rs.getInt("stock")); product.put("soldCount", rs.getInt("sold_count"));
+                product.put("customizable", rs.getBoolean("customizable"));
+                product.put("baseType", rs.getString("base_type"));
+                product.put("baseImage", rs.getString("base_image"));
+                product.put("shopHasDesignCharms", rs.getBoolean("shop_has_design_charms"));
                 product.put("categoryId", rs.getInt("category_id")); product.put("categoryName", rs.getString("category_name"));
                 product.put("shopId", rs.getInt("shop_id")); product.put("shopName", rs.getString("shop_name"));
                 product.put("shopAvatar", rs.getString("shop_avatar")); product.put("shopRating", rs.getBigDecimal("shop_rating"));
@@ -367,6 +376,64 @@ public class ProductDAO {
                 return product;
             }
         }
+    }
+
+    /** Public source products and their shop-configured base images and charms for the designer. */
+    public List<Map<String, Object>> findActiveCustomizerSources(Integer shopId) throws SQLException {
+        StringBuilder sql = new StringBuilder(
+                "SELECT p.id, p.name, p.price, p.base_type, " +
+                "COALESCE(NULLIF(p.base_image, ''), (SELECT i.url FROM productimages i WHERE i.id_product=p.id ORDER BY i.id LIMIT 1)) AS base_image, " +
+                "c.id AS category_id, c.name AS category_name, s.id AS shop_id, s.name AS shop_name " +
+                "FROM products p JOIN categories c ON c.id=p.id_category " +
+                "JOIN shops s ON s.id=p.id_shop " +
+                "WHERE p.status='active' AND s.status='active' " +
+                "AND EXISTS (SELECT 1 FROM product_charms pc JOIN products cp ON cp.id=pc.id_product " +
+                "WHERE cp.id_shop=s.id AND cp.status='active' AND cp.customizable=1) ");
+        if (shopId != null && shopId > 0) sql.append("AND s.id=? ");
+        sql.append("ORDER BY s.name, p.name, p.id");
+
+        List<Map<String, Object>> sources = new ArrayList<>();
+        try (Connection connection = DBConnection.getConnection()) {
+            try (PreparedStatement statement = connection.prepareStatement(sql.toString())) {
+                if (shopId != null && shopId > 0) statement.setInt(1, shopId);
+                try (ResultSet result = statement.executeQuery()) {
+                    while (result.next()) {
+                        Map<String, Object> source = new LinkedHashMap<>();
+                        source.put("id", result.getInt("id"));
+                        source.put("name", result.getString("name"));
+                        source.put("price", result.getBigDecimal("price"));
+                        source.put("baseType", result.getString("base_type"));
+                        source.put("baseImage", result.getString("base_image"));
+                        source.put("categoryId", result.getInt("category_id"));
+                        source.put("categoryName", result.getString("category_name"));
+                        source.put("shopId", result.getInt("shop_id"));
+                        source.put("shopName", result.getString("shop_name"));
+                        sources.add(source);
+                    }
+                }
+            }
+            try (PreparedStatement charmStatement = connection.prepareStatement(
+                    "SELECT DISTINCT pc.id, pc.name, pc.price, pc.image FROM product_charms pc " +
+                    "JOIN products cp ON cp.id=pc.id_product " +
+                    "WHERE cp.id_shop=? AND cp.status='active' AND cp.customizable=1 ORDER BY pc.id")) {
+                for (Map<String, Object> source : sources) {
+                    List<Map<String, Object>> charms = new ArrayList<>();
+                    charmStatement.setInt(1, (Integer) source.get("shopId"));
+                    try (ResultSet charmRows = charmStatement.executeQuery()) {
+                        while (charmRows.next()) {
+                            Map<String, Object> charm = new LinkedHashMap<>();
+                            charm.put("id", charmRows.getInt("id"));
+                            charm.put("name", charmRows.getString("name"));
+                            charm.put("price", charmRows.getBigDecimal("price"));
+                            charm.put("image", charmRows.getString("image"));
+                            charms.add(charm);
+                        }
+                    }
+                    source.put("charms", charms);
+                }
+            }
+        }
+        return sources;
     }
 
     public List<String> findProductImages(int productId) throws SQLException {
@@ -618,6 +685,10 @@ public class ProductDAO {
                 product.put("displayOrder", rs.getInt("display_order"));
                 products.add(product);
 
+            }
+        }
+        return products;
+    }
     public void initFeaturedProductsTable() {
         String sql = "CREATE TABLE IF NOT EXISTS featured_products (" +
                 "id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY, " +
@@ -643,7 +714,6 @@ public class ProductDAO {
             }
         } catch (SQLException ignored) {
         }
-        return products;
     }
 
     /**

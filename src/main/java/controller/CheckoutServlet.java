@@ -1,4 +1,4 @@
-package controller;//package controller;
+package controller;
 
 import com.google.gson.Gson;
 import dao.CheckoutDAO;
@@ -39,21 +39,36 @@ public class CheckoutServlet extends HttpServlet {
         }
         if (buyer) {
             try {
+                int buyerId = ((Number) userId).intValue();
                 if (sessionEmail == null || sessionEmail.toString().isBlank()) {
-                    String email = new dao.AccountDAO().findEmailByUserId(((Number) userId).intValue());
+                    String email = new dao.AccountDAO().findEmailByUserId(buyerId);
                     request.setAttribute("checkoutEmail", email);
                     if (email != null) request.getSession(false).setAttribute("email", email);
+                }
+                dto.UserProfileDTO profile = new dao.ProfileDAO().findUser(buyerId);
+                if (profile != null) {
+                    if (profile.getName() != null && !profile.getName().isBlank()) {
+                        request.setAttribute("checkoutFullName", profile.getName());
+                    }
+                    if (profile.getPhone() != null && !profile.getPhone().isBlank()) {
+                        request.setAttribute("checkoutPhone", profile.getPhone());
+                    }
+                    if ((request.getAttribute("checkoutEmail") == null
+                            || request.getAttribute("checkoutEmail").toString().isBlank())
+                            && profile.getEmail() != null) {
+                        request.setAttribute("checkoutEmail", profile.getEmail());
+                    }
                 }
                 String requestedIds = request.getParameter("productIds");
                 if ("1".equals(request.getParameter("fromCart")) || requestedIds != null) {
                     List<Integer> productIds = parseIds(requestedIds);
                     if (productIds.isEmpty()) {
-                        response.sendRedirect(request.getContextPath() + "/pages/cart.jsp?checkout=invalid");
+                        response.sendRedirect(request.getContextPath() + "/pages/cart?checkout=invalid");
                         return;
                     }
                     List<Map<String, Object>> checkoutItems = checkoutDAO.findSelectedCartItems(((Number) userId).intValue(), productIds);
                     if (checkoutItems.size() != productIds.size()) {
-                        response.sendRedirect(request.getContextPath() + "/pages/cart.jsp?checkout=invalid");
+                        response.sendRedirect(request.getContextPath() + "/pages/cart?checkout=invalid");
                         return;
                     }
                     BigDecimal subtotal = BigDecimal.ZERO;
@@ -77,12 +92,16 @@ public class CheckoutServlet extends HttpServlet {
                     request.setAttribute("checkoutShipping", shipping);
                     request.setAttribute("checkoutTotal", subtotal.add(shipping));
                     request.setAttribute("hasCustomItem", hasCustomItem);
-                    request.setAttribute("availableVouchers", checkoutDAO.findAvailableVouchers(((Number) userId).intValue(), productIds));
+                    request.setAttribute("availableVouchers", checkoutDAO.findAvailableVouchers(buyerId, productIds));
                 }
-                Map<String, String> savedAddress = checkoutDAO.findDefaultAddress(((Number) userId).intValue());
+                Map<String, String> savedAddress = checkoutDAO.findDefaultAddress(buyerId);
                 if (!savedAddress.isEmpty()) {
-                    request.setAttribute("checkoutFullName", savedAddress.get("receiver"));
-                    request.setAttribute("checkoutPhone", savedAddress.get("phone"));
+                    if (savedAddress.get("receiver") != null && !savedAddress.get("receiver").isBlank()) {
+                        request.setAttribute("checkoutFullName", savedAddress.get("receiver"));
+                    }
+                    if (savedAddress.get("phone") != null && !savedAddress.get("phone").isBlank()) {
+                        request.setAttribute("checkoutPhone", savedAddress.get("phone"));
+                    }
                     request.setAttribute("checkoutAddress", savedAddress.get("address"));
                 }
             } catch (SQLException exception) {

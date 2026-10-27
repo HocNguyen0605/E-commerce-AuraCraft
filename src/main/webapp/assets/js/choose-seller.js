@@ -1,6 +1,8 @@
 
 document.addEventListener('DOMContentLoaded', () => {
   const requestId = new URLSearchParams(window.location.search).get('requestId');
+  const pagesIndex = window.location.pathname.indexOf('/pages/');
+  const contextPath = pagesIndex >= 0 ? window.location.pathname.slice(0, pagesIndex) : '';
   const quoteList = document.getElementById('quoteList');
   const infoOverlay = document.getElementById('csInfoOverlay');
   const infoClose = document.getElementById('csInfoClose');
@@ -21,7 +23,7 @@ document.addEventListener('DOMContentLoaded', () => {
     title.textContent = 'Yêu cầu của bạn';
     product.textContent = request.productType;
     materials.textContent = `${request.materials}. ${request.charmDescription}`;
-    price.textContent = `Giá cơ sở dự kiến: ${Number(request.budget).toLocaleString('vi-VN')} đ`;
+    price.textContent = `Giá cơ sở dự kiến: ${Number(request.budget).toLocaleString('vi-VN')}đ`;
     summary.append(title, product, materials, price);
 
     quoteList.replaceChildren();
@@ -65,7 +67,7 @@ document.addEventListener('DOMContentLoaded', () => {
       status.className = 'status-badge approved';
       status.textContent = quote.status === 'selected' ? 'Đã chọn' : quote.status === 'rejected' ? 'Không được chọn' : 'Đang chờ';
       amount.className = 'quote-price';
-      amount.textContent = `${Number(quote.price).toLocaleString('vi-VN')} ₫`;
+      amount.textContent = `${Number(quote.price).toLocaleString('vi-VN')}đ`;
       quoteActions.className = 'seller-quote';
       quoteActions.append(amount, status);
       if (quote.status === 'pending' && request.status !== 'awarded') {
@@ -76,7 +78,7 @@ document.addEventListener('DOMContentLoaded', () => {
         selectButton.addEventListener('click', () => {
           try {
             const order = window.AuraCraftCustom.selectQuote(quote.id);
-            window.location.href = `checkout.html?orderId=${encodeURIComponent(order.id)}`;
+            window.location.href = `${contextPath}/pages/checkout?orderId=${encodeURIComponent(order.id)}`;
           } catch (error) {
             alert(error.message);
           }
@@ -86,7 +88,7 @@ document.addEventListener('DOMContentLoaded', () => {
       if (quote.status === 'selected') {
         const chatLink = document.createElement('a');
         chatLink.className = 'btn btn-outline btn-sm';
-        chatLink.href = `chat-buyer.html?requestId=${encodeURIComponent(request.id)}`;
+        chatLink.href = `${contextPath}/pages/chat-buyer?requestId=${encodeURIComponent(request.id)}`;
         chatLink.textContent = 'Mở chat';
         quoteActions.append(chatLink);
       }
@@ -171,7 +173,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             
             setTimeout(() => {
-                window.location.href = `checkout.html?orderId=${virtualOrderId}`;
+                window.location.href = `${contextPath}/pages/checkout?orderId=${encodeURIComponent(virtualOrderId)}`;
             }, 500);
           } else {
             c.classList.add('rejected');

@@ -1,4 +1,4 @@
-.avatar{
+.avatar {
     display: block;
     margin: 5px auto;
     margin-top: 15px;
@@ -6,50 +6,63 @@
     width: 12%;
     height: auto;
 }
-.info_name,.email{
+
+.info_name, .email {
     text-align: center;
     margin: 2px auto;
 }
-.row,.col-2,.col-3,.col-4,.col-6,.col-8,.col-9,.col-12{
+
+.row, .col-2, .col-3, .col-4, .col-6, .col-8, .col-9, .col-12 {
     padding: 5px 5px;
     margin-top: 1px;
 }
-.body{
+
+.body {
     background-color: var(--bg-cream);
 }
+
 .row {
     display: grid;
     grid-template-columns: repeat(12, 1fr);
     gap: 12px;
 }
 
-.col-2  {
+.col-2 {
     grid-column: span 2;
 }
-.col-3  {
+
+.col-3 {
     grid-column: span 3;
 }
-.col-4  {
+
+.col-4 {
     grid-column: span 4;
 }
-.col-6  {
+
+.col-6 {
     grid-column: span 6;
 }
+
 .col-8 {
     grid-column: span 8;
 }
-.col-9  {
+
+.col-9 {
     grid-column: span 9;
 }
+
 .col-12 {
     grid-column: span 12;
 }
-.menu{
+
+.menu {
     display: flex;
     gap: 5px;
 }
-.menu_function{
+
+.menu_function {
 }
+
 .funciton_item {
     display: block;
     padding: 6px 12px;
@@ -63,36 +76,49 @@
     transition: all 0.3s ease;
     text-align: left;
 }
+
 .funciton_item:hover {
     background-color: var(--text-dark);
     transform: translateY(-2px);
     box-shadow: var(--shadow);
     color: var(--white);
 }
-.filter{
+
+.filter {
     border-radius: 9px;
     width: auto;
     margin: 5px auto;
     padding: 4px;
 }
-.addition{
+
+.addition {
     font-size: 14px;
 }
-.right{
+
+.right {
     text-align: right;
 }
-.status{
+
+.status {
     color: var(--primary-blue);
 }
-.product_picture{
+
+.product_picture {
     width: 100%;
     height: auto;
     border-radius: 10%;
 }
-.over_content{
+
+.over_content {
     overflow-y: auto;
-    max-height: 500px;
-    box-shadow: 0 9px 30px var(  --gray-light);}
+    max-height: 800px;
+    box-shadow: 0 9px 30px var(--gray-light);
+}
+
 @media (max-width: 768px) {
-    .row > * { grid-column: span 12; }  /* điện thoại: mỗi khối 1 hàng */
+    .row > * {
+        grid-column: span 12;
+    }
+
+    /* điện thoại: mỗi khối 1 hàng */
 }

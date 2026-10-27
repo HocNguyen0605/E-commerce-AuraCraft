@@ -37,7 +37,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function money(value) {
-    return `${Number(value || 0).toLocaleString("vi-VN")} đ`;
+    return `${Number(value || 0).toLocaleString("vi-VN")}đ`;
   }
 
   function cell(row, value, className) {

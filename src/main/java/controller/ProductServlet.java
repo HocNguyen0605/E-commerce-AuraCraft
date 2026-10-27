@@ -81,7 +81,7 @@ public class ProductServlet extends HttpServlet {
                 for (String value : requestedRatings) {
                     try {
                         int rating = Integer.parseInt(value);
-                        if (rating >= 1 && rating <= 5 && !selectedRatings.contains(rating)) {
+                        if (rating >= 0 && rating <= 5 && !selectedRatings.contains(rating)) {
                             selectedRatings.add(rating);
                             selectedRatingValues.add(value);
                         }
@@ -136,6 +136,7 @@ public class ProductServlet extends HttpServlet {
             request.setAttribute("rating3Selected", selectedRatingValues.contains("3"));
             request.setAttribute("rating2Selected", selectedRatingValues.contains("2"));
             request.setAttribute("rating1Selected", selectedRatingValues.contains("1"));
+            request.setAttribute("rating0Selected", selectedRatingValues.contains("0"));
             request.setAttribute("sort", sort);
             request.setAttribute("keyword", keyword == null ? "" : keyword);
             request.setAttribute("page", page);
@@ -166,6 +167,7 @@ public class ProductServlet extends HttpServlet {
             request.setAttribute("rating3Selected", false);
             request.setAttribute("rating2Selected", false);
             request.setAttribute("rating1Selected", false);
+            request.setAttribute("rating0Selected", false);
             request.setAttribute("categoryFilterActive", false);
             request.setAttribute("keyword", "");
             request.setAttribute("sort", "default");

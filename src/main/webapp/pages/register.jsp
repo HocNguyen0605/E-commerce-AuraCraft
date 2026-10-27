@@ -52,11 +52,11 @@
 
             <div class="form-side">
                 <div class="top-header">
-                    <a href="${pageContext.request.contextPath}/index.jsp" class="brand-logo">
+                    <a href="${pageContext.request.contextPath}/pages/home" class="brand-logo">
                         <span class="logo-icon">A</span>
                         <span class="logo-text">uraCraft</span>
                     </a>
-                    <a href="${pageContext.request.contextPath}/pages/login.jsp" class="auth-nav-back">Đã có tài khoản? Đăng nhập</a>
+                    <a href="${pageContext.request.contextPath}/pages/login" class="auth-nav-back">Đã có tài khoản? Đăng nhập</a>
                 </div>
 
                 <div class="form-header">
@@ -301,7 +301,7 @@
     });
 
     sendBtn.addEventListener('click', async function () {
-        if (emailVerified) {          // đang là nút "Đổi email"
+        if (emailVerified) {          //đang là nút "Đổi email"
             resetOtpUi();
             emailInput.focus();
             return;
@@ -414,7 +414,7 @@
             var data = await res.json();
             if (data.ok) {
                 showAlert('success', 'Đăng ký thành công! Đang chuyển tới trang đăng nhập...');
-                setTimeout(function () { location.href = CTX + '/pages/login.jsp'; }, 1200);
+                setTimeout(function () { location.href = CTX + '/pages/login'; }, 1200);
             } else {
                 showAlert('error', data.message || 'Đăng ký không thành công.');
                 if (res.status === 403) resetOtpUi();   // xác thực hết hạn: yêu cầu xác thực lại
@@ -427,7 +427,7 @@
         }
     });
 
-    // ===== Đăng ký / đăng nhập bằng Google (Google đã xác thực email nên không cần OTP) =====
+    // ===== Đăng ký /đăng nhập bằng Google (Google đã xác thực email nên không cần OTP) =====
     async function onGoogleCredential(response) {
         clearErrors();
         try {
@@ -445,7 +445,7 @@
                 seller: '/pages/seller/seller-dashboard.jsp'
             };
             var role = String(data.role || '').toLowerCase();
-            location.href = CTX + (routes[role] || '/index.jsp');
+            location.href = CTX + (routes[role] || '/pages/home');
         } catch (err) {
             console.error(err);
             showAlert('error', 'Không kết nối được với máy chủ. Vui lòng thử lại.');

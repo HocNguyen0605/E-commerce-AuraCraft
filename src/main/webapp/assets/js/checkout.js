@@ -65,7 +65,9 @@ document.addEventListener("DOMContentLoaded", () => {
       shippingRow.textContent = "25.300đ";
       document.querySelector(".total-amount").textContent = `${(customAmountDue + 25300).toLocaleString("vi-VN")}đ`;
       const customerName = document.getElementById("fullName");
-      if (customerName && customOrder.buyerName) customerName.value = customOrder.buyerName;
+      if (customerName && customOrder.buyerName
+          && customOrder.buyerName !== "Khách hàng AuraCraft"
+          && !customerName.value.trim()) customerName.value = customOrder.buyerName;
       const customerEmail = document.getElementById("email");
       if (customerEmail && customOrder.buyerEmail) customerEmail.value = customOrder.buyerEmail;
       document.querySelector(".checkout-breadcrumb .active").textContent = "Thanh toán đơn Custom";
@@ -97,7 +99,7 @@ document.addEventListener("DOMContentLoaded", () => {
       if (!checkoutCart.length && !(checkoutForm.dataset.databaseCheckout === "true" && databaseProductIds)) {
         checkoutForm.hidden = true;
         alert("Giỏ hàng chưa có sản phẩm được chọn.");
-        window.location.href = "cart.jsp";
+        window.location.href = `${checkoutForm.dataset.context || ""}/pages/cart`;
         return;
       }
       if (checkoutForm.dataset.databaseCheckout !== "true") {
@@ -449,7 +451,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
             if (!paymentConfirmed) {
               window.alert("Đã hủy đơn hàng và khôi phục sản phẩm vào giỏ hàng.");
-              window.location.href = checkoutForm.dataset.context + "/pages/cart.jsp";
+              window.location.href = checkoutForm.dataset.context + "/pages/cart";
               return;
             }
           }
@@ -491,7 +493,7 @@ document.addEventListener("DOMContentLoaded", () => {
           localStorage.removeItem("AuraCraftCheckoutCart");
           localStorage.removeItem("AuraCraftCheckoutSource");
           sessionStorage.removeItem("AuraCraftCartSelected");
-          window.location.href = checkoutForm.dataset.context + "/pages/success.jsp?orderId=" + encodeURIComponent("#AC-" + result.orderId);
+          window.location.href = checkoutForm.dataset.context + "/pages/success?orderId=" + encodeURIComponent("#AC-" + result.orderId);
         } catch (error) {
           window.alert(error.message);
           button.disabled = false;
@@ -539,6 +541,15 @@ document.addEventListener("DOMContentLoaded", () => {
                 ? customAmountDue
                 : (isVNPay ? customAmountDue + 25300 : depositToPay)
             });
+            if (customOrder.customDesignId) {
+              try {
+                const cart = JSON.parse(localStorage.getItem("AuraCraftCart") || "[]");
+                localStorage.setItem("AuraCraftCart", JSON.stringify(cart.filter(item =>
+                  String(item.customDesignId || "") !== String(customOrder.customDesignId)
+                )));
+                window.dispatchEvent(new Event("auracraft:cart-updated"));
+              } catch { }
+            }
             
             let paymentMethodText = isVNPay
               ? "VNPay (Đã thanh toán trực tuyến 100%)"
@@ -562,7 +573,7 @@ document.addEventListener("DOMContentLoaded", () => {
               paymentStatus: result.order.paymentStatus
             };
             sessionStorage.setItem("auracraft_latest_order", JSON.stringify(customOrderData));
-            window.location.href = `${checkoutForm.dataset.context || ""}/pages/success.jsp?orderId=${encodeURIComponent(result.order.id)}`;
+            window.location.href = `${checkoutForm.dataset.context || ""}/pages/success?orderId=${encodeURIComponent(result.order.id)}`;
           } catch (error) {
             alert(error.message);
           }
@@ -612,6 +623,7 @@ document.addEventListener("DOMContentLoaded", () => {
           const checkedOutIds = new Set(checkoutCart.map(item => String(item.id)));
           const currentCart = JSON.parse(localStorage.getItem("AuraCraftCart") || "[]");
           localStorage.setItem("AuraCraftCart", JSON.stringify(currentCart.filter(item => !checkedOutIds.has(String(item.id)))));
+          window.dispatchEvent(new Event("auracraft:cart-updated"));
           if (localStorage.getItem("AuraCraftCheckoutSource") === "database") {
             fetch(new URL("../api/cart", window.location.href), {
               method: "POST",
@@ -624,7 +636,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         setTimeout(() => {
-          window.location.href = `${checkoutForm.dataset.context || ""}/pages/success.jsp?orderId=${encodeURIComponent(virtualOrderId)}`;
+          window.location.href = `${checkoutForm.dataset.context || ""}/pages/success?orderId=${encodeURIComponent(virtualOrderId)}`;
         }, 400);
       }
 
