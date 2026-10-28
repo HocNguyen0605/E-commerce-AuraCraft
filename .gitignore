@@ -1,5 +1,5 @@
 # ── Build output ──────────────────────────────────────────────────────────────
-target/
+E-commerce-AuraCraft/target/
 
 # ── Sensitive config (Database, AI API Keys) ──────────────────────────
 **/db.properties

@@ -1,0 +1,367 @@
+/* Báo giá trong hồ sơ người mua */
+.profile-quotes-page {
+    background: #fbfaf8;
+    color: #40302e;
+}
+
+.profile-quotes-page main > .container {
+    width: min(1180px, calc(100% - 40px));
+    margin: 28px auto 56px;
+}
+
+.profile-quotes-page .avatar {
+    width: 76px;
+    height: 76px;
+    object-fit: cover;
+    border: 3px solid #fff;
+    box-shadow: 0 4px 16px rgba(55, 43, 40, .12);
+}
+
+.profile-quotes-page .info_name {
+    margin-top: 10px;
+    color: #40302e;
+    font-size: 1.08rem;
+}
+
+.profile-quotes-page .email {
+    margin-bottom: 22px;
+    color: #81736d;
+}
+
+.profile-quotes-page .body.row {
+    display: grid;
+    grid-template-columns: 245px minmax(0, 1fr);
+    align-items: start;
+    gap: 20px;
+    padding: 0;
+    background: transparent;
+}
+
+.profile-quotes-page .panel-title {
+    margin: 0 0 20px;
+    color: #4963a7;
+    font-size: clamp(1.2rem, 2vw, 1.55rem);
+}
+
+.profile-quotes-page .quote-filter-row {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin: 0 0 20px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid #eee8e4;
+}
+
+.profile-quotes-page .quote-filter-row .filter {
+    flex: 1 1 145px;
+    max-width: 190px;
+    min-height: 38px;
+    margin: 0;
+    padding: 8px 15px;
+    border: 1px solid #e8e2de;
+    border-radius: 999px;
+    background: #fff;
+    color: #675b56;
+    font-size: .9rem;
+    transition: background .18s ease, border-color .18s ease, color .18s ease;
+}
+
+.profile-quotes-page .quote-filter-row .filter:hover,
+.profile-quotes-page .quote-filter-row .filter.active {
+    border-color: #4963a7;
+    background: #4963a7;
+    color: #fff;
+}
+
+.profile-quotes-page .quote-request-card {
+    scroll-margin-top: 24px;
+    margin: 0 0 14px;
+    padding: clamp(16px, 2.5vw, 22px);
+    border: 1px solid #eee8e4;
+    border-radius: 15px;
+    background: linear-gradient(145deg, #fff 0%, #fffdfa 100%);
+    box-shadow: 0 5px 16px rgba(55, 43, 40, .045);
+    transition: border-color .2s ease, box-shadow .2s ease;
+}
+
+.profile-quotes-page .quote-request-card[data-status="waiting"] {
+    border-left: 4px solid #d69a2d;
+    background: linear-gradient(110deg, #fffaf0 0%, #fff 34%);
+}
+
+.profile-quotes-page .quote-request-card[data-status="quoted"] {
+    border-left: 4px solid #4963a7;
+    background: linear-gradient(110deg, #f3f6ff 0%, #fff 34%);
+}
+
+.profile-quotes-page .quote-request-card[data-status="accepted"] {
+    border-left: 4px solid #3c8b61;
+    background: linear-gradient(110deg, #f1faf4 0%, #fff 34%);
+}
+
+.profile-quotes-page .quote-request-card[data-status="expired"] {
+    border-left: 4px solid #a17676;
+    background: linear-gradient(110deg, #faf4f3 0%, #fff 34%);
+}
+
+.profile-quotes-page .quote-request-card[hidden] {
+    display: none;
+}
+
+.profile-quotes-page .quote-request-card.is-focused {
+    border-color: #4963a7;
+    box-shadow: 0 0 0 3px rgba(73, 99, 167, .13), 0 8px 20px rgba(55, 43, 40, .06);
+}
+
+.profile-quotes-page .quote-request-head,
+.profile-quotes-page .quote-meta,
+.profile-quotes-page .quote-offer-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px 16px;
+    flex-wrap: wrap;
+}
+
+.profile-quotes-page .quote-request-head {
+    padding-bottom: 14px;
+    border-bottom: 1px solid #f0ece9;
+}
+
+.profile-quotes-page .quote-request-title {
+    margin: 0;
+    color: #40302e;
+    font-size: 1.05rem;
+    line-height: 1.45;
+    overflow-wrap: anywhere;
+}
+
+.profile-quotes-page .quote-state {
+    display: inline-flex;
+    align-items: center;
+    min-height: 30px;
+    padding: 5px 11px;
+    border-radius: 999px;
+    background: #eef2fb;
+    color: #4963a7;
+    font-size: .82rem;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+.profile-quotes-page [data-status="waiting"] .quote-state {
+    background: #fff0d2;
+    color: #976613;
+}
+
+.profile-quotes-page [data-status="quoted"] .quote-state {
+    background: #e8eeff;
+    color: #38569d;
+}
+
+.profile-quotes-page [data-status="accepted"] .quote-state {
+    background: #e5f5ea;
+    color: #287347;
+}
+
+.profile-quotes-page [data-status="expired"] .quote-state {
+    background: #f4e9e8;
+    color: #8b5551;
+}
+
+.profile-quotes-page .quote-details {
+    margin-top: 8px;
+}
+
+.profile-quotes-page .quote-details > summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 10px 0 2px;
+    color: #4963a7;
+    cursor: pointer;
+    font-size: .9rem;
+    font-weight: 700;
+    list-style: none;
+}
+
+.profile-quotes-page .quote-details > summary::-webkit-details-marker {
+    display: none;
+}
+
+.profile-quotes-page .quote-details > summary i {
+    transition: transform .2s ease;
+}
+
+.profile-quotes-page .quote-details[open] > summary i {
+    transform: rotate(180deg);
+}
+
+.profile-quotes-page .quote-details[open] > summary {
+    padding-bottom: 8px;
+}
+
+.profile-quotes-page .quote-meta {
+    justify-content: flex-start;
+    gap: 8px 20px;
+    margin-top: 12px;
+    color: #81736d;
+    font-size: .9rem;
+}
+
+.profile-quotes-page .quote-meta strong,
+.profile-quotes-page .quote-offer-price {
+    color: #40302e;
+}
+
+.profile-quotes-page .quote-offer-state {
+    display: inline-flex;
+    padding: 4px 9px;
+    border-radius: 999px;
+    background: #f0edea;
+    color: #665955;
+    font-size: .82rem;
+    font-weight: 600;
+}
+
+.profile-quotes-page .quote-offer-state-pending {
+    background: #fff0d2;
+    color: #976613;
+}
+
+.profile-quotes-page .quote-offer-state-accepted {
+    background: #e5f5ea;
+    color: #287347;
+}
+
+.profile-quotes-page .quote-offer-state-rejected {
+    background: #f8e8e8;
+    color: #a24343;
+}
+
+.profile-quotes-page .quote-request-description {
+    margin: 14px 0 10px;
+    color: #554944;
+    line-height: 1.65;
+    white-space: pre-line;
+    overflow-wrap: anywhere;
+}
+
+.profile-quotes-page .quote-materials {
+    display: inline-flex;
+    max-width: 100%;
+    padding: 7px 11px;
+    border: 1px solid #f0e9df;
+    border-radius: 9px;
+    background: #faf6ef;
+    color: #675b56;
+    font-size: .88rem;
+    line-height: 1.5;
+    overflow-wrap: anywhere;
+}
+
+.profile-quotes-page .quote-offers {
+    display: grid;
+    gap: 10px;
+    margin-top: 16px;
+}
+
+.profile-quotes-page .quote-offer {
+    padding: 15px;
+    border: 1px solid #ece7e4;
+    border-radius: 12px;
+    background: #fbfaf8;
+}
+
+.profile-quotes-page .quote-offer-head strong {
+    color: #4963a7;
+}
+
+.profile-quotes-page .quote-offer-price {
+    font-size: 1.12rem;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+.profile-quotes-page .quote-offer-note {
+    margin: 10px 0 0;
+    color: #625752;
+    line-height: 1.6;
+    white-space: pre-line;
+    overflow-wrap: anywhere;
+}
+
+.profile-quotes-page .quote-offer a {
+    display: inline-block;
+    margin-top: 10px;
+    color: #4963a7;
+    font-weight: 700;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 3px;
+}
+
+.profile-quotes-page .quote-empty-state {
+    padding: 30px 18px;
+    border: 1px dashed #ded7d2;
+    border-radius: 14px;
+    background: #fdfcfa;
+    color: #756a66;
+    text-align: center;
+    line-height: 1.6;
+}
+
+.profile-quotes-page .quote-empty-state i {
+    display: block;
+    margin-bottom: 10px;
+    color: #4963a7;
+    font-size: 1.7rem;
+}
+
+.profile-quotes-page .quote-empty-state p {
+    margin: 0 0 12px;
+}
+
+@media (max-width: 760px) {
+    .profile-quotes-page main > .container {
+        width: min(100% - 24px, 620px);
+        margin-top: 18px;
+    }
+
+    .profile-quotes-page .quote-request-head {
+        align-items: flex-start;
+    }
+}
+
+@media (max-width: 480px) {
+    .profile-quotes-page main > .container {
+        width: calc(100% - 20px);
+    }
+
+    .profile-quotes-page .panel {
+        padding: 15px 12px;
+        border-radius: 14px;
+    }
+
+    .profile-quotes-page .quote-filter-row {
+        gap: 6px;
+    }
+
+    .profile-quotes-page .quote-filter-row .filter {
+        flex: 1 1 125px;
+        min-height: 34px;
+        padding: 6px 10px;
+        font-size: .82rem;
+    }
+
+    .profile-quotes-page .quote-meta {
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 6px;
+    }
+
+    .profile-quotes-page .quote-state {
+        white-space: normal;
+    }
+}

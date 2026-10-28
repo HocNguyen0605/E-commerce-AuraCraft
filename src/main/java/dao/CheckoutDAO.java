@@ -33,15 +33,8 @@ public class CheckoutDAO {
                     shops.add((Integer) item.get("shopId"));
                 }
                 BigDecimal shipping = SHIPPING_FEE.multiply(BigDecimal.valueOf(shops.size()));
-                boolean hasCustomItem = false;
-                for (Map<String, Object> item : items) {
-                    String name = (String) item.get("name");
-                    if (name != null && name.toLowerCase().contains("custom")) {
-                        hasCustomItem = true;
-                        break;
-                    }
-                }
-                result.put("hasCustomItem", hasCustomItem);
+                // Cart rows are existing products, even when the buyer customized one.
+                result.put("hasCustomItem", false);
                 result.put("subtotal", subtotal);
                 result.put("shipping", shipping);
                 result.put("total", subtotal.subtract((BigDecimal) result.get("discount")).add(shipping));
@@ -405,6 +398,9 @@ public class CheckoutDAO {
                 if (items.size() != productIds.size()) {
                     throw new IllegalArgumentException("Có sản phẩm không còn trong giỏ hoặc đã ngừng bán. Vui lòng tải lại giỏ hàng.");
                 }
+                boolean depositPayment = "VNPayDeposit".equalsIgnoreCase(paymentMethod);
+                if (depositPayment) throw new IllegalArgumentException(
+                        "Sản phẩm có sẵn, kể cả sản phẩm tùy chỉnh, hỗ trợ COD hoặc chuyển khoản 100%.");
 
                 syncCompletedOrderRewards(connection, userId);
                 Map<String, Object> benefits = calculateBenefits(connection, userId, items, voucherCode, useCoins, true);
@@ -536,15 +532,7 @@ public class CheckoutDAO {
                 result.put("rewardCoinsPending", rewardCoinsPending);
                 result.put("total", subtotal.subtract((BigDecimal) benefits.get("discount"))
                         .add(SHIPPING_FEE.multiply(BigDecimal.valueOf(orderIds.size()))));
-                boolean hasCustomItem = false;
-                for (Map<String, Object> item : items) {
-                    String name = (String) item.get("name");
-                    if (name != null && name.toLowerCase().contains("custom")) {
-                        hasCustomItem = true;
-                        break;
-                    }
-                }
-                result.put("hasCustomItem", hasCustomItem);
+                result.put("hasCustomItem", false);
                 result.put("itemCount", items.stream().mapToInt(item -> (Integer) item.get("quantity")).sum());
                 return result;
             } catch (SQLException | RuntimeException exception) {
@@ -621,4 +609,5 @@ public class CheckoutDAO {
             }
         }
     }
+
 }

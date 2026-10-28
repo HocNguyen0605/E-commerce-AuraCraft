@@ -1,5 +1,6 @@
 package dao;
 
+import dto.ShopDTO;
 import util.DBConnection;
 
 import java.sql.Connection;
@@ -181,4 +182,107 @@ public class ShopDAO {
         shop.put("totalSold", rs.getInt("total_sold"));
         return shop;
     }
+
+    public ShopDTO findActiveById(int shopId) throws SQLException {
+        String sql = "SELECT * FROM shops WHERE id = ? AND status = 'active'";
+        try (Connection c = DBConnection.getConnection(); PreparedStatement ps = c.prepareStatement(sql)) {
+            ps.setInt(1, shopId);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (!rs.next()) return null;
+                ShopDTO s = new ShopDTO();
+                s.setId(rs.getInt("id"));
+                s.setOwnerId(rs.getInt("id_owner"));
+                s.setName(rs.getString("name"));
+                s.setAddress(rs.getString("address"));
+                s.setPhone(rs.getString("phone"));
+                s.setEmail(rs.getString("email"));
+                s.setDescription(rs.getString("description"));
+                s.setAvatar(rs.getString("avatar"));
+                s.setStatus(rs.getString("status"));
+                s.setRating(rs.getDouble("rating"));
+                s.setCommissionRate(rs.getDouble("commission_rate"));
+                return s;
+            }
+        }
+    }
+
+    /** Thống kê đánh giá sản phẩm đã mua thuộc một gian hàng. */
+    public Map<String, Object> getShopReviewSummary(int shopId) throws SQLException {
+        String sql = "SELECT COALESCE(AVG(r.rating), 0) AS avg_rating, COUNT(*) AS review_count " +
+                "FROM reviews r JOIN products p ON p.id = r.id_product " +
+                "WHERE p.id_shop = ? AND p.status = 'active'";
+        try (Connection c = DBConnection.getConnection(); PreparedStatement ps = c.prepareStatement(sql)) {
+            ps.setInt(1, shopId);
+            try (ResultSet rs = ps.executeQuery()) {
+                rs.next();
+                Map<String, Object> summary = new LinkedHashMap<>();
+                summary.put("rating", rs.getDouble("avg_rating"));
+                summary.put("count", rs.getInt("review_count"));
+                return summary;
+            }
+        }
+    }
+
+    /** Đánh giá gần đây cho sản phẩm của shop, ghi kèm tên sản phẩm. */
+    public List<Map<String, Object>> findShopReviews(int shopId, int limit) throws SQLException {
+        String sql = "SELECT r.rating, r.comment, r.date, u.name AS reviewer_name, p.name AS product_name " +
+                "FROM reviews r JOIN products p ON p.id = r.id_product " +
+                "JOIN users u ON u.id = r.id_user WHERE p.id_shop = ? AND p.status = 'active' " +
+                "ORDER BY r.date DESC LIMIT ?";
+        List<Map<String, Object>> reviews = new ArrayList<>();
+        try (Connection c = DBConnection.getConnection(); PreparedStatement ps = c.prepareStatement(sql)) {
+            ps.setInt(1, shopId);
+            ps.setInt(2, Math.max(1, Math.min(limit, 100)));
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    Map<String, Object> review = new LinkedHashMap<>();
+                    review.put("rating", rs.getInt("rating"));
+                    review.put("comment", rs.getString("comment"));
+                    review.put("date", rs.getTimestamp("date"));
+                    review.put("reviewerName", rs.getString("reviewer_name"));
+                    review.put("productName", rs.getString("product_name"));
+                    reviews.add(review);
+                }
+            }
+        }
+        return reviews;
+    }
+
+    /** Số đơn hoàn thành có chứa thiết kế tự tạo hoặc đơn đặt theo báo giá. */
+    public int countSuccessfulCustomOrders(int shopId) throws SQLException {
+        String sql = "SELECT COUNT(DISTINCT o.id) FROM orders o WHERE o.id_shop = ? AND o.status = 'completed' " +
+                "AND EXISTS (SELECT 1 FROM orderitems oi WHERE oi.id_order = o.id " +
+                "AND (oi.id_custom_design IS NOT NULL OR oi.id_quote IS NOT NULL))";
+        try (Connection c = DBConnection.getConnection(); PreparedStatement ps = c.prepareStatement(sql)) {
+            ps.setInt(1, shopId);
+            try (ResultSet rs = ps.executeQuery()) {
+                return rs.next() ? rs.getInt(1) : 0;
+            }
+        }
+    }
+
+    /** Shop của chủ shop (users.id), chỉ lấy shop đang hoạt động. Null nếu không có. */
+    public ShopDTO findActiveByOwner(int ownerId) throws SQLException {
+        String sql = "SELECT * FROM shops WHERE id_owner = ? AND status = 'active' ORDER BY id LIMIT 1";
+        try (Connection c = DBConnection.getConnection(); PreparedStatement ps = c.prepareStatement(sql)) {
+            ps.setInt(1, ownerId);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (!rs.next()) return null;
+                ShopDTO s = new ShopDTO();
+                s.setId(rs.getInt("id"));
+                s.setOwnerId(rs.getInt("id_owner"));
+                s.setName(rs.getString("name"));
+                s.setAddress(rs.getString("address"));
+                s.setPhone(rs.getString("phone"));
+                s.setEmail(rs.getString("email"));
+                s.setDescription(rs.getString("description"));
+                s.setAvatar(rs.getString("avatar"));
+                s.setStatus(rs.getString("status"));
+                s.setRating(rs.getDouble("rating"));
+                s.setCommissionRate(rs.getDouble("commission_rate"));
+                return s;
+            }
+        }
+    }
+
 }

@@ -1,4 +1,4 @@
-.avatar{
+.avatar {
     display: block;
     margin: 5px auto;
     margin-top: 15px;
@@ -6,93 +6,208 @@
     width: 12%;
     height: auto;
 }
-.info_name,.email{
+
+.info_name, .email {
     text-align: center;
     margin: 2px auto;
 }
-.row,.col-2,.col-3,.col-4,.col-6,.col-8,.col-9,.col-12{
+
+.row, .col-2, .col-3, .col-4, .col-6, .col-8, .col-9, .col-12 {
     padding: 5px 5px;
     margin-top: 1px;
 }
-.body{
-    background-color: var(--bg-cream);
+
+.body {
+    background-color: transparent;
 }
+
 .row {
     display: grid;
     grid-template-columns: repeat(12, 1fr);
     gap: 12px;
 }
 
-.col-2  {
+.col-2 {
     grid-column: span 2;
 }
-.col-3  {
+
+.col-3 {
     grid-column: span 3;
 }
-.col-4  {
+
+.col-4 {
     grid-column: span 4;
 }
-.col-6  {
+
+.col-6 {
     grid-column: span 6;
 }
+
 .col-8 {
     grid-column: span 8;
 }
-.col-9  {
+
+.col-9 {
     grid-column: span 9;
 }
+
 .col-12 {
     grid-column: span 12;
 }
-.menu{
+
+.menu {
     display: flex;
     gap: 5px;
 }
-.menu_function{
+
+.menu_function {
+    position: sticky;
+    top: 20px;
+    display: grid;
+    gap: 8px;
+    margin: 0;
+    padding: 12px;
+    list-style: none;
+    border: 1px solid #eee8e4;
+    border-radius: 18px;
+    background: #fff;
+    box-shadow: 0 8px 24px rgba(55, 43, 40, .06);
 }
+
 .funciton_item {
     display: block;
-    padding: 6px 12px;
-    border-radius: 50px;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    border: 0;
+    border-radius: 11px;
     font-family: var(--font-title);
     font-weight: 700;
-    font-size: 1.1rem;
-    cursor: pointer;
-    margin-top: 5px;
-    border: 2px solid var(--text-dark);
-    transition: all 0.3s ease;
-    text-align: left;
+    font-size: .96rem;
+    transition: background .18s ease, color .18s ease;
 }
+
+.funciton_item a {
+    display: block;
+    padding: 12px 14px;
+    color: inherit;
+    text-decoration: none;
+}
+
 .funciton_item:hover {
-    background-color: var(--text-dark);
-    transform: translateY(-2px);
-    box-shadow: var(--shadow);
-    color: var(--white);
+    transform: none;
+    background: #f4f1ee;
+    color: #40302e;
+    box-shadow: none;
 }
-.filter{
+
+.funciton_item.active {
+    background: #493331;
+    color: #fff;
+}
+
+.funciton_item.active a {
+    color: #fff;
+}
+
+.filter {
     border-radius: 9px;
     width: auto;
     margin: 5px auto;
     padding: 4px;
 }
-.addition{
+
+.addition {
     font-size: 14px;
 }
-.right{
+
+.right {
     text-align: right;
 }
-.status{
+
+.status {
     color: var(--primary-blue);
 }
-.product_picture{
+
+.product_picture {
     width: 100%;
     height: auto;
     border-radius: 10%;
 }
-.over_content{
+
+.over_content {
     overflow-y: auto;
-    max-height: 500px;
-    box-shadow: 0 9px 30px var(  --gray-light);}
+    max-height: 800px;
+    box-shadow: 0 9px 30px var(--gray-light);
+}
+
+.body.row {
+    display: grid;
+    grid-template-columns: 245px minmax(0, 1fr);
+    align-items: start;
+    gap: 20px;
+    padding: 0;
+}
+
+.body.row > .col-3 {
+    grid-column: auto;
+    width: auto;
+    min-width: 0;
+    max-height: none;
+    margin: 0;
+    padding: 0;
+    overflow: visible;
+    box-shadow: none;
+}
+
+.body.row > .col-9 {
+    grid-column: auto;
+    width: auto;
+    min-width: 0;
+    max-height: none;
+    margin: 0;
+    padding: clamp(18px, 3vw, 28px);
+    overflow: visible;
+    border: 1px solid #eee8e4;
+    border-radius: 18px;
+    background: #fff;
+    box-shadow: 0 8px 24px rgba(55, 43, 40, .06);
+}
+
+.body.row > .col-9 > .panel {
+    margin: 0;
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
+}
+
+.body.row > .col-9 > .panel + .panel {
+    margin-top: 26px;
+    padding-top: 24px;
+    border-top: 1px solid #eee8e4;
+}
+
 @media (max-width: 768px) {
-    .row > * { grid-column: span 12; }  /* điện thoại: mỗi khối 1 hàng */
+    .row > * {
+        grid-column: span 12;
+    }
+
+    .body.row {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .menu_function {
+        position: static;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 6px;
+        padding: 8px;
+    }
+
+    .funciton_item a {
+        padding: 10px 11px;
+        font-size: .88rem;
+    }
+
+    /* điện thoại: mỗi khối 1 hàng */
 }

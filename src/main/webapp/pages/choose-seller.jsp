@@ -24,7 +24,7 @@
       <h2>Yêu cầu của bạn</h2>
       <p><strong>Charm hình mèo bằng bạc</strong></p>
       <p>Số lượng: 1</p>
-      <p>Giá cơ sở dự kiến: 120.000 ₫</p>
+      <p>Giá cơ sở dự kiến: 120.000đ</p>
     </div>
 
     <div class="seller-list" id="quoteList">
@@ -47,9 +47,9 @@
           </div>
         </div>
         <div class="seller-quote">
-          <div class="quote-price">110.000 ₫</div>
+          <div class="quote-price">110.000đ</div>
           <button type="button" class="btn btn-primary btn-sm quote-choose-btn">Chọn thợ này</button>
-          <a href="chat-buyer.jsp" class="btn btn-outline btn-sm quote-chat-btn"
+          <a href="${pageContext.request.contextPath}/pages/chat-buyer?requestId=${param.requestId}" class="btn btn-outline btn-sm quote-chat-btn"
              style="text-decoration:none; display:inline-block; text-align:center; padding: 0.25rem 0.5rem; line-height: 1.5;">💬
             Nhắn tin với thợ</a>
         </div>
@@ -73,9 +73,9 @@
             phí.</div>
         </div>
         <div class="seller-quote">
-          <div class="quote-price">125.000 ₫</div>
+          <div class="quote-price">125.000đ</div>
           <button type="button" class="btn btn-primary btn-sm quote-choose-btn">Chọn thợ này</button>
-          <a href="chat-buyer.jsp" class="btn btn-outline btn-sm quote-chat-btn"
+          <a href="${pageContext.request.contextPath}/pages/chat-buyer?requestId=${param.requestId}" class="btn btn-outline btn-sm quote-chat-btn"
              style="text-decoration:none; display:inline-block; text-align:center; padding: 0.25rem 0.5rem; line-height: 1.5;">💬
             Nhắn tin với thợ</a>
         </div>
@@ -99,9 +99,9 @@
             mẫu qua chat.</div>
         </div>
         <div class="seller-quote">
-          <div class="quote-price">105.000 ₫</div>
+          <div class="quote-price">105.000đ</div>
           <button type="button" class="btn btn-primary btn-sm quote-choose-btn">Chọn thợ này</button>
-          <a href="chat-buyer.jsp" class="btn btn-outline btn-sm quote-chat-btn"
+          <a href="${pageContext.request.contextPath}/pages/chat-buyer?requestId=${param.requestId}" class="btn btn-outline btn-sm quote-chat-btn"
              style="text-decoration:none; display:inline-block; text-align:center; padding: 0.25rem 0.5rem; line-height: 1.5;">💬
             Nhắn tin với thợ</a>
         </div>
@@ -125,9 +125,9 @@
             cần.</div>
         </div>
         <div class="seller-quote">
-          <div class="quote-price">118.000 ₫</div>
+          <div class="quote-price">118.000đ</div>
           <button type="button" class="btn btn-primary btn-sm quote-choose-btn">Chọn thợ này</button>
-          <a href="chat-buyer.jsp" class="btn btn-outline btn-sm quote-chat-btn"
+          <a href="${pageContext.request.contextPath}/pages/chat-buyer?requestId=${param.requestId}" class="btn btn-outline btn-sm quote-chat-btn"
              style="text-decoration:none; display:inline-block; text-align:center; padding: 0.25rem 0.5rem; line-height: 1.5;">💬
             Nhắn tin với thợ</a>
         </div>
@@ -159,12 +159,13 @@
 
   <script src="../assets/js/choose-seller.js"></script>
   <script>
-    fetch('../components/header.html').then(response => response.text()).then(data => { let html = data.replace(/href="index\.html"/g, 'href="../index.jsp"'); document.getElementById('header-placeholder').innerHTML = html; }).catch(error => console.error('Error loading header:', error));
+    fetch('../components/header.html').then(response => response.text()).then(data => { document.getElementById('header-placeholder').innerHTML = data; }).catch(error => console.error('Error loading header:', error));
 
-    fetch('../components/footer.html').then(response => response.text()).then(data => { let html = data.replace(/href="index\.html"/g, 'href="../index.jsp"'); document.getElementById('footer-placeholder').innerHTML = html; }).catch(error => console.error('Error loading footer:', error));
+    fetch('../components/footer.html').then(response => response.text()).then(data => { document.getElementById('footer-placeholder').innerHTML = data; }).catch(error => console.error('Error loading footer:', error));
   </script>
 <script src="../assets/js/popup.js"></script>
   <script src="${pageContext.request.contextPath}/assets/js/auth.js"></script>
+  <script src="${pageContext.request.contextPath}/assets/js/site-shell.js"></script>
 
 </body>
 

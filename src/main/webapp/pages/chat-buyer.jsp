@@ -115,11 +115,12 @@
     <script src="../assets/js/custom-workflow.js"></script>
     <script src="../assets/js/custom-chat.js"></script>
     <script>
-        fetch('../components/header.html').then(response => response.text()).then(data => { let html = data.replace(/href="index\.html"/g, 'href="../index.jsp"'); document.getElementById('header-placeholder').innerHTML = html; }).catch(error => console.error('Error loading header:', error));
-        fetch('../components/footer.html').then(response => response.text()).then(data => { let html = data.replace(/href="index\.html"/g, 'href="../index.jsp"'); document.getElementById('footer-placeholder').innerHTML = html; }).catch(error => console.error('Error loading footer:', error));
+        fetch('../components/header.html').then(response => response.text()).then(data => { document.getElementById('header-placeholder').innerHTML = data; }).catch(error => console.error('Error loading header:', error));
+        fetch('../components/footer.html').then(response => response.text()).then(data => { document.getElementById('footer-placeholder').innerHTML = data; }).catch(error => console.error('Error loading footer:', error));
     </script>
 <script src="../assets/js/popup.js"></script>
     <script src="${pageContext.request.contextPath}/assets/js/auth.js"></script>
+    <script src="${pageContext.request.contextPath}/assets/js/site-shell.js"></script>
 
 </body>
 </html>

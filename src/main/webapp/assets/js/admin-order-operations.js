@@ -78,7 +78,7 @@ document.addEventListener("DOMContentLoaded", () => {
     product.textContent = order.productType;
     buyer.textContent = `Người mua: ${order.shippingName || order.buyerName} · ${order.buyerEmail}`;
     seller.textContent = `Thợ: ${order.sellerName} · ${order.sellerEmail}`;
-    payment.textContent = `Thanh toán: ${order.paymentStatus} · Giá trị: ${Number(order.price).toLocaleString("vi-VN")} đ`;
+    payment.textContent = `Thanh toán: ${order.paymentStatus} · Giá trị: ${Number(order.price).toLocaleString("vi-VN")}đ`;
     deadline.textContent = order.status === "pending_payment"
       ? `Hạn thanh toán: ${dateLabel(order.paymentDeadlineAt)}`
       : `Deadline: ${dateLabel(order.deadlineAt)} · Cam kết ${order.days} ngày`;
