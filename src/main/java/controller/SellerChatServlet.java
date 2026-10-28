@@ -16,8 +16,11 @@ import java.io.IOException;
 import java.sql.SQLException;
 import java.util.List;
 
-@WebServlet("/seller/chat")
+@WebServlet("/pages/seller/chat-seller")
 public class SellerChatServlet extends HttpServlet {
+
+    private static final String PAGE_PATH = "/pages/seller/chat-seller";             // URL servlet (không .jsp)
+    private static final String VIEW = "/pages/seller/chat-seller.jsp";              // JSP thật
 
     private final ChatDAO chatDAO = new ChatDAO();
     private final ShopDAO shopDAO = new ShopDAO();
@@ -31,7 +34,7 @@ public class SellerChatServlet extends HttpServlet {
             long buyerId = parseLong(req.getParameter("buyer"));
             if (buyerId > 0) {
                 long convId = chatDAO.findOrCreateConversation(shop.getId(), buyerId);
-                resp.sendRedirect(req.getContextPath() + "/seller/chat" + (convId > 0 ? "?c=" + convId : ""));
+                resp.sendRedirect(req.getContextPath() + PAGE_PATH + (convId > 0 ? "?c=" + convId : ""));
                 return;
             }
 
@@ -53,11 +56,14 @@ public class SellerChatServlet extends HttpServlet {
                 req.setAttribute("messages", messages);
             }
 
+            int unread = chatDAO.countUnread(shop.getId());
             req.setAttribute("shop", shop);
+            req.setAttribute("sellerTab", "chat");
             req.setAttribute("conversations", conversations);
             req.setAttribute("active", active);
-            req.setAttribute("unreadCount", chatDAO.countUnread(shop.getId()));
-            req.getRequestDispatcher("/pages/seller/chat-seller.jsp").forward(req, resp);
+            req.setAttribute("unreadCount", unread);
+            req.setAttribute("unreadMessages", unread);   // sidebar dùng tên này
+            req.getRequestDispatcher(VIEW).forward(req, resp);
         } catch (SQLException e) {
             throw new ServletException(e);
         }
@@ -80,7 +86,7 @@ public class SellerChatServlet extends HttpServlet {
         } catch (SQLException e) {
             throw new ServletException(e);
         }
-        resp.sendRedirect(req.getContextPath() + "/seller/chat?c=" + cid);   // PRG: tránh gửi lại khi F5
+        resp.sendRedirect(req.getContextPath() + PAGE_PATH + "?c=" + cid);   // PRG: tránh gửi lại khi F5
     }
 
     /** Lấy shop đang hoạt động của user đăng nhập; trả null (và đã redirect/báo lỗi) nếu không hợp lệ. */

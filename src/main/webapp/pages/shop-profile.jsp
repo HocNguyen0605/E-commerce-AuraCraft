@@ -32,6 +32,7 @@
         <span aria-current="page"><c:out value="${shop.name}"/></span>
     </nav>
 
+    <div class="shop-profile-content">
     <section class="shop-profile-hero">
         <div class="shop-avatar">
             <c:choose>
@@ -48,10 +49,34 @@
             <p class="shop-eyebrow"><i class="fa-solid fa-store" aria-hidden="true"></i> Gian hàng AuraCraft</p>
             <h1><c:out value="${shop.name}"/></h1>
             <div class="shop-profile-stats">
-                <span><i class="fa-solid fa-star" aria-hidden="true"></i> <fmt:formatNumber value="${shop.rating}" minFractionDigits="1" maxFractionDigits="1"/> / 5</span>
+                <span><i class="fa-solid fa-star" aria-hidden="true"></i> <fmt:formatNumber value="${shopRating}" minFractionDigits="1" maxFractionDigits="1"/> / 5 · ${shopReviewCount} đánh giá</span>
                 <span><i class="fa-solid fa-box" aria-hidden="true"></i> ${totalProducts} sản phẩm</span>
+                <span><i class="fa-solid fa-wand-magic-sparkles" aria-hidden="true"></i> ${successfulCustomOrders} đơn custom thành công</span>
             </div>
             <c:if test="${not empty shop.address}"><p class="shop-location"><i class="fa-solid fa-location-dot" aria-hidden="true"></i> <c:out value="${shop.address}"/></p></c:if>
+            <div class="shop-profile-actions" id="shop-actions">
+                <c:choose>
+                    <c:when test="${isBuyer}">
+                        <form method="post" action="${pageContext.request.contextPath}/shop-follow">
+                            <input type="hidden" name="shopId" value="${shop.id}">
+                            <input type="hidden" name="action" value="${shopFollowing ? 'unfollow' : 'follow'}">
+                            <button class="shop-action-button shop-follow-button ${shopFollowing ? 'is-following' : ''}" type="submit">
+                                <i class="${shopFollowing ? 'fa-solid fa-heart' : 'fa-regular fa-heart'}" aria-hidden="true"></i>
+                                ${shopFollowing ? 'Đang theo dõi' : 'Theo dõi xưởng'}
+                            </button>
+                        </form>
+                    </c:when>
+                    <c:otherwise>
+                        <a class="shop-action-button shop-follow-button" href="${pageContext.request.contextPath}/pages/login">
+                            <i class="fa-regular fa-heart" aria-hidden="true"></i> Theo dõi xưởng
+                        </a>
+                    </c:otherwise>
+                </c:choose>
+                <span class="shop-follower-count"><i class="fa-solid fa-users" aria-hidden="true"></i> ${shopFollowerCount} người theo dõi</span>
+                <a class="shop-action-button shop-chat-button" href="${pageContext.request.contextPath}/pages/chat-buyer?shopId=${shop.id}">
+                    <i class="fa-regular fa-comment-dots" aria-hidden="true"></i> Chat với thợ
+                </a>
+            </div>
         </div>
     </section>
 
@@ -101,6 +126,37 @@
             <c:otherwise><div class="shop-empty-products"><i class="fa-solid fa-box-open" aria-hidden="true"></i><p>Gian hàng chưa có sản phẩm đang bán.</p></div></c:otherwise>
         </c:choose>
     </section>
+
+    <section class="shop-reviews-section" id="shop-reviews">
+        <div class="shop-products-heading">
+            <div>
+                <h2>Đánh giá của khách</h2>
+                <p><i class="fa-solid fa-star" aria-hidden="true"></i> <fmt:formatNumber value="${shopRating}" minFractionDigits="1" maxFractionDigits="1"/> / 5 từ ${shopReviewCount} đánh giá sản phẩm</p>
+            </div>
+        </div>
+        <c:choose>
+            <c:when test="${not empty shopReviews}">
+                <div class="shop-review-list">
+                    <c:forEach var="review" items="${shopReviews}">
+                        <article class="shop-review-card">
+                            <div class="shop-review-head">
+                                <strong><c:out value="${review.reviewerName}"/></strong>
+                                <span class="shop-review-stars" aria-label="${review.rating} trên 5 sao">
+                                    <c:forEach begin="1" end="${review.rating}"><i class="fa-solid fa-star" aria-hidden="true"></i></c:forEach>
+                                    <span>${review.rating}/5</span>
+                                </span>
+                            </div>
+                            <p class="shop-review-product">Sản phẩm: <c:out value="${review.productName}"/></p>
+                            <p class="shop-review-comment"><c:choose><c:when test="${not empty review.comment}"><c:out value="${review.comment}"/></c:when><c:otherwise>Khách hàng chưa để lại nhận xét.</c:otherwise></c:choose></p>
+                            <time datetime="<fmt:formatDate value='${review.date}' pattern='yyyy-MM-dd'/>" class="shop-review-date"><fmt:formatDate value="${review.date}" pattern="dd/MM/yyyy"/></time>
+                        </article>
+                    </c:forEach>
+                </div>
+            </c:when>
+            <c:otherwise><div class="shop-empty-reviews"><i class="fa-regular fa-star" aria-hidden="true"></i><p>Shop chưa có đánh giá từ khách hàng.</p></div></c:otherwise>
+        </c:choose>
+    </section>
+    </div>
 </main>
 <div id="footer-placeholder"></div>
 <script>

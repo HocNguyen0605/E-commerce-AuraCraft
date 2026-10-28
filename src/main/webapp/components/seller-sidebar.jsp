@@ -1,82 +1,81 @@
 <%@ page contentType="text/html;charset=UTF-8" pageEncoding="UTF-8" %>
 <%@ taglib prefix="c" uri="jakarta.tags.core" %>
 <%@ taglib prefix="fn" uri="jakarta.tags.functions" %>
+<c:if test="${empty ctx}"><c:set var="ctx" value="${pageContext.request.contextPath}"/></c:if>
 
-<c:set var="ctx" value="${pageContext.request.contextPath}"/>
-
-<link rel="stylesheet"
-      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 <aside class="seller-sidebar">
 
-    <div class="seller-profile">
-
-        <c:choose>
-            <c:when test="${empty shop.avatar}">
-                <c:set var="shopImg"
-                       value="https://i.pravatar.cc/150?img=32"/>
-            </c:when>
-
-            <c:when test="${fn:startsWith(shop.avatar, 'http')}">
-                <c:set var="shopImg" value="${shop.avatar}"/>
-            </c:when>
-
-            <c:otherwise>
-                <c:set var="shopImg" value="${ctx}/${shop.avatar}"/>
-            </c:otherwise>
-        </c:choose>
-
-        <img src="<c:out value='${shopImg}'/>"
-             alt="Ảnh cửa hàng"
-             class="profile-img">
-
-        <h3>
-            <c:out value="${shop.name}" default="Cửa hàng của tôi"/>
-        </h3>
-
+    <%-- Thương hiệu, giống sidebar admin (CSS nằm trong styleSeller.css) --%>
+    <div class="seller-brand">
+        AuraCraft <small>Seller</small>
     </div>
+
+    <%-- Avatar + tên gian hàng (servlet phải setAttribute("shop", shop)) --%>
+    <c:if test="${not empty shop}">
+        <div class="seller-shop">
+            <c:choose>
+                <c:when test="${not empty shop.avatar}">
+                    <img class="seller-shop-avt" src="${ctx}/<c:out value='${shop.avatar}'/>" alt="Avatar shop">
+                </c:when>
+                <c:otherwise>
+                    <div class="seller-shop-avt placeholder">
+                        <c:out value="${fn:toUpperCase(fn:substring(shop.name, 0, 1))}"/>
+                    </div>
+                </c:otherwise>
+            </c:choose>
+            <div class="seller-shop-info">
+                <strong><c:out value="${shop.name}"/></strong>
+                <span>Kênh người bán</span>
+            </div>
+        </div>
+    </c:if>
 
     <nav class="seller-nav">
 
-        <a href="${ctx}/pages/seller/seller-dashboard.jsp"
+        <a href="${ctx}/pages/seller/seller-dashboard"
            class="${sellerTab eq 'dashboard' ? 'active' : ''}">
             <i class="bi bi-pie-chart-fill"></i>
-            Tổng quan Doanh thu
+            <span>Tổng quan Doanh thu</span>
         </a>
 
-        <a href="${ctx}/seller/products"
+        <a href="${ctx}/pages/seller/seller-products"
            class="${sellerTab eq 'products' ? 'active' : ''}">
             <i class="bi bi-box-seam-fill"></i>
-            Quản lý Sản phẩm
+            <span>Quản lý Sản phẩm</span>
         </a>
 
-        <a href="${ctx}/seller/chat"
+        <a href="${ctx}/pages/seller/chat-seller"
            class="${sellerTab eq 'chat' ? 'active' : ''}">
             <i class="bi bi-chat-dots-fill"></i>
-            Tin nhắn
-
+            <span>Tin nhắn</span>
             <c:if test="${not empty unreadMessages and unreadMessages > 0}">
-                <span class="noti-count">
-                    <c:out value="${unreadMessages}"/>
-                </span>
+                <span class="noti-count"><c:out value="${unreadMessages}"/></span>
             </c:if>
         </a>
 
-        <a href="${ctx}/seller/orders"
+        <a href="${ctx}/pages/seller/order-management"
            class="${sellerTab eq 'orders' ? 'active' : ''}">
             <i class="bi bi-card-list"></i>
-            Quản lý Đơn hàng
+            <span>Quản lý Đơn hàng</span>
         </a>
 
-        <a href="${ctx}/seller/custom"
+        <a href="${ctx}/pages/seller/seller-custom"
            class="${sellerTab eq 'custom' ? 'active' : ''}">
             <i class="bi bi-shop"></i>
-            Chợ Custom &amp; Báo giá
+            <span>Chợ Custom &amp; Báo giá</span>
         </a>
 
-        <a href="${ctx}/seller/settings"
+        <a href="${ctx}/pages/seller/seller-settings"
            class="${sellerTab eq 'settings' ? 'active' : ''}">
             <i class="bi bi-gear-fill"></i>
-            Cài đặt
+            <span>Cài đặt</span>
+        </a>
+
+        <div class="seller-nav-divider"></div>
+
+        <a href="${ctx}/pages/seller/seller-settings?action=logout" class="logout">
+            <i class="bi bi-box-arrow-right"></i>
+            <span>Đăng xuất</span>
         </a>
 
     </nav>

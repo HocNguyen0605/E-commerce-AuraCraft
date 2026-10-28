@@ -23,7 +23,6 @@
     <link rel="stylesheet" href="${ctx}/assets/css/pages/styleSeller.css">
 </head>
 <body>
-<jsp:include page="/components/header.html"/>
 
 <main class="seller-layout container">
     <c:set var="sellerTab" value="settings" scope="request"/>
@@ -38,7 +37,7 @@
         </div>
 
         <div class="dashboard-section">
-            <form method="post" action="${ctx}/seller/settings" enctype="multipart/form-data" id="settingsForm">
+            <form method="post" action="${ctx}/pages/seller/seller-settings" enctype="multipart/form-data" id="settingsForm">
                 <div class="settings-grid">
 
                     <!-- Ảnh đại diện + thông tin chỉ đọc -->
@@ -105,24 +104,11 @@
 
                         <div class="form-actions">
                             <button type="submit" class="btn btn-primary"><i class="fa-solid fa-floppy-disk"></i> Lưu thay đổi</button>
-                            <a href="${ctx}/seller/settings" class="btn btn-outline">Hủy</a>
+                            <a href="${ctx}/pages/seller/seller-settings" class="btn btn-outline">Hủy</a>
                         </div>
                     </div>
                 </div>
             </form>
-        </div>
-
-        <!-- Tài khoản: đăng xuất -->
-        <div class="dashboard-section account-section">
-            <div class="account-row">
-                <div>
-                    <h3>Tài khoản</h3>
-                    <p>Đăng xuất khỏi tài khoản người bán trên thiết bị này.</p>
-                </div>
-                <a href="${ctx}/seller/settings?action=logout" class="btn-logout" id="logoutBtn">
-                    <i class="fa-solid fa-right-from-bracket"></i> Đăng xuất
-                </a>
-            </div>
         </div>
     </section>
 </main>
@@ -145,11 +131,6 @@
     var desc = document.getElementById('shopDesc'), cnt = document.getElementById('descCount');
     function upd() { cnt.textContent = desc.value.length; }
     desc.addEventListener('input', upd); upd();
-
-    // Xác nhận trước khi đăng xuất
-    document.getElementById('logoutBtn').addEventListener('click', function (e) {
-        if (!confirm('Bạn có chắc muốn đăng xuất?')) e.preventDefault();
-    });
 </script>
 <script src="${ctx}/assets/js/popup.js"></script>
 <script src="${ctx}/assets/js/auth.js"></script>

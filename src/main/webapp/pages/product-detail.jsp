@@ -192,11 +192,11 @@
                 <div class="pd-review-carousel">
                     <button class="review-nav prev" type="button" aria-label="Xem đánh giá trước">‹</button>
                     <div class="review-grid" id="reviewGrid">
-                    <c:forEach items="${reviews}" var="review">
-                        <article class="review-card card">
-                            <div class="review-head"><strong>
-                                <c:out value="${review.reviewerName}"/>
-                            </strong><span class="review-stars">
+                        <c:forEach items="${reviews}" var="review">
+                            <article class="review-card card">
+                                <div class="review-head"><strong>
+                                    <c:out value="${review.reviewerName}"/>
+                                </strong><span class="review-stars">
                                         <c:forEach begin="1" end="5" var="star">
                                             <c:choose>
                                                 <c:when test="${star le review.rating}">★</c:when>
@@ -204,13 +204,13 @@
                                             </c:choose>
                                         </c:forEach>
                                     </span></div>
-                            <p>
-                                <c:out value="${review.comment}"/>
-                            </p><small>
-                            <fmt:formatDate value="${review.date}" pattern="dd/MM/yyyy"/>
-                        </small>
-                        </article>
-                    </c:forEach>
+                                <p>
+                                    <c:out value="${review.comment}"/>
+                                </p><small>
+                                <fmt:formatDate value="${review.date}" pattern="dd/MM/yyyy"/>
+                            </small>
+                            </article>
+                        </c:forEach>
                     </div>
                     <button class="review-nav next" type="button" aria-label="Xem đánh giá tiếp theo">›</button>
                 </div>
@@ -236,38 +236,38 @@
     <section class="pd-shop-suggestions" id="pdShopSuggestions">
         <h2 class="section-title">Sản phẩm cùng danh mục</h2>
         <div class="similar-carousel">
-        <button class="review-nav prev" type="button" aria-label="Xem sản phẩm trước" data-carousel="similarGrid">‹</button>
-        <div class="shop-suggest-grid" id="similarGrid">
-            <c:choose>
-                <c:when test="${not empty similarProducts}">
-                    <c:forEach items="${similarProducts}" var="similar"><article class="similar-product-card"><a class="shop-suggest-item"
-                                                                           href="${pageContext.request.contextPath}/pages/product-detail?id=${similar.id}">
-                        <c:choose>
-                            <c:when test="${not empty similar.image}">
-                                <div class="shop-suggest-img"
-                                     style="background-image:url('${similar.image}')">
-                                </div>
-                            </c:when>
-                            <c:otherwise>
-                                <div class="shop-suggest-img">AuraCraft</div>
-                            </c:otherwise>
-                        </c:choose>
-                        <div class="shop-suggest-body"><strong>
-                            <c:out value="${similar.name}"/>
-                        </strong><span class="shop-suggest-price">
+            <button class="review-nav prev" type="button" aria-label="Xem sản phẩm trước" data-carousel="similarGrid">‹</button>
+            <div class="shop-suggest-grid" id="similarGrid">
+                <c:choose>
+                    <c:when test="${not empty similarProducts}">
+                        <c:forEach items="${similarProducts}" var="similar"><article class="similar-product-card"><a class="shop-suggest-item"
+                                                                                                                     href="${pageContext.request.contextPath}/pages/product-detail?id=${similar.id}">
+                            <c:choose>
+                                <c:when test="${not empty similar.image}">
+                                    <div class="shop-suggest-img"
+                                         style="background-image:url('${similar.image}')">
+                                    </div>
+                                </c:when>
+                                <c:otherwise>
+                                    <div class="shop-suggest-img">AuraCraft</div>
+                                </c:otherwise>
+                            </c:choose>
+                            <div class="shop-suggest-body"><strong>
+                                <c:out value="${similar.name}"/>
+                            </strong><span class="shop-suggest-price">
                                         <fmt:formatNumber value="${similar.price}" type="number" groupingUsed="true"/>đ
                                     </span><span class="shop-suggest-rating">★
                                         <fmt:formatNumber value="${similar.rating}" maxFractionDigits="1"/>
                                         · Đã bán ${similar.soldCount}
                                     </span></div>
-                    </a><button type="button" class="btn btn-outline similar-add-cart" data-id="${similar.id}" data-name="<c:out value='${similar.name}'/>" data-price="${similar.price}" data-stock="${similar.stock}" data-category="<c:out value='${similar.categoryName}'/>" data-shop="<c:out value='${similar.shopName}'/>">Thêm giỏ hàng</button></article></c:forEach>
-                </c:when>
-                <c:otherwise>
-                    <p class="pd-empty">Chưa có sản phẩm tương tự.</p>
-                </c:otherwise>
-            </c:choose>
-        </div>
-        <button class="review-nav next" type="button" aria-label="Xem sản phẩm tiếp theo" data-carousel="similarGrid">›</button>
+                        </a><button type="button" class="btn btn-outline similar-add-cart" data-id="${similar.id}" data-name="<c:out value='${similar.name}'/>" data-price="${similar.price}" data-stock="${similar.stock}" data-category="<c:out value='${similar.categoryName}'/>" data-shop="<c:out value='${similar.shopName}'/>">Thêm giỏ hàng</button></article></c:forEach>
+                    </c:when>
+                    <c:otherwise>
+                        <p class="pd-empty">Chưa có sản phẩm tương tự.</p>
+                    </c:otherwise>
+                </c:choose>
+            </div>
+            <button class="review-nav next" type="button" aria-label="Xem sản phẩm tiếp theo" data-carousel="similarGrid">›</button>
         </div>
     </section>
 </main>
@@ -326,12 +326,12 @@
                 amountAdded = result.quantityAdded;
             } catch (error) { window.alert(error.message); return; }
         } else {
-        const cart = JSON.parse(localStorage.getItem('AuraCraftCart') || '[]');
-        const item = cart.find(x => String(x.id) === productId);
-        if (item) { item.quantity = Math.min(stock, item.quantity + amount); item.selected = true; } else cart.push({
-            ...cartItem
-        });
-        localStorage.setItem('AuraCraftCart', JSON.stringify(cart));
+            const cart = JSON.parse(localStorage.getItem('AuraCraftCart') || '[]');
+            const item = cart.find(x => String(x.id) === productId);
+            if (item) { item.quantity = Math.min(stock, item.quantity + amount); item.selected = true; } else cart.push({
+                ...cartItem
+            });
+            localStorage.setItem('AuraCraftCart', JSON.stringify(cart));
         }
         window.dispatchEvent(new Event('auracraft:cart-updated'));
         if (goCheckout) {

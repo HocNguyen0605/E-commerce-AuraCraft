@@ -16,6 +16,16 @@
     <link rel="stylesheet" href="${ctx}/assets/css/pages/profile.css">
     <link rel="stylesheet" href="${ctx}/assets/css/pages/profile-content.css">
     <style>
+        .profile-orders-panel > .order-filter-panel {
+            max-height: none;
+            margin: 0 0 12px;
+            padding: 0 0 12px;
+            overflow-x: auto;
+            overflow-y: visible;
+            border-bottom: 1px solid #eee8e4;
+            box-shadow: none;
+        }
+
         .order-card {
             font-size: 16px;
             padding: 16px;
@@ -241,8 +251,8 @@
                 </ul>
             </div>
             <!--Màn hình hiển thị thông tin -->
-            <div class="col-9 over_content">
-                <div class="col-12 over_content">
+            <div class="col-9 over_content profile-orders-panel">
+                <div class="col-12 over_content order-filter-panel">
                     <ul class="menu">
                         <li class="btn-primary filter active" data-filter="all">All</li>
                         <li class="btn-primary filter" data-filter="quote">Báo giá</li>

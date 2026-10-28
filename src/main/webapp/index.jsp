@@ -47,6 +47,8 @@
     <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/style.css">
     <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/header-footer.css">
     <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/pages/styleIndex.css">
+<%--    <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/pages/message.css">--%>
+
 </head>
 <body>
 <div id="header-placeholder"></div>
@@ -273,5 +275,6 @@
 <script src="${pageContext.request.contextPath}/assets/js/auth.js"></script>
 <script src="${pageContext.request.contextPath}/assets/js/site-shell.js"></script>
 <script src="${pageContext.request.contextPath}/assets/js/chatbot.js"></script>
+<script src="${pageContext.request.contextPath}/assets/js/message.js"></script>
 </body>
 </html>

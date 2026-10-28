@@ -14,13 +14,23 @@ import jakarta.servlet.http.HttpSession;
 import util.Flash;
 
 import java.io.IOException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 
-// Map cả URL chuẩn và URL mà trang login đang chuyển tới (không có đuôi .jsp)
-@WebServlet({"/seller/dashboard", "/pages/seller/seller-dashboard"})
+@WebServlet("/pages/seller/seller-dashboard")
 public class SellerDashboardServlet extends HttpServlet {
-    private static final String DASHBOARD_URL = "/seller/dashboard";
-    private static final String DASHBOARD_VIEW = "/pages/seller/seller-dashboard.jsp";
+    private static final String PAGE_PATH = "/pages/seller/seller-dashboard";        // URL servlet (không .jsp)
+    private static final String DASHBOARD_VIEW = "/pages/seller/seller-dashboard.jsp"; // JSP thật
+
+    private static final int MAX_RANGE_DAYS = 366;   // giới hạn khoảng xem biểu đồ
+    private static final int DAILY_LIMIT_DAYS = 31;  // > 31 ngày thì gộp theo tháng
+    private static final int TOP_LIMIT = 5;
+    private static final int LEDGER_PAGE_SIZE = 10;
 
     private final SellerStatsDAO stats = new SellerStatsDAO();
     private final WithdrawalDAO withdrawalDAO = new WithdrawalDAO();
@@ -31,18 +41,97 @@ public class SellerDashboardServlet extends HttpServlet {
         ShopDTO shop = getShop(req, resp);
         if (shop == null) return;
         Flash.transfer(req);
+        req.setAttribute("shop", shop);
+        req.setAttribute("sellerTab", "dashboard");
+
+        // ---------- Bộ lọc khoảng ngày (biểu đồ + chỉ số + sản phẩm bán chạy) ----------
+        LocalDate to = parseDate(req.getParameter("to"), LocalDate.now());
+        LocalDate from = parseDate(req.getParameter("from"), to.minusDays(6));   // mặc định 7 ngày gần nhất
+        if (from.isAfter(to)) { LocalDate tmp = from; from = to; to = tmp; }
+        if (ChronoUnit.DAYS.between(from, to) + 1 > MAX_RANGE_DAYS) {
+            from = to.minusDays(MAX_RANGE_DAYS - 1);
+            req.setAttribute("rangeNote", "Chỉ xem được tối đa " + MAX_RANGE_DAYS + " ngày mỗi lần, đã tự điều chỉnh ngày bắt đầu.");
+        }
+        long days = ChronoUnit.DAYS.between(from, to) + 1;
+        String sort = "revenue".equals(req.getParameter("sort")) ? "revenue" : "qty";
+
+        // ---------- Bộ lọc lịch sử giao dịch ----------
+        LocalDate lFrom = parseDate(req.getParameter("lfrom"), null);
+        LocalDate lTo = parseDate(req.getParameter("lto"), null);
+        if (lFrom != null && lTo != null && lFrom.isAfter(lTo)) { LocalDate tmp = lFrom; lFrom = lTo; lTo = tmp; }
+        String lType = oneOf(req.getParameter("ltype"), "sale", "withdraw");
+        String lStatus = oneOf(req.getParameter("lstatus"), "success", "pending", "failed");
+        String lq = req.getParameter("lq") == null ? "" : req.getParameter("lq").trim();
+        if (lq.length() > 50) lq = lq.substring(0, 50);
+        int page = parseInt(req.getParameter("page"), 1);
+
+        DateTimeFormatter vn = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+        req.setAttribute("fromDate", from.toString());
+        req.setAttribute("toDate", to.toString());
+        req.setAttribute("fromLabel", from.format(vn));
+        req.setAttribute("toLabel", to.format(vn));
+        req.setAttribute("sort", sort);
+        req.setAttribute("lfrom", lFrom == null ? "" : lFrom.toString());
+        req.setAttribute("lto", lTo == null ? "" : lTo.toString());
+        req.setAttribute("ltype", lType);
+        req.setAttribute("lstatus", lStatus);
+        req.setAttribute("lq", lq);
+
+        // Query string dùng cho liên kết phân trang / nút "Xóa lọc"
+        StringBuilder range = new StringBuilder();
+        add(range, "from", from.toString());
+        add(range, "to", to.toString());
+        add(range, "sort", sort);
+        StringBuilder all = new StringBuilder(range);
+        add(all, "lfrom", lFrom == null ? "" : lFrom.toString());
+        add(all, "lto", lTo == null ? "" : lTo.toString());
+        add(all, "ltype", lType);
+        add(all, "lstatus", lStatus);
+        add(all, "lq", lq);
+        req.setAttribute("rangeQuery", range.toString());
+        req.setAttribute("ledgerBase", all.toString());
+
         try {
-            List<DailyRevenueDTO> chart = stats.last7Days(shop.getId());
-            long max = 1;
-            for (DailyRevenueDTO d : chart) max = Math.max(max, d.getAmount());
-            req.setAttribute("shop", shop);
+            // Thẻ thống kê
             req.setAttribute("balance", stats.availableBalance(shop.getId()));
             req.setAttribute("revenueMonth", stats.revenueThisMonth(shop.getId()));
             req.setAttribute("pendingOrders", stats.pendingOrders(shop.getId()));
+            req.setAttribute("pendingWithdraw", stats.pendingWithdrawAmount(shop.getId()));
+
+            // Chỉ số + so sánh với kỳ trước có cùng độ dài
+            long revenue = stats.revenueBetween(shop.getId(), from, to);
+            int orders = stats.orderCountBetween(shop.getId(), from, to);
+            LocalDate prevTo = from.minusDays(1);
+            LocalDate prevFrom = prevTo.minusDays(days - 1);
+            long prevRevenue = stats.revenueBetween(shop.getId(), prevFrom, prevTo);
+            req.setAttribute("rangeRevenue", revenue);
+            req.setAttribute("rangeOrders", orders);
+            req.setAttribute("rangeAvg", orders == 0 ? 0 : revenue / orders);
+            if (prevRevenue > 0) req.setAttribute("revenueGrowth", (revenue - prevRevenue) * 100.0 / prevRevenue);
+            req.setAttribute("prevLabel", prevFrom.format(vn) + " – " + prevTo.format(vn));
+
+            // Biểu đồ
+            boolean monthly = days > DAILY_LIMIT_DAYS;
+            List<DailyRevenueDTO> chart = stats.revenueByRange(shop.getId(), from, to, monthly);
             req.setAttribute("chart", chart);
-            req.setAttribute("chartMax", max);
-            req.setAttribute("ledger", stats.ledger(shop.getId(), 10));
+            req.setAttribute("monthly", monthly);
+
+            // Sản phẩm bán chạy
+            req.setAttribute("topProducts", stats.topProducts(shop.getId(), from, to, sort, TOP_LIMIT));
+
+            // Lịch sử giao dịch
+            SellerStatsDAO.LedgerPage lp = stats.ledger(shop.getId(), lFrom, lTo, lType, lStatus, lq, page, LEDGER_PAGE_SIZE);
+            int pages = Math.max(1, (int) Math.ceil(lp.total / (double) LEDGER_PAGE_SIZE));
+            if (page > pages) {  // trang vượt quá → lấy lại trang cuối
+                page = pages;
+                lp = stats.ledger(shop.getId(), lFrom, lTo, lType, lStatus, lq, page, LEDGER_PAGE_SIZE);
+            }
+            req.setAttribute("ledger", lp.items);
+            req.setAttribute("ledgerTotal", lp.total);
+            req.setAttribute("ledgerPage", Math.max(page, 1));
+            req.setAttribute("ledgerPages", pages);
         } catch (Exception e) {
+            e.printStackTrace();
             req.setAttribute("error", "Không tải được số liệu: " + e.getMessage());
         }
         req.getRequestDispatcher(DASHBOARD_VIEW).forward(req, resp);
@@ -86,7 +175,7 @@ public class SellerDashboardServlet extends HttpServlet {
             e.printStackTrace();
         }
 
-        resp.sendRedirect(req.getContextPath() + DASHBOARD_URL);
+        resp.sendRedirect(req.getContextPath() + PAGE_PATH);   // PRG
     }
 
     /** Lấy shop đang hoạt động của user đăng nhập; trả null (và đã redirect/báo lỗi) nếu không hợp lệ. */
@@ -110,5 +199,28 @@ public class SellerDashboardServlet extends HttpServlet {
         }
     }
 
+    // ---------- helpers ----------
+
     private static boolean isBlank(String s) { return s == null || s.trim().isEmpty(); }
+
+    private static LocalDate parseDate(String s, LocalDate def) {
+        if (s == null || s.isBlank()) return def;
+        try { return LocalDate.parse(s.trim()); } catch (DateTimeParseException e) { return def; }
+    }
+
+    private static int parseInt(String s, int def) {
+        try { return Integer.parseInt(s.trim()); } catch (Exception e) { return def; }
+    }
+
+    /** Trả về s nếu nằm trong danh sách cho phép, ngược lại trả chuỗi rỗng. */
+    private static String oneOf(String s, String... allowed) {
+        if (s != null) for (String a : allowed) if (a.equals(s)) return s;
+        return "";
+    }
+
+    private static void add(StringBuilder sb, String key, String value) {
+        if (value == null || value.isEmpty()) return;
+        if (sb.length() > 0) sb.append('&');
+        sb.append(key).append('=').append(URLEncoder.encode(value, StandardCharsets.UTF_8));
+    }
 }

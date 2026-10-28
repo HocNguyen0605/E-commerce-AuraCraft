@@ -13,9 +13,12 @@
 }
 
 .panel {
-    padding: 16px;
-    margin-bottom: 16px;
-    background-color: var(--white);
+    padding: clamp(18px, 3vw, 28px);
+    margin: 0 0 16px;
+    border: 1px solid #eee8e4;
+    border-radius: 18px;
+    background: #fff;
+    box-shadow: 0 8px 24px rgba(55, 43, 40, .06);
 }
 
 .panel-title {

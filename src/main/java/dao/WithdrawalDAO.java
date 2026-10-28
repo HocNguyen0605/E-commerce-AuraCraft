@@ -1,12 +1,14 @@
 package dao;
 
-import dto.*;
+import dto.Withdrawal;
 import util.DBConnection;
 
-import java.sql.*;
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
-import java.util.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class WithdrawalDAO {
     private final SellerStatsDAO stats = new SellerStatsDAO();

@@ -16,12 +16,14 @@ import java.sql.SQLException;
 import java.util.UUID;
 
 /** Cài đặt shop của seller: sửa tên, liên hệ, địa chỉ, mô tả, ảnh đại diện. */
-@WebServlet("/seller/settings")
+@WebServlet("/pages/seller/seller-settings")
 @MultipartConfig(maxFileSize = 2 * 1024 * 1024, maxRequestSize = 3 * 1024 * 1024)
 public class SellerSettingsServlet extends HttpServlet {
 
     private static final String UPLOAD_DIR = "uploads/shops";     // lưu trong webapp, DB lưu "uploads/shops/xxx.jpg"
     private static final String LOGIN_PAGE = "/pages/login";
+    private static final String PAGE_PATH = "/pages/seller/seller-settings";       // URL của servlet (không .jsp)
+    private static final String VIEW = "/pages/seller/seller-settings.jsp";        // file JSP thật
     private static final String PHONE_RE = "^(0|\\+84)\\d{8,10}$";
     private static final String EMAIL_RE = "^[\\w.+-]+@[\\w-]+(\\.[\\w-]+)+$";
 
@@ -29,7 +31,7 @@ public class SellerSettingsServlet extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        // Đăng xuất: /seller/settings?action=logout → huỷ session, về trang login
+        // Đăng xuất: /pages/seller/seller-settings?action=logout → huỷ session, về trang login
         if ("logout".equals(req.getParameter("action"))) {
             logout(req, resp);
             return;
@@ -38,7 +40,8 @@ public class SellerSettingsServlet extends HttpServlet {
         if (shop == null) return;
         Flash.transfer(req);
         req.setAttribute("shop", shop);
-        req.getRequestDispatcher("/pages/seller/seller-settings.jsp").forward(req, resp);
+        req.setAttribute("sellerTab", "settings");
+        req.getRequestDispatcher(VIEW).forward(req, resp);
     }
 
     @Override
@@ -98,7 +101,7 @@ public class SellerSettingsServlet extends HttpServlet {
                 if (ok) {
                     if (newAvatar != null) deleteOldAvatar(oldAvatar);
                     Flash.success(req, "Đã lưu cài đặt shop.");
-                    resp.sendRedirect(req.getContextPath() + "/seller/settings");   // PRG
+                    resp.sendRedirect(req.getContextPath() + PAGE_PATH);   // PRG
                     return;
                 }
                 error = "Không lưu được: shop không còn hoạt động.";
@@ -111,7 +114,8 @@ public class SellerSettingsServlet extends HttpServlet {
         if (saved != null) saved.delete();       // lỗi thì bỏ file vừa tải lên
         req.setAttribute("error", error);
         req.setAttribute("shop", shop);
-        req.getRequestDispatcher("/pages/seller/seller-settings.jsp").forward(req, resp);
+        req.setAttribute("sellerTab", "settings");
+        req.getRequestDispatcher(VIEW).forward(req, resp);
     }
 
     /** Huỷ session và chuyển về trang login. */

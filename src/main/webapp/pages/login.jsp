@@ -70,7 +70,6 @@
                             <input type="password" id="password" name="password" placeholder="••••••••" required>
                             <button type="button" class="btn-toggle-pass" onclick="togglePass('password', this)"
                                     aria-label="Hiện/ẩn mật khẩu">
-                                <i class="fa-regular fa-eye"></i>
                             </button>
                         </div>
                         <span class="error-msg" id="passError">Mật khẩu phải từ 6 ký tự trở lên.</span>
@@ -123,9 +122,24 @@
     function redirectByRole(roleValue) {
         var base = (typeof CTX !== 'undefined' ? CTX : ctxPath);
         var role = String(roleValue || '').toLowerCase();
+        if (role === 'buyer') {
+            try {
+                var pending = sessionStorage.getItem('AuraCraftAfterLogin');
+                if (pending) {
+                    var target = new URL(pending, window.location.origin);
+                    if (target.origin === window.location.origin && target.pathname.indexOf(base + '/pages/') === 0) {
+                        sessionStorage.removeItem('AuraCraftAfterLogin');
+                        window.location.href = target.href;
+                        return;
+                    }
+                    sessionStorage.removeItem('AuraCraftAfterLogin');
+                }
+            } catch (_) { }
+        }
         var routes = {
             admin:  '/pages/admin/admin-users.jsp',
-            seller: '/pages/seller/seller-dashboard.jsp'
+            // seller: '/pages/seller/seller-dashboard.jsp'
+            seller: '/pages/seller/seller-dashboard'
         };
         location.href = base + (routes[role] || '/pages/home');
     }

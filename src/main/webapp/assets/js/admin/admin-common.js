@@ -7,7 +7,7 @@ document.addEventListener("DOMContentLoaded", function() {
             .then(response => response.text())
             .then(data => {
                 sidebarPlaceholder.outerHTML = data;
-                
+
                 // Cập nhật trạng thái active cho menu dựa trên URL hiện tại
                 setTimeout(() => {
                     const currentPage = window.location.pathname.split('/').pop();
@@ -57,7 +57,7 @@ document.addEventListener('click', e => {
     const home = e.target.closest('[data-home]');
     if (home) {
         e.preventDefault();
-        location.href = window.CTX + '/pages/admin/admin-orders.jsp';
+        location.href = window.CTX + '/pages/home';
         return;
     }
     const out = e.target.closest('[data-logout]');

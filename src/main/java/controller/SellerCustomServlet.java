@@ -15,8 +15,11 @@ import java.io.IOException;
 import java.sql.SQLException;
 
 /** Chợ Custom & Báo giá của seller: xem yêu cầu đang mở, gửi/sửa/rút báo giá. */
-@WebServlet("/seller/custom")
+@WebServlet("/pages/seller/seller-custom")
 public class SellerCustomServlet extends HttpServlet {
+
+    private static final String PAGE_PATH = "/pages/seller/seller-custom";           // URL servlet (không .jsp)
+    private static final String VIEW = "/pages/seller/buyer-requests.jsp";           // JSP thật
 
     private static final int PAGE_SIZE = 8;
     private static final int MAX_DAYS = 15;                       // quy định của sàn
@@ -35,12 +38,16 @@ public class SellerCustomServlet extends HttpServlet {
         String tab = "mine".equals(req.getParameter("tab")) ? "mine" : "open";
         try {
             req.setAttribute("shop", shop);
+            req.setAttribute("sellerTab", "custom");
             req.setAttribute("tab", tab);
             req.setAttribute("pendingQuotes", dao.countPendingQuotes(shop.getId()));
 
-            if ("mine".equals(tab)) {
-                req.setAttribute("myQuotes", dao.findQuotesByShop(shop.getId()));
-            } else {
+            // Dùng chung cho hàng thống kê, cột "Báo giá gần đây" và tab "Báo giá của tôi"
+            req.setAttribute("myQuotes", dao.findQuotesByShop(shop.getId()));
+            // Tổng số yêu cầu đang mở (không áp dụng từ khóa tìm kiếm)
+            req.setAttribute("openTotal", dao.countOpenRequests(shop.getId(), shop.getOwnerId(), null));
+
+            if (!"mine".equals(tab)) {
                 String q = req.getParameter("q");
                 int page = Math.max(1, parseInt(req.getParameter("page")));
                 int total = dao.countOpenRequests(shop.getId(), shop.getOwnerId(), q);
@@ -52,7 +59,7 @@ public class SellerCustomServlet extends HttpServlet {
         } catch (SQLException e) {
             throw new ServletException(e);
         }
-        req.getRequestDispatcher("/pages/seller/buyer-requests.jsp").forward(req, resp);
+        req.getRequestDispatcher(VIEW).forward(req, resp);
     }
 
     @Override
@@ -62,7 +69,7 @@ public class SellerCustomServlet extends HttpServlet {
         if (shop == null) return;
 
         String action = req.getParameter("action");
-        String back = req.getContextPath() + "/seller/custom";
+        String back = req.getContextPath() + PAGE_PATH;
 
         try {
             if ("quote".equals(action)) {

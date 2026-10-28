@@ -20,7 +20,6 @@
     <link rel="stylesheet" href="${ctx}/assets/css/pages/styleSeller.css">
 </head>
 <body>
-<jsp:include page="/components/header.html"/>
 
 <main class="seller-layout container">
     <%@ include file="/components/seller-sidebar.jsp" %>
@@ -31,7 +30,7 @@
             <!-- Danh sách hội thoại -->
             <aside class="chat-sidebar" style="border-right: 1px solid var(--gray-light);">
                 <div class="chat-search">
-                    <form action="${ctx}/seller/chat" method="GET">
+                    <form action="${ctx}/pages/seller/chat-seller" method="GET">
                         <i class="bi bi-search"></i>
                         <input type="text" name="q" value="<c:out value='${param.q}'/>" placeholder="Tìm tên khách hàng...">
                     </form>
@@ -44,7 +43,7 @@
                             <c:otherwise><c:set var="cvImg" value="${ctx}/${cv.buyerAvatar}"/></c:otherwise>
                         </c:choose>
                         <li class="chat-item ${not empty active and active.id == cv.id ? 'active' : ''}"
-                            onclick="location.href='${ctx}/seller/chat?c=${cv.id}'">
+                            onclick="location.href='${ctx}/pages/seller/chat-seller?c=${cv.id}'">
                             <img src="${cvImg}" alt="Avatar" class="avatar">
                             <div class="chat-info">
                                 <h4><c:out value="${cv.buyerName}"/></h4>
@@ -98,7 +97,7 @@
                             </c:if>
                         </div>
 
-                        <form action="${ctx}/seller/chat" method="POST" class="chat-input-area">
+                        <form action="${ctx}/pages/seller/chat-seller" method="POST" class="chat-input-area">
                             <input type="hidden" name="action" value="send">
                             <input type="hidden" name="conversationId" value="${active.id}">
                             <button type="button" class="icon-btn-ghost"><i class="bi bi-paperclip"></i></button>

@@ -1,13 +1,17 @@
 package controller;
 
+import dao.CustomMarketDAO;
 import dao.ProductDAO;
 import dao.ShopDAO;
+import dao.ShopFollowDAO;
 import dto.ShopDTO;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
+import util.Flash;
 
 import java.io.IOException;
 import java.sql.SQLException;
@@ -16,6 +20,7 @@ import java.sql.SQLException;
 public class ShopProfileServlet extends HttpServlet {
     private static final int PAGE_SIZE = 12;
     private final ShopDAO shopDAO = new ShopDAO();
+    private final ShopFollowDAO followDAO = new ShopFollowDAO();
     private final ProductDAO productDAO = new ProductDAO();
 
     @Override
@@ -38,6 +43,15 @@ public class ShopProfileServlet extends HttpServlet {
             }
 
             int totalProducts = productDAO.countActiveProductsByShop(shopId);
+            java.util.Map<String, Object> reviewSummary = shopDAO.getShopReviewSummary(shopId);
+            HttpSession session = request.getSession(false);
+            Object sessionUserId = session == null ? null : session.getAttribute("userId");
+            Object sessionRole = session == null ? null : session.getAttribute("role");
+            boolean isBuyer = sessionUserId instanceof Number && sessionRole != null
+                    && "buyer".equalsIgnoreCase(sessionRole.toString());
+            int followerCount = followDAO.countFollowers(shopId);
+            boolean following = isBuyer && followDAO.isFollowing(((Number) sessionUserId).intValue(), shopId);
+
             int totalPages = Math.max(1, (totalProducts + PAGE_SIZE - 1) / PAGE_SIZE);
             int page = 1;
             try {
@@ -51,6 +65,13 @@ public class ShopProfileServlet extends HttpServlet {
             request.setAttribute("products", productDAO.findActiveProductsByShop(
                     shopId, PAGE_SIZE, (page - 1) * PAGE_SIZE));
             request.setAttribute("totalProducts", totalProducts);
+            request.setAttribute("shopRating", reviewSummary.get("rating"));
+            request.setAttribute("shopReviewCount", reviewSummary.get("count"));
+            request.setAttribute("shopReviews", shopDAO.findShopReviews(shopId, 20));
+            request.setAttribute("successfulCustomOrders", shopDAO.countSuccessfulCustomOrders(shopId));
+            request.setAttribute("shopFollowerCount", followerCount);
+            request.setAttribute("shopFollowing", following);
+            request.setAttribute("isBuyer", isBuyer);
             request.setAttribute("page", page);
             request.setAttribute("totalPages", totalPages);
             request.setAttribute("pageStart", Math.max(1, page - 2));
@@ -62,4 +83,6 @@ public class ShopProfileServlet extends HttpServlet {
                     "Hiện không thể tải gian hàng. Vui lòng thử lại sau.");
         }
     }
+
+
 }

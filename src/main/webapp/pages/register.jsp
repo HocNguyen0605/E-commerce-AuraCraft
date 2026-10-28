@@ -132,7 +132,6 @@
                                    autocomplete="new-password" required>
                             <button type="button" class="btn-toggle-pass" data-toggle-for="password"
                                     aria-label="Hiện/ẩn mật khẩu">
-                                <i class="fa-regular fa-eye"></i>
                             </button>
                         </div>
                         <span class="error-msg">Mật khẩu phải từ 6 ký tự trở lên.</span>
@@ -146,7 +145,6 @@
                                    autocomplete="new-password" required>
                             <button type="button" class="btn-toggle-pass" data-toggle-for="confirmPassword"
                                     aria-label="Hiện/ẩn mật khẩu">
-                                <i class="fa-regular fa-eye"></i>
                             </button>
                         </div>
                         <span class="error-msg">Mật khẩu xác nhận không trùng khớp.</span>

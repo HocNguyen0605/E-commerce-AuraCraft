@@ -3,7 +3,7 @@
 <%@ taglib prefix="fmt" uri="jakarta.tags.fmt" %>
 <%@ taglib prefix="fn" uri="jakarta.tags.functions" %>
 <%--
-  Đặt tại: webapp/pages/seller-products.jsp  (servlet forward tới /pages/seller-products.jsp)
+  Đặt tại: webapp/pages/seller/seller-products.jsp  (servlet forward tới /pages/seller/seller-products.jsp)
 
   Servlet cần set (request attribute):
     shop        : Shop (SellerSupport đã set sẵn: name, avatar)
@@ -11,13 +11,17 @@
     categories  : List<Category> mỗi phần tử cần getter: id, name, productCount
     page        : trang hiện tại (mặc định 1)
     totalPages  : tổng số trang
-  Tham số GET: q, category, sort (newest | price_asc | price_desc | best_seller), page
-  Xóa: POST /seller/products  (action=delete, id=...)
+  Tham số GET: q, category, sort (newest | price_asc | price_desc | best), page
+  Xóa: POST /pages/seller/seller-products  (action=delete, id=...)
   Flash: success / error (Flash.transfer)
 --%>
 <fmt:setLocale value="vi_VN"/>
 <c:set var="ctx" value="${pageContext.request.contextPath}"/>
 <c:set var="curPage" value="${empty page ? 1 : page}"/>
+<%-- URL của servlet controller.SellerProductServlet.SellerProductServlet --%>
+<c:set var="productsUrl" value="${ctx}/pages/seller/seller-products"/>
+<%-- Đang có bộ lọc nào không (để hiện nút "Xóa lọc") --%>
+<c:set var="hasFilter" value="${not empty param.q or not empty param.category or not empty param.status or (not empty param.sort and param.sort ne 'newest')}"/>
 <!DOCTYPE html>
 <html lang="vi">
 <head>
@@ -32,7 +36,6 @@
 
 </head>
 <body>
-<jsp:include page="/components/header.html"/>
 
 <main class="seller-layout container">
     <c:set var="sellerTab" value="products" scope="request"/>
@@ -45,16 +48,24 @@
 
         <div class="content-header">
             <h1 class="page-title">Quản lý Sản phẩm</h1>
-            <a href="${ctx}/seller/products?action=form" class="btn btn-primary"><i class="bi bi-plus-lg"></i> Thêm Sản phẩm mới</a>
+            <a href="${productsUrl}?action=form" class="btn btn-primary"><i class="bi bi-plus-lg"></i> Thêm Sản phẩm mới</a>
         </div>
 
         <!-- Toolbar: tìm kiếm, lọc, sắp xếp (GET) -->
         <div class="filter-bar">
-            <form action="${ctx}/seller/products" method="GET">
-                <div class="search-input">
-                    <i class="bi bi-search"></i>
-                    <input type="text" name="q" value="<c:out value='${param.q}'/>" placeholder="Tìm kiếm tên sản phẩm...">
+            <form action="${productsUrl}" method="GET">
+                <%-- Hàng 1: ô tìm kiếm + nút Tìm kiếm + nút Xóa lọc (luôn nằm cạnh nhau) --%>
+                <div class="filter-search-row">
+                    <div class="search-input">
+                        <i class="bi bi-search"></i>
+                        <input type="text" name="q" value="<c:out value='${param.q}'/>" placeholder="Tìm kiếm tên sản phẩm...">
+                    </div>
+                    <button type="submit" class="btn btn-primary filter-btn"><i class="bi bi-search"></i> Tìm kiếm</button>
+                    <c:if test="${hasFilter}">
+                        <a href="${productsUrl}" class="btn btn-outline filter-btn"><i class="bi bi-x-lg"></i> Xóa lọc</a>
+                    </c:if>
                 </div>
+                <%-- Hàng 2: các ô lọc --%>
                 <div class="filter-actions">
                     <select class="custom-select" name="category" onchange="this.form.submit()">
                         <option value="">Tất cả danh mục</option>
@@ -63,6 +74,12 @@
                                 <c:out value="${cat.name}"/> (${cat.productCount})
                             </option>
                         </c:forEach>
+                    </select>
+                    <select class="custom-select" name="status" onchange="this.form.submit()">
+                        <option value="">Tất cả trạng thái</option>
+                        <option value="active" ${param.status eq 'active' ? 'selected' : ''}>Đang bán</option>
+                        <option value="out"    ${param.status eq 'out' ? 'selected' : ''}>Hết hàng</option>
+                        <option value="hidden" ${param.status eq 'hidden' ? 'selected' : ''}>Đã ẩn</option>
                     </select>
                     <select class="custom-select" name="sort" onchange="this.form.submit()">
                         <option value="newest"      ${empty param.sort or param.sort eq 'newest' ? 'selected' : ''}>Mới nhất</option>
@@ -98,7 +115,7 @@
                                 <c:when test="${fn:startsWith(p.image, 'http')}"><c:set var="pImg" value="${p.image}"/></c:when>
                                 <c:otherwise><c:set var="pImg" value="${ctx}/${p.image}"/></c:otherwise>
                             </c:choose>
-                            <tr>
+                            <tr class="${p.status eq 'hidden' ? 'row-hidden' : ''}">
                                 <td>
                                     <div class="product-cell">
                                         <img src="${pImg}" alt="<c:out value='${p.name}'/>">
@@ -112,15 +129,15 @@
                                 <td>${p.stock}</td>
                                 <td>
                                     <c:choose>
+                                        <c:when test="${p.status eq 'hidden'}"><span class="status-badge muted">Đã ẩn</span></c:when>
                                         <c:when test="${p.stock le 0}"><span class="status-badge danger">Hết hàng</span></c:when>
-                                        <c:when test="${p.status eq 'hidden'}"><span class="status-badge warning">Nháp</span></c:when>
                                         <c:otherwise><span class="status-badge success">Đang bán</span></c:otherwise>
                                     </c:choose>
                                 </td>
                                 <td>
                                     <div class="action-btns">
-                                        <a href="${ctx}/seller/products?action=form&id=${p.id}" class="btn-icon text-primary" title="Sửa"><i class="bi bi-pencil-fill"></i></a>
-                                        <form action="${ctx}/seller/products" method="POST" style="display:inline;"
+                                        <a href="${productsUrl}?action=form&id=${p.id}" class="btn-icon text-primary" title="Sửa"><i class="bi bi-pencil-fill"></i></a>
+                                        <form action="${productsUrl}" method="POST" style="display:inline;"
                                               onsubmit="return confirm('Bạn có chắc muốn xóa sản phẩm này?');">
                                             <input type="hidden" name="action" value="delete">
                                             <input type="hidden" name="id" value="${p.id}">
@@ -138,9 +155,10 @@
 
         <!-- Phân trang (giữ nguyên bộ lọc) -->
         <c:if test="${totalPages > 1}">
-            <c:url var="baseUrl" value="/seller/products">
+            <c:url var="baseUrl" value="/pages/seller/seller-products">
                 <c:if test="${not empty param.q}"><c:param name="q" value="${param.q}"/></c:if>
                 <c:if test="${not empty param.category}"><c:param name="category" value="${param.category}"/></c:if>
+                <c:if test="${not empty param.status}"><c:param name="status" value="${param.status}"/></c:if>
                 <c:if test="${not empty param.sort}"><c:param name="sort" value="${param.sort}"/></c:if>
             </c:url>
             <c:set var="sep" value="${fn:contains(baseUrl, '?') ? '&' : '?'}"/>

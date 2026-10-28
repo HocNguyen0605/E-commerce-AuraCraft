@@ -158,7 +158,8 @@
                 '<p>' + escapeHtml(design.designType || design.productType || 'Thiết kế sản phẩm') + ' · ' + materials + ' vật liệu</p>' +
                 '<p>' + escapeHtml(design.sellerName || design.shopName || 'AuraCraft') + '</p>' +
                 '<strong>' + money(design.price) + '</strong>' +
-                '<div class="saved-design-actions"><a class="btn btn-primary btn-sm" href="' + escapeHtml(url) + '">Xem thiết kế</a></div></div>';
+                '<div class="saved-design-actions"><a class="btn btn-outline btn-sm" href="' + escapeHtml(url) + '">Xem thiết kế</a>' +
+                '<a class="btn btn-primary btn-sm" href="' + escapeHtml(CTX + '/pages/buyer-request-form?designId=' + encodeURIComponent(design.id)) + '">Gửi chợ báo giá</a></div></div>';
             grid.appendChild(card);
         });
     })();

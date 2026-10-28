@@ -1,0 +1,129 @@
+/* --- REQUEST CARDS --- */
+.request-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 24px; align-items: stretch; }
+.request-card { 
+    background: var(--white); 
+    border-radius: 12px; 
+    padding: 20px; 
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05); 
+    transition: transform 0.3s ease; 
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    box-sizing: border-box;
+}
+.request-card:hover { transform: translateY(-5px); box-shadow: 0 8px 16px rgba(0,0,0,0.1); }
+
+.req-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--gray-light); padding-bottom: 12px; margin-bottom: 16px; }
+.req-buyer { font-weight: bold; color: var(--primary-blue); }
+.req-date { font-size: 14px; color: var(--text-muted); }
+
+/* Hình ảnh trong Card */
+.req-image { position: relative; width: 100%; height: 200px; border-radius: 8px; overflow: hidden; margin-bottom: 16px; cursor: pointer; background: #f0f0f0; flex-shrink: 0; }
+.req-image img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.4s ease; }
+.req-image .overlay-text { position: absolute; inset: 0; background: rgba(66, 91, 154, 0.7); color: white; display: flex; align-items: center; justify-content: center; font-weight: bold; opacity: 0; transition: opacity 0.3s ease; }
+.req-image:hover img { transform: scale(1.1); }
+.req-image:hover .overlay-text { opacity: 1; }
+
+.req-body {
+    flex: 1 1 auto;
+    display: flex;
+    flex-direction: column;
+}
+
+.req-body h3 { margin: 0 0 8px 0; font-size: 20px; transition: color 0.3s; }
+.req-body h3:hover { color: var(--primary-blue); }
+.req-desc { 
+    font-size: 14px; 
+    margin-bottom: 16px; 
+    line-height: 1.5; 
+    display: -webkit-box; 
+    -webkit-line-clamp: 3; 
+    -webkit-box-orient: vertical; 
+    overflow: hidden; 
+    flex-grow: 1;
+}
+.req-tags {
+    margin-top: auto;
+    margin-bottom: 12px;
+}
+.req-tags span { background: var(--bg-cream); padding: 4px 10px; border-radius: 20px; font-size: 12px; margin-right: 8px; font-weight: 600; color: var(--primary-brown); display: inline-block; margin-bottom: 5px;}
+
+.req-footer { 
+    display: flex; 
+    justify-content: space-between; 
+    align-items: center; 
+    margin-top: auto; 
+    border-top: 1px dashed var(--gray-light); 
+    padding-top: 16px;
+    gap: 10px;
+}
+.req-price { font-size: 18px; font-weight: bold; color: var(--accent-gold); white-space: nowrap; }
+
+.custom-request-images { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; flex-shrink: 0; }
+.custom-request-image { width: 72px; height: 72px; padding: 0; overflow: hidden; border: 1px solid var(--gray-light); border-radius: 6px; background: var(--white); cursor: pointer; }
+.custom-request-image img { width: 100%; height: 100%; object-fit: cover; }
+
+/* --- PHÂN TRANG (PAGINATION) --- */
+.pagination { display: flex; justify-content: center; align-items: center; gap: 8px; margin-top: 40px; }
+.page-btn { width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; border-radius: 8px; border: 1px solid var(--gray-light); background: var(--white); cursor: pointer; color: var(--primary-brown); font-weight: bold; font-family: 'Mulish', sans-serif; transition: 0.3s;}
+.page-btn.active { background: var(--primary-blue); color: var(--white); border-color: var(--primary-blue); }
+.page-btn:hover:not(.active) { background: var(--bg-cream); }
+
+/* --- MODAL CHUNG --- */
+.modal-overlay { 
+    position: fixed; 
+    top: 0; 
+    left: 0; 
+    width: 100%; 
+    height: 100%; 
+    background: rgba(0,0,0,0.6); 
+    display: none; 
+    justify-content: center; 
+    align-items: center; 
+    z-index: 1000; 
+    backdrop-filter: blur(4px); 
+    padding: 16px;
+    box-sizing: border-box;
+}
+.modal-overlay.active { display: flex; }
+.modal-content { 
+    background: var(--white); 
+    padding: 24px; 
+    border-radius: 12px; 
+    width: 100%; 
+    max-width: 520px; 
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.2); 
+    animation: slideUp 0.3s ease; 
+    box-sizing: border-box;
+}
+@keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
+.modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; border-bottom: 1px solid var(--gray-light); padding-bottom: 10px;}
+.modal-header h2 { margin: 0; color: var(--primary-blue); font-size: 22px; }
+.close-btn { background: none; border: none; font-size: 20px; cursor: pointer; color: var(--text-muted); transition: 0.3s;}
+.close-btn:hover { color: red; transform: scale(1.1); }
+
+/* Form Elements */
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.form-group { margin-bottom: 12px; }
+.form-group label { display: block; margin-bottom: 4px; font-weight: bold; font-size: 13px; color: var(--primary-brown); }
+.form-group input, .form-group textarea { width: 100%; padding: 8px 12px; border: 1px solid var(--gray-light); border-radius: 8px; font-family: 'Mulish', sans-serif; box-sizing: border-box; font-size: 14px; }
+.form-group input:focus, .form-group textarea:focus { outline: none; border-color: var(--primary-blue); }
+.form-group textarea { resize: vertical; height: 60px; min-height: 50px; }
+.modal-actions { display: flex; gap: 12px; justify-content: flex-end; margin-top: 16px; }
+.modal-actions .btn { padding: 8px 18px; font-size: 14px; }
+
+/* --- MODAL CHI TIẾT (DETAIL MODAL) --- */
+.detail-content { max-width: 800px; }
+.detail-body { display: flex; gap: 30px; }
+.detail-img { flex: 1; border-radius: 8px; overflow: hidden; background: var(--bg-cream); display: flex; align-items: center; justify-content: center;}
+.detail-img img { width: 100%; height: auto; max-height: 400px; object-fit: cover; }
+.detail-info { flex: 1; display: flex; flex-direction: column; justify-content: center; }
+
+/* Responsive cho Modal chi tiết */
+@media (max-width: 768px) {
+    .detail-body { flex-direction: column; gap: 20px;}
+    .detail-img img { max-height: 250px; }
+}
