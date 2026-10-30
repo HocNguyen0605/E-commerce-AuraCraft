@@ -31,16 +31,16 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('czCancelLink').textContent = `Không muốn custom nữa? Quay lại cửa hàng`;
 
   document.getElementById('czTag').textContent = product ? `Tùy chỉnh charm · ${cfg.label}`
-    : hasDesignType ? `Thiết kế Custom · ${cfg.label}` : 'Thiết kế sản phẩm';
+      : hasDesignType ? `Thiết kế Custom · ${cfg.label}` : 'Thiết kế sản phẩm';
   document.getElementById('czHeading').textContent = product ? product.name
-    : hasDesignType ? cfg.heading : 'Bắt đầu thiết kế của bạn';
+      : hasDesignType ? cfg.heading : 'Bắt đầu thiết kế của bạn';
   document.getElementById('czHint').textContent = productCustomizationMode
-    ? 'Mẫu dây và kích thước được giữ nguyên theo sản phẩm. Chọn, kéo thả hoặc xóa charm để tùy chỉnh.'
-    : 'Chọn danh mục, shop, mẫu dây và kích thước để bắt đầu thiết kế.';
+      ? 'Mẫu dây và kích thước được giữ nguyên theo sản phẩm. Chọn, kéo thả hoặc xóa charm để tùy chỉnh.'
+      : 'Chọn danh mục, shop, mẫu dây và kích thước để bắt đầu thiết kế.';
   document.getElementById('czShopInfo').textContent = product
-    ? `Sản phẩm: ${product.name} · Gian hàng: ${shopName}. Giá thiết kế được tính theo các vật liệu bạn chọn.`
-    : hasDesignType ? `Gian hàng: ${shopName}. Chọn shop và mẫu nền để bắt đầu.`
-      : 'Chọn danh mục thiết kế để xem các shop và vật liệu phù hợp.';
+      ? `Sản phẩm: ${product.name} · Gian hàng: ${shopName}. Giá thiết kế được tính theo các vật liệu bạn chọn.`
+      : hasDesignType ? `Gian hàng: ${shopName}. Chọn shop và mẫu nền để bắt đầu.`
+          : 'Chọn danh mục thiết kế để xem các shop và vật liệu phù hợp.';
   let LIBRARY_ITEMS = [];
 
   const stripEl = document.getElementById('czStrip');
@@ -202,8 +202,8 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('czTag').textContent = `Thiết kế Custom · ${cfg.label}`;
     document.getElementById('czHeading').textContent = cfg.heading;
     document.getElementById('czShopInfo').textContent = shopId
-      ? `Gian hàng: ${shopName}. Chọn mẫu nền để thiết kế với vật liệu của shop.`
-      : 'Chọn shop, sau đó chọn mẫu nền và vật liệu thiết kế.';
+        ? `Gian hàng: ${shopName}. Chọn mẫu nền để thiết kế với vật liệu của shop.`
+        : 'Chọn shop, sau đó chọn mẫu nền và vật liệu thiết kế.';
     setFeedback(`Đã chuyển sang danh mục ${cfg.label}.`, 'success');
     refreshAll();
   });
@@ -220,7 +220,7 @@ document.addEventListener('DOMContentLoaded', () => {
         return;
       }
       const letterBead = LIBRARY_ITEMS.find(item => item.category === 'charm'
-        && item.name.toLocaleLowerCase('vi').includes('hạt chữ'));
+          && item.name.toLocaleLowerCase('vi').includes('hạt chữ'));
       if (!letterBead) {
         setFeedback('Mẫu đã chọn chưa có hạt chữ trong danh sách vật liệu của shop.', 'error');
         return;
@@ -431,9 +431,9 @@ document.addEventListener('DOMContentLoaded', () => {
       const empty = document.createElement('p');
       empty.className = 'cz-price-empty';
       empty.textContent = !hasDesignType
-        ? 'Chọn danh mục thiết kế để bắt đầu.'
-        : !shopId ? 'Chọn shop để xem dây nền và vật liệu.'
-          : 'Chọn mẫu nền để tải thư viện charm của shop.';
+          ? 'Chọn danh mục thiết kế để bắt đầu.'
+          : !shopId ? 'Chọn shop để xem dây nền và vật liệu.'
+              : 'Chọn mẫu nền để tải thư viện charm của shop.';
       libraryEl.appendChild(empty);
       return;
     }
@@ -525,7 +525,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!sourceProductSelect || !customizerSources.length) return;
     const currentId = sourceProductSelect.value;
     const matches = customizerSources.filter(source =>
-      hasDesignType && shopId && String(source.shopId) === String(shopId) && sourceType(source) === type);
+        hasDesignType && shopId && String(source.shopId) === String(shopId) && sourceType(source) === type);
     sourceProductSelect.innerHTML = '<option value="">Chọn dây/mẫu nền</option>';
     matches.forEach(source => {
       const option = document.createElement('option');
@@ -550,7 +550,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function refreshBaseChoices() {
     LIBRARY_ITEMS = productCustomizationMode ? [] : customizerSources.filter(source =>
-      hasDesignType && shopId && String(source.shopId) === String(shopId) && sourceType(source) === type
+        hasDesignType && shopId && String(source.shopId) === String(shopId) && sourceType(source) === type
     ).map(source => ({
       baseId: source.id,
       name: `${source.categoryName}: ${source.name}`,
@@ -581,8 +581,8 @@ document.addEventListener('DOMContentLoaded', () => {
       refreshBaseChoices();
       basePreview.hidden = true;
       document.getElementById('czShopInfo').textContent = shopId
-        ? `Gian hàng: ${shopName}. Chọn mẫu nền để tải thư viện charm.`
-        : 'Chọn shop, sau đó chọn mẫu nền và vật liệu thiết kế.';
+          ? `Gian hàng: ${shopName}. Chọn mẫu nền để tải thư viện charm.`
+          : 'Chọn shop, sau đó chọn mẫu nền và vật liệu thiết kế.';
       if (!productCustomizationMode) document.getElementById('czHeading').textContent = cfg.heading;
       renderLibrary();
       refreshAll();
@@ -615,14 +615,14 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('czCancelLink').href = detailHref;
     document.getElementById('czCancelLink').textContent = `Quay lại sản phẩm của ${shopName}`;
     document.getElementById('czTag').textContent = productCustomizationMode
-      ? `Tùy chỉnh charm · ${shopName}`
-      : `Thiết kế theo mẫu của ${shopName}`;
+        ? `Tùy chỉnh charm · ${shopName}`
+        : `Thiết kế theo mẫu của ${shopName}`;
     document.getElementById('czHeading').textContent = productCustomizationMode
-      ? `Tùy chỉnh charm · ${source.name}`
-      : `Thiết kế ${cfg.label}`;
+        ? `Tùy chỉnh charm · ${source.name}`
+        : `Thiết kế ${cfg.label}`;
     document.getElementById('czShopInfo').textContent = productCustomizationMode
-      ? `Mẫu dây và giá nền giữ nguyên theo sản phẩm “${source.name}” của ${shopName}. Bạn chỉ thay đổi charm.`
-      : `Vật liệu lấy từ sản phẩm “${source.name}” · Gian hàng: ${shopName}. Giá nền và charm lấy theo thiết lập của shop.`;
+        ? `Mẫu dây và giá nền giữ nguyên theo sản phẩm “${source.name}” của ${shopName}. Bạn chỉ thay đổi charm.`
+        : `Vật liệu lấy từ sản phẩm “${source.name}” · Gian hàng: ${shopName}. Giá nền và charm lấy theo thiết lập của shop.`;
     if (sourceHelp) {
       sourceHelp.textContent = 'Dây nền và charm lấy từ mẫu đã chọn.';
       sourceHelp.title = `${source.name} · ${shopName}`;
@@ -657,7 +657,7 @@ document.addEventListener('DOMContentLoaded', () => {
       }
 
       const initialSource = productCustomizationMode
-        ? customizerSources.find(source => String(source.id) === String(productId)) : null;
+          ? customizerSources.find(source => String(source.id) === String(productId)) : null;
       if (initialSource) {
         shopId = String(initialSource.shopId);
         if (shopSelect) shopSelect.value = shopId;
@@ -672,9 +672,9 @@ document.addEventListener('DOMContentLoaded', () => {
         refreshBaseChoices();
         renderLibrary();
         sourceHelp.textContent = !hasDesignType
-          ? 'Chọn danh mục thiết kế trước.'
-          : !shopId ? 'Chọn shop để xem dây nền phù hợp.'
-            : 'Chọn mẫu nền để tải danh sách charm của shop.';
+            ? 'Chọn danh mục thiết kế trước.'
+            : !shopId ? 'Chọn shop để xem dây nền phù hợp.'
+                : 'Chọn mẫu nền để tải danh sách charm của shop.';
       }
     } catch (error) {
       sourceProductSelect.innerHTML = '<option value="">Không tải được vật liệu</option>';
@@ -731,8 +731,8 @@ document.addEventListener('DOMContentLoaded', () => {
       id,
       customDesignId: saved.id,
       name: saved.baseMaterial?.sourceProductName
-        ? `Thiết kế ${cfg.label} · ${saved.baseMaterial.sourceProductName}`
-        : `Thiết kế ${cfg.label}`,
+          ? `Thiết kế ${cfg.label} · ${saved.baseMaterial.sourceProductName}`
+          : `Thiết kế ${cfg.label}`,
       price: saved.price,
       image: saved.baseMaterial?.image || saved.slots.find(Boolean)?.image || '',
       categoryName: `Thiết kế riêng · ${saved.size} vị trí`,
@@ -758,8 +758,8 @@ document.addEventListener('DOMContentLoaded', () => {
       const fullName = design.name || 'Thiết kế của tôi';
       const nameLimit = 30;
       const shortName = Array.from(fullName).length > nameLimit
-        ? `${Array.from(fullName).slice(0, nameLimit - 1).join('')}…`
-        : fullName;
+          ? `${Array.from(fullName).slice(0, nameLimit - 1).join('')}…`
+          : fullName;
       option.textContent = `${shortName} · ${formatVND(design.price)}`;
       option.title = `${fullName} · ${formatVND(design.price)}`;
       draftSelect.appendChild(option);
@@ -769,15 +769,15 @@ document.addEventListener('DOMContentLoaded', () => {
   function loadDesign(saved) {
     if (!saved || productCustomizationMode) return;
     const savedSourceId = saved.baseMaterial?.sourceProductId
-      || (/^\d+$/.test(String(saved.baseMaterial?.id || '')) ? saved.baseMaterial.id : '');
+        || (/^\d+$/.test(String(saved.baseMaterial?.id || '')) ? saved.baseMaterial.id : '');
     const savedName = saved.baseMaterial?.sourceProductName
-      || String(saved.name || '').split(' · ').pop()?.trim();
+        || String(saved.name || '').split(' · ').pop()?.trim();
     const savedSource = customizerSources.find(source => String(source.id) === String(savedSourceId))
-      || customizerSources.find(source => source.name === savedName
-        && (!saved.shopId || String(source.shopId) === String(saved.shopId)));
+        || customizerSources.find(source => source.name === savedName
+            && (!saved.shopId || String(source.shopId) === String(saved.shopId)));
     type = TYPE_CONFIG[saved.designType]
-      ? saved.designType
-      : (savedSource ? sourceType(savedSource) : type);
+        ? saved.designType
+        : (savedSource ? sourceType(savedSource) : type);
     hasDesignType = true;
     sizeSelect.disabled = false;
     cfg = TYPE_CONFIG[type];
@@ -799,11 +799,11 @@ document.addEventListener('DOMContentLoaded', () => {
     currentDesignId = saved.id;
     if (typeSelect) typeSelect.value = type;
     baseMaterial = savedSource ? (readBaseMaterial() || { ...saved.baseMaterial })
-      : (saved.baseMaterial ? { ...saved.baseMaterial } : null);
+        : (saved.baseMaterial ? { ...saved.baseMaterial } : null);
     if (!savedSource && saved.baseMaterial) {
       product = saved.baseMaterial.sourceProductName
-        ? { id: saved.baseMaterial.sourceProductId, name: saved.baseMaterial.sourceProductName, shop: saved.baseMaterial.shopName }
-        : null;
+          ? { id: saved.baseMaterial.sourceProductId, name: saved.baseMaterial.sourceProductName, shop: saved.baseMaterial.shopName }
+          : null;
       shopName = saved.baseMaterial.shopName || saved.sellerName || shopName;
       shopId = String(saved.baseMaterial.shopId || saved.shopId || shopId);
     }
@@ -813,8 +813,8 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('czTag').textContent = `Thiết kế Custom · ${cfg.label}`;
     document.getElementById('czHeading').textContent = product ? product.name : cfg.heading;
     document.getElementById('czShopInfo').textContent = baseMaterial
-      ? `Mẫu nền: ${baseMaterial.sourceProductName || baseMaterial.name} · Gian hàng: ${shopName}.`
-      : `Gian hàng: ${shopName}.`;
+        ? `Mẫu nền: ${baseMaterial.sourceProductName || baseMaterial.name} · Gian hàng: ${shopName}.`
+        : `Gian hàng: ${shopName}.`;
     refreshBaseChoices();
     if (savedSource) (savedSource.charms || []).forEach(charm => {
       if (!LIBRARY_ITEMS.some(item => item.category === 'charm' && String(item.id) === String(charm.id))) {
@@ -884,7 +884,7 @@ document.addEventListener('DOMContentLoaded', () => {
         let cart = [];
         try { cart = JSON.parse(localStorage.getItem('AuraCraftCart') || '[]'); } catch { cart = []; }
         localStorage.setItem('AuraCraftCart', JSON.stringify((Array.isArray(cart) ? cart : []).map(item =>
-          String(item.id) === String(cartItem.id) ? cartItem : item)));
+            String(item.id) === String(cartItem.id) ? cartItem : item)));
         window.dispatchEvent(new Event('auracraft:cart-updated'));
       }
       window.location.href = `${context}/pages/checkout?orderId=${encodeURIComponent(order.id)}`;

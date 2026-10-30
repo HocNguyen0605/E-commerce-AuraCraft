@@ -28,7 +28,7 @@
         div.innerHTML = `
             <div class="aura-chat-launcher" id="auraLauncher">
                 <span class="aura-chat-badge" id="auraBadge">Tư vấn chọn quà? Nhắn mình nhé!</span>
-                <i class="fa-solid fa-comments"></i>
+                <i class="fa-solid fa-headset"></i> 
             </div>
             <div class="aura-chat-window" id="auraWindow">
                 <div class="aura-chat-header">

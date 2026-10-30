@@ -31,7 +31,7 @@ document.addEventListener("DOMContentLoaded", () => {
     catch { return {}; }
   };
   const saveSelectedIds = () => sessionStorage.setItem("AuraCraftCartSelected", JSON.stringify(
-    Object.fromEntries(items.map(item => [String(item.id), item.selected !== false]))
+      Object.fromEntries(items.map(item => [String(item.id), item.selected !== false]))
   ));
 
   async function api(action, data = {}) {
@@ -56,8 +56,8 @@ document.addEventListener("DOMContentLoaded", () => {
         const customItems = readLocal().filter(item => item.customDesignId).map(item => ({
           ...item,
           selected: Object.prototype.hasOwnProperty.call(savedSelection, String(item.id))
-            ? savedSelection[String(item.id)] !== false
-            : item.selected !== false
+              ? savedSelection[String(item.id)] !== false
+              : item.selected !== false
         }));
         items = [...productItems, ...customItems];
         return;
@@ -94,12 +94,12 @@ document.addEventListener("DOMContentLoaded", () => {
       const category = document.createElement("p"); category.className = "item-category";
       const pendingCustomOrder = item.pendingOrderId && window.AuraCraftCustom?.getOrder(item.pendingOrderId);
       category.textContent = pendingCustomOrder?.paymentStatus === "deposit_paid"
-        ? `Đã cọc 50% · còn ${money(pendingCustomOrder.remainingAmount)} khi nhận hàng`
-        : pendingCustomOrder?.paymentStatus === "paid"
-        ? "Đã thanh toán"
-        : item.pendingOrderId
-        ? `Chưa thanh toán · ${item.categoryName || "Thiết kế riêng"}`
-        : item.categoryName || "Sản phẩm handmade";
+          ? `Đã cọc 50% · còn ${money(pendingCustomOrder.remainingAmount)} khi nhận hàng`
+          : pendingCustomOrder?.paymentStatus === "paid"
+              ? "Đã thanh toán"
+              : item.pendingOrderId
+                  ? `Chưa thanh toán · ${item.categoryName || "Thiết kế riêng"}`
+                  : item.categoryName || "Sản phẩm handmade";
       const price = document.createElement("p"); price.className = "item-price"; price.textContent = money(item.price);
       info.append(name, category, price); left.append(check, image, info);
       const right = document.createElement("div"); right.className = "cart-item-right";
@@ -111,8 +111,8 @@ document.addEventListener("DOMContentLoaded", () => {
       const actions = document.createElement("div"); actions.className = "item-actions";
       const detail = document.createElement("a"); detail.className = "action-btn find-similar";
       detail.href = isCustom
-        ? context + "/pages/customizer?designId=" + encodeURIComponent(item.customDesignId)
-        : context + "/pages/product-detail?id=" + encodeURIComponent(item.id);
+          ? context + "/pages/customizer?designId=" + encodeURIComponent(item.customDesignId)
+          : context + "/pages/product-detail?id=" + encodeURIComponent(item.id);
       detail.textContent = isCustom ? "Sửa thiết kế" : "Xem sản phẩm";
       const remove = document.createElement("button"); remove.type = "button"; remove.className = "action-btn remove-btn"; remove.dataset.action = "remove"; remove.textContent = "Xóa";
       actions.append(detail, remove); right.append(quantity, actions); content.append(left, right); card.append(header, content); container.appendChild(card);
@@ -147,8 +147,8 @@ document.addEventListener("DOMContentLoaded", () => {
         items = items.filter(entry => String(entry.id) !== id);
       } else {
         const nextQuantity = button.dataset.action === "increase"
-          ? Math.min(Number(item.stock || 99), Number(item.quantity || 1) + 1)
-          : Math.max(1, Number(item.quantity || 1) - 1);
+            ? Math.min(Number(item.stock || 99), Number(item.quantity || 1) + 1)
+            : Math.max(1, Number(item.quantity || 1) - 1);
         if (databaseMode && !item.customDesignId) await api("quantity", { productId: id, quantity: nextQuantity });
         item.quantity = nextQuantity;
       }

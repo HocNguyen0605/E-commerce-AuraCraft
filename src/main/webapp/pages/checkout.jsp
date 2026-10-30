@@ -92,7 +92,7 @@
                             <input type="text" id="wardFallback" class="form-control" maxlength="120"
                                    placeholder="Nhập xã, phường" hidden>
                             <span class="field-error-msg">Vui lòng chọn xã / phường.</span>
-<%--                            <small id="wardLoadingMessage" class="field-help-msg" aria-live="polite"></small>--%>
+                            <%--                            <small id="wardLoadingMessage" class="field-help-msg" aria-live="polite"></small>--%>
                         </div>
 
                         <div class="form-group">

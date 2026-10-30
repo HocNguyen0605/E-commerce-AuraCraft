@@ -47,10 +47,10 @@
                 <div class="tab-item" data-tab="done">Đã hoàn thành</div>
             </div>
 
-<%--            <section class="custom-orders-section" aria-label="Đơn hàng Custom">--%>
-<%--                <h2>Đơn hàng Custom</h2>--%>
-<%--                <div class="order-list" id="customOrderList"></div>--%>
-<%--            </section>--%>
+            <%--            <section class="custom-orders-section" aria-label="Đơn hàng Custom">--%>
+            <%--                <h2>Đơn hàng Custom</h2>--%>
+            <%--                <div class="order-list" id="customOrderList"></div>--%>
+            <%--            </section>--%>
 
             <!-- Danh sách đơn hàng -->
             <div class="order-list" id="serverOrderList">

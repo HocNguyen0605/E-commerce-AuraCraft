@@ -1,0 +1,73 @@
+:root {
+    /* Trạng thái */
+    --status-pending: #9B59B6;  /* Tím */
+    --status-crafting: #F39C12; /* Vàng cam */
+    --status-late: #E74C3C;     /* Đỏ */
+    --status-shipping: #3498DB; /* Xanh dương */
+    --status-done: #2ECC71;     /* Xanh lá */
+}
+/* Header chung cho trang (Dùng trong Admin) */
+.page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
+.page-title { margin: 0; font-size: 32px; color: var(--primary-blue); font-family: var(--font-title); }
+
+/* --- TABS --- */
+.tabs { display: flex; gap: 10px; border-bottom: 2px solid var(--gray-light); margin-bottom: 24px; overflow-x: auto; padding-bottom: 10px; }
+.tab-item { padding: 10px 20px; cursor: pointer; font-weight: 600; color: var(--text-muted); border-radius: 8px 8px 0 0; white-space: nowrap; transition: 0.3s;}
+.tab-item:hover { color: var(--primary-blue); }
+.tab-item.active { background-color: var(--primary-blue); color: var(--white); }
+
+/* --- ORDER CARDS --- */
+.order-card { background: var(--white); border-radius: 12px; padding: 20px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); margin-bottom: 20px; transition: 0.3s; }
+.order-card:hover { box-shadow: 0 8px 20px rgba(0,0,0,0.1); transform: translateY(-2px);}
+.order-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--gray-light); padding-bottom: 12px; margin-bottom: 16px; }
+.order-id { font-weight: bold; font-family: 'Baloo 2', cursive; font-size: 18px; }
+
+/* Badges */
+.badge { padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: bold; color: var(--white); }
+.badge.pending { background-color: var(--status-pending); }
+.badge.crafting { background-color: var(--status-crafting); }
+.badge.late { background-color: var(--status-late); animation: pulse 1.5s infinite; }
+.badge.shipping { background-color: var(--status-shipping); }
+.badge.done { background-color: var(--status-done); }
+
+@keyframes pulse {
+    0% { box-shadow: 0 0 0 0 rgba(231, 76, 60, 0.4); }
+    70% { box-shadow: 0 0 0 10px rgba(231, 76, 60, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(231, 76, 60, 0); }
+}
+
+.order-body { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+.order-info h3 { margin: 0 0 8px 0; transition: color 0.3s; }
+.order-body:hover .hover-title { color: var(--primary-blue); }
+.deadline { color: var(--status-crafting); font-weight: bold; margin-top: 8px; display: inline-block; background: #FEF5E7; padding: 4px 8px; border-radius: 4px;}
+.deadline.late-alert { color: var(--status-late); background: #FDEDEC; }
+
+.order-footer { display: flex; justify-content: space-between; align-items: center; background: #f9f9f9; padding: 12px; border-radius: 8px; }
+.total-price { font-size: 20px; font-weight: bold; color: var(--primary-blue); font-family: 'Baloo 2', cursive;}
+.order-actions { display: flex; gap: 10px; }
+
+/* --- PHÂN TRANG (PAGINATION) --- */
+.pagination { display: flex; justify-content: center; align-items: center; gap: 8px; margin-top: 40px; }
+.page-btn { width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; border-radius: 8px; border: 1px solid var(--gray-light); background: var(--white); cursor: pointer; color: var(--primary-brown); font-weight: bold; font-family: 'Mulish', sans-serif; transition: 0.3s;}
+.page-btn.active { background: var(--primary-blue); color: var(--white); border-color: var(--primary-blue); }
+.page-btn:hover:not(.active) { background: var(--bg-cream); }
+
+/* --- MODAL CHI TIẾT --- */
+.modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); display: none; justify-content: center; align-items: center; z-index: 1000; backdrop-filter: blur(4px); }
+.modal-overlay.active { display: flex; }
+.modal-content { background: var(--white); padding: 24px; border-radius: 12px; width: 100%; max-height: 90vh; overflow-y: auto; box-shadow: 0 10px 25px rgba(0,0,0,0.2); animation: slideUp 0.3s ease; box-sizing: border-box; }
+@keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
+.modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; border-bottom: 1px solid var(--gray-light); padding-bottom: 12px;}
+.modal-header h2 { margin: 0; color: var(--primary-blue); font-family: 'Baloo 2', cursive;}
+.close-btn { background: none; border: none; font-size: 24px; cursor: pointer; color: var(--text-muted); transition: 0.3s;}
+.close-btn:hover { color: red; transform: scale(1.1); }
+
+.detail-body .info-row { margin-bottom: 12px; font-size: 15px; }
+
+/* Responsive */
+@media (max-width: 600px) {
+    .order-body, .order-footer { flex-direction: column; align-items: flex-start; gap: 15px; }
+    .order-actions { width: 100%; justify-content: flex-end; flex-wrap: wrap; }
+    .modal-content { padding: 20px; width: 90%; }
+}

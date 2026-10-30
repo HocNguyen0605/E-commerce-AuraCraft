@@ -254,10 +254,21 @@
         }
     }, true);
 
-    const CTX = '${pageContext.request.contextPath}';
-    fetch(CTX + '/components/header.html')
-        .then(r => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.text(); })
-        .then(html => document.getElementById('header-placeholder').innerHTML = html);
+    var _ctx = '${pageContext.request.contextPath}';
+
+    fetch(_ctx + '/components/header.html')
+        .then(response => response.text())
+        .then(data => {
+            document.getElementById('header-placeholder').innerHTML = data;
+        })
+        .catch(error => console.error('Error loading header:', error));
+
+    fetch(_ctx + '/components/footer.html')
+        .then(response => response.text())
+        .then(data => {
+            document.getElementById('footer-placeholder').innerHTML = data;
+        })
+        .catch(error => console.error('Error loading footer:', error));
 </script>
 
 <script src="${pageContext.request.contextPath}/assets/js/popup.js"></script>
@@ -265,6 +276,5 @@
 <script src="${pageContext.request.contextPath}/assets/js/site-shell.js"></script>
 <script src="${pageContext.request.contextPath}/assets/js/chatbot.js"></script>
 <script src="${pageContext.request.contextPath}/assets/js/message.js"></script>
-
 </body>
 </html>

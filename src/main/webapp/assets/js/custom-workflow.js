@@ -3,8 +3,8 @@
 
   function makeId(prefix) {
     const randomPart = window.crypto && window.crypto.randomUUID
-      ? window.crypto.randomUUID()
-      : `${Date.now()}-${Math.random().toString(16).slice(2)}`;
+        ? window.crypto.randomUUID()
+        : `${Date.now()}-${Math.random().toString(16).slice(2)}`;
     return `${prefix}-${randomPart}`;
   }
 
@@ -473,7 +473,7 @@
       createdAt: new Date().toISOString()
     };
     if (!quote.sellerName || !Number.isFinite(quote.price) || quote.price < 1 || !Number.isInteger(quote.days) || quote.days < 1 || quote.days > 15
-      || !Number.isFinite(quote.rating) || quote.rating < 1 || quote.rating > 5 || !Number.isInteger(quote.completedOrders) || quote.completedOrders < 0) {
+        || !Number.isFinite(quote.rating) || quote.rating < 1 || quote.rating > 5 || !Number.isInteger(quote.completedOrders) || quote.completedOrders < 0) {
       throw new Error("Giá, thời gian chế tác hoặc thông tin hồ sơ thợ không hợp lệ.");
     }
     state.quotes.push(quote);
@@ -490,7 +490,7 @@
     if (request.status === "awarded" || request.status === "cancelled") throw new Error("Yêu cầu này đã được xử lý.");
     quote.status = "selected";
     state.quotes.filter((item) => item.requestId === request.id && item.id !== quote.id)
-      .forEach((item) => { item.status = "rejected"; });
+        .forEach((item) => { item.status = "rejected"; });
     request.status = "awarded";
     request.selectedQuoteId = quote.id;
     request.updatedAt = new Date().toISOString();
@@ -553,8 +553,8 @@
     const isAdjustment = order.paymentStatus === "adjustment_due";
     const requestedAmount = Number(details.amount);
     const amount = isAdjustment
-      ? Math.abs(Number(order.priceDifference) || 0)
-      : Math.max(0, Number.isFinite(requestedAmount) ? requestedAmount : Number(order.price) || 0);
+        ? Math.abs(Number(order.priceDifference) || 0)
+        : Math.max(0, Number.isFinite(requestedAmount) ? requestedAmount : Number(order.price) || 0);
     const transaction = {
       id: makeId("TXN"),
       orderId,
@@ -579,8 +579,8 @@
       order.paidAt = transaction.createdAt;
       order.paidAmount = amount;
       order.remainingAmount = isDeposit
-        ? Math.max(0, Number(order.price || 0) + Number(order.shippingFee || 25300) - amount)
-        : 0;
+          ? Math.max(0, Number(order.price || 0) + Number(order.shippingFee || 25300) - amount)
+          : 0;
       if (isDeposit) order.depositPaidAt = transaction.createdAt;
       order.deadlineAt = new Date(new Date(transaction.createdAt).getTime() + order.days * 24 * 60 * 60 * 1000).toISOString();
     }
@@ -782,16 +782,16 @@
   function calculateRefundDue(state, order) {
     const transactions = state.transactions.filter((transaction) => transaction.orderId === order.id);
     const successfulPayments = transactions
-      .filter((transaction) => transaction.method !== "refund" && transaction.result === "success")
-      .reduce((total, transaction) => total + Number(transaction.amount || 0), 0);
+        .filter((transaction) => transaction.method !== "refund" && transaction.result === "success")
+        .reduce((total, transaction) => total + Number(transaction.amount || 0), 0);
     const settledRefunds = transactions
-      .filter((transaction) => transaction.method === "refund" && transaction.result === "success")
-      .reduce((total, transaction) => total + Number(transaction.amount || 0), 0);
+        .filter((transaction) => transaction.method === "refund" && transaction.result === "success")
+        .reduce((total, transaction) => total + Number(transaction.amount || 0), 0);
     const pendingRefunds = transactions.filter((transaction) => transaction.method === "refund" && transaction.result === "pending");
     const pendingAmount = pendingRefunds.reduce((total, transaction) => total + Number(transaction.amount || 0), 0);
     const fallbackAmount = transactions.length === 0 && ["paid", "adjustment_due", "refund_due"].includes(order.paymentStatus)
-      ? Number(order.price || 0)
-      : successfulPayments;
+        ? Number(order.price || 0)
+        : successfulPayments;
     return {
       amount: Math.max(0, fallbackAmount - settledRefunds - pendingAmount),
       hasPendingRefund: pendingRefunds.length > 0

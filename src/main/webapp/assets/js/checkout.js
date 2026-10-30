@@ -17,11 +17,11 @@ document.addEventListener("DOMContentLoaded", () => {
     if (savedAddressRemainder && provinceSelect) {
       const options = Array.from(provinceSelect.options).filter(option => option.value);
       const match = options.sort((a, b) => b.textContent.length - a.textContent.length)
-        .find(option => cleanAddressSuffix(savedAddressRemainder, option.textContent) !== null
-          || ["Tỉnh ", "Thành phố ", "TP. ", "TP "].some(prefix => cleanAddressSuffix(savedAddressRemainder, prefix + option.textContent) !== null));
+          .find(option => cleanAddressSuffix(savedAddressRemainder, option.textContent) !== null
+              || ["Tỉnh ", "Thành phố ", "TP. ", "TP "].some(prefix => cleanAddressSuffix(savedAddressRemainder, prefix + option.textContent) !== null));
       if (match) {
         savedAddressRemainder = cleanAddressSuffix(savedAddressRemainder, match.textContent)
-          ?? ["Tỉnh ", "Thành phố ", "TP. ", "TP "].map(prefix => cleanAddressSuffix(savedAddressRemainder, prefix + match.textContent)).find(value => value !== null);
+            ?? ["Tỉnh ", "Thành phố ", "TP. ", "TP "].map(prefix => cleanAddressSuffix(savedAddressRemainder, prefix + match.textContent)).find(value => value !== null);
         savedAddressField.value = savedAddressRemainder;
         provinceSelect.value = match.value;
       }
@@ -55,7 +55,7 @@ document.addEventListener("DOMContentLoaded", () => {
           }
         }
         const options = administrativeWards.filter(item => String(item.province_id) === String(Number(provinceCode)))
-          .sort((a, b) => a.name.localeCompare(b.name, "vi"));
+            .sort((a, b) => a.name.localeCompare(b.name, "vi"));
         if (!options.length) throw new Error("Không có dữ liệu xã / phường cho tỉnh đã chọn.");
         wardSelect.replaceChildren(new Option("Chọn xã / phường", ""));
         options.forEach(item => wardSelect.add(new Option(item.name, item.code)));
@@ -84,10 +84,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
     function completeDeliveryAddress() {
       const wardName = wardSelect && !wardSelect.hidden
-        ? wardSelect.selectedOptions[0]?.textContent.trim()
-        : wardFallback?.value.trim();
+          ? wardSelect.selectedOptions[0]?.textContent.trim()
+          : wardFallback?.value.trim();
       return [savedAddressField?.value.trim(), wardName, provinceSelect?.selectedOptions[0]?.textContent.trim()]
-        .filter(Boolean).join(", ");
+          .filter(Boolean).join(", ");
     }
     const customOrderId = new URLSearchParams(window.location.search).get("orderId");
     const customOrder = customOrderId && window.AuraCraftCustom.getOrder(customOrderId);
@@ -239,8 +239,8 @@ document.addEventListener("DOMContentLoaded", () => {
         const isDepositPaid = customOrder.paymentStatus === "deposit_paid";
         depositAlert.hidden = false;
         depositAlert.innerHTML = isDepositPaid
-          ? '<i class="fa-solid fa-circle-check"></i> Đơn này đã cọc 50%. Phần còn lại sẽ thanh toán khi nhận hàng.'
-          : '<i class="fa-solid fa-circle-check"></i> Đơn này đã được thanh toán đầy đủ.';
+            ? '<i class="fa-solid fa-circle-check"></i> Đơn này đã cọc 50%. Phần còn lại sẽ thanh toán khi nhận hàng.'
+            : '<i class="fa-solid fa-circle-check"></i> Đơn này đã được thanh toán đầy đủ.';
         depositRow.hidden = !isDepositPaid;
         remainingRow.hidden = !isDepositPaid;
         document.getElementById('summaryDeposit').textContent = Number(customOrder.paidAmount || 0).toLocaleString('vi-VN') + 'đ';
@@ -717,7 +717,7 @@ document.addEventListener("DOMContentLoaded", () => {
             let paymentMethodText = isVNPay
                 ? "VNPay (Đã thanh toán trực tuyến 100%)"
                 : isCashOnDelivery ? "Thanh toán khi nhận hàng (COD)"
-                  : isAdjustmentPayment ? "Đã thanh toán khoản chênh lệch qua VNPay" : "Đã cọc 50% qua chuyển khoản VNPay";
+                    : isAdjustmentPayment ? "Đã thanh toán khoản chênh lệch qua VNPay" : "Đã cọc 50% qua chuyển khoản VNPay";
 
             const customOrderTotal = customAmountDue + (isAdjustmentPayment ? 0 : 25300);
             const customOrderData = {

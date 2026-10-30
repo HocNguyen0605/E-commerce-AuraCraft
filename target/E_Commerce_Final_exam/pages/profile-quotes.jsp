@@ -1,0 +1,159 @@
+<%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
+<%@ taglib prefix="c" uri="jakarta.tags.core" %>
+<c:set var="ctx" value="${pageContext.request.contextPath}"/>
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Danh sách báo giá</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <link rel="stylesheet" href="../assets/css/header-footer.css">
+    <link rel="stylesheet" href="../assets/css/pages/profile.css">
+    <link rel="stylesheet" href="../assets/css/pages/profile-content.css">
+</head>
+<body>
+<div id="header-placeholder"></div>
+
+<main>
+    <div class="container">
+        <img class="avatar" src="${ctx}/assets/img/profile/avatar.png" alt="Avatar">
+        <p class="info_name"><b><c:out value="${profile.name}"/></b>
+            <a href="${ctx}/pages/profile-info"><i class="fa-solid fa-pencil"></i></a></p>
+        <p class="email"><c:out value="${profile.email}"/></p>
+        <div class="row body">
+            <!--Thanh menu -->
+            <div class="col-3 over_content">
+                <ul class="menu_function">
+                    <li class="funciton_item "><a href="${ctx}/pages/profile-info">Thông tin cá nhân</a></li>
+                    <li class="funciton_item"><a href="${ctx}/pages/profile-orders">Đơn hàng</a></li>
+                    <li class="funciton_item"><a href="${ctx}/pages/profile-designs">Thiết kế đã lưu</a></li>
+                    <li class="funciton_item active"><a href="${ctx}/pages/profile-quotes">Báo giá</a></li>
+                    <li class="funciton_item">
+                        <a href="#" data-logout style="color: #E74C3C;">
+                            <i class="fa-solid fa-arrow-right-from-bracket"></i> Đăng xuất
+                        </a>
+                    </li>
+                </ul>
+            </div>
+            <!--Màn hình hiển thị thông tin -->
+            <div class="col-9 over_content">
+                <div class="col-12 over_content">
+                    <ul class="menu">
+                        <li class="btn-primary filter active" data-filter="all">All</li>
+                        <li class="btn-primary filter" data-filter="waiting">Chờ phản hồi</li>
+                        <li class="btn-primary filter" data-filter="quoted">Đã báo giá</li>
+                        <li class="btn-primary filter" data-filter="accepted">Đã chấp nhận</li>
+                        <li class="btn-primary filter" data-filter="expired">Hết hạn / Từ chối</li>
+                    </ul>
+                </div>
+                <div class="col-12 over_content" data-status="waiting">
+                    <div class="row">
+                        <div class="col-6"><span>#Mã báo giá / TÊN SHOP</span></div>
+                        <div class="col-6 right"><span class="status wait">CHỜ SHOP PHẢN HỒI</span></div>
+                    </div>
+                    <div class="row">
+                        <div class="col-2"><img src="../assets/img/products/belly_02.jpg" class="product_picture" alt="Sản phẩm"></div>
+                        <div class="col-8">
+                            <p><b>Yêu cầu: Tên sản phẩm thiết kế riêng Tên sản phẩm</b></p>
+                            <p>Số lượng: 50</p>
+                            <p>Ngày gửi: 20/09/2026 · Hiệu lực đến: 30/09/2026</p>
+                        </div>
+                        <div class="col-2 right"><p>Chưa có giá</p></div>
+                    </div>
+                    <div class="order-actions">
+                        <a href="#" class="btn btn-outline btn-sm">Xem yêu cầu</a>
+                        <a href="#" class="btn btn-danger btn-sm">Hủy yêu cầu</a>
+                    </div>
+                </div>
+                <div class="col-12 over_content" data-status="quoted">
+                    <div class="row">
+                        <div class="col-6"><span>#Mã báo giá / TÊN SHOP</span></div>
+                        <div class="col-6 right"><span class="status ">SHOP ĐÃ BÁO GIÁ</span></div>
+                    </div>
+                    <div class="row">
+                        <div class="col-2"><img src="../assets/img/products/belly_02.jpg" class="product_picture" alt="Sản phẩm"></div>
+                        <div class="col-8">
+                            <p><b>Yêu cầu: Tên sản phẩm thiết kế riêng Tên sản phẩm</b></p>
+                            <p>Số lượng: 50</p>
+                            <p>Ngày gửi: 20/09/2026 · Hiệu lực đến: 30/09/2026</p>
+                        </div>
+                        <div class="col-2 right"><p>2.250.000đ</p></div>
+                    </div>
+                    <div class="order-actions">
+                        <a href="#" class="btn btn-outline btn-sm">Thương lượng</a>
+                        <a href="#" class="btn btn-danger btn-sm">Từ chối</a>
+                        <a href="#" class="btn btn-primary btn-sm">Chấp nhận & đặt hàng</a>
+                    </div>
+                </div>
+                <div class="col-12 over_content" data-status="accepted">
+                    <div class="row">
+                        <div class="col-6"><span>#Mã báo giá / TÊN SHOP</span></div>
+                        <div class="col-6 right"><span class="status done">ĐÃ CHẤP NHẬN</span></div>
+                    </div>
+                    <div class="row">
+                        <div class="col-2"><img src="../assets/img/products/belly_02.jpg" class="product_picture" alt="Sản phẩm"></div>
+                        <div class="col-8">
+                            <p><b>Yêu cầu: Tên sản phẩm thiết kế riêng Tên sản phẩm</b></p>
+                            <p>Số lượng: 50</p>
+                            <p>Ngày gửi: 20/09/2026 · Hiệu lực đến: 30/09/2026</p>
+                        </div>
+                        <div class="col-2 right"><p>2.250.000đ</p></div>
+                    </div>
+                    <div class="order-actions">
+                        <a href="#" class="btn btn-outline btn-sm">Xem đơn hàng</a>
+                    </div>
+                </div>
+                <div class="col-12 over_content" data-status="expired">
+                    <div class="row">
+                        <div class="col-6"><span>#Mã báo giá / TÊN SHOP</span></div>
+                        <div class="col-6 right"><span class="status cancel">HẾT HẠN</span></div>
+                    </div>
+                    <div class="row">
+                        <div class="col-2"><img src="../assets/img/products/belly_02.jpg" class="product_picture" alt="Sản phẩm"></div>
+                        <div class="col-8">
+                            <p><b>Yêu cầu: Tên sản phẩm thiết kế riêng Tên sản phẩm</b></p>
+                            <p>Số lượng: 50</p>
+                            <p>Ngày gửi: 20/09/2026 · Hiệu lực đến: 30/09/2026</p>
+                        </div>
+                        <div class="col-2 right"><p>2.400.000đ</p></div>
+                    </div>
+                    <div class="order-actions">
+                        <a href="#" class="btn btn-primary btn-sm">Yêu cầu báo giá lại</a>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</main>
+
+<div id="footer-placeholder"></div>
+
+<script>
+    fetch('../components/header.html')
+        .then(r => r.text())
+        .then(html => document.getElementById('header-placeholder').innerHTML = html);
+
+    fetch('../components/footer.html')
+        .then(r => r.text())
+        .then(html => document.getElementById('footer-placeholder').innerHTML = html);
+</script>
+<script>
+    // Lọc theo trạng thái
+    const tabs = document.querySelectorAll('.filter');
+    const cards = document.querySelectorAll('[data-status]');
+    tabs.forEach(tab => tab.addEventListener('click', () => {
+        tabs.forEach(t => t.classList.remove('active'));
+        tab.classList.add('active');
+        const s = tab.dataset.filter;
+        cards.forEach(c => c.style.display = (s === 'all' || c.dataset.status === s) ? '' : 'none');
+    }));
+</script>
+<script src="${pageContext.request.contextPath}/assets/js/popup.js"></script>
+<script src="${pageContext.request.contextPath}/assets/js/site-shell.js"></script>
+<script src="${pageContext.request.contextPath}/assets/js/auth.js"></script>
+</body>
+</html>
+

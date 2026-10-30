@@ -1036,43 +1036,4 @@ public class ProductDAO {
             return false;
         }
     }
-    public List<Map<String, Object>> findRecommendedProducts(int productId, int limit) throws SQLException {
-        String sql = """
-            SELECT p.id, p.name, p.price, p.stock, p.sold_count, p.id_category,
-                   c.name AS category_name, s.name AS shop_name,
-                   (SELECT pi.url FROM productimages pi WHERE pi.id_product = p.id ORDER BY pi.id LIMIT 1) AS image,
-                   COALESCE((SELECT AVG(rv.rating) FROM reviews rv WHERE rv.id_product = p.id), 0) AS rating
-            FROM product_rules r
-            JOIN products   p ON p.id = r.id_consequent
-            JOIN categories c ON c.id = p.id_category
-            JOIN shops      s ON s.id = p.id_shop
-            WHERE r.id_antecedent = ?
-              AND p.status = 'active' AND p.stock > 0
-            ORDER BY r.lift DESC, r.confidence DESC
-            LIMIT ?
-            """;
-        List<Map<String, Object>> list = new ArrayList<>();
-        try (Connection c = DBConnection.getConnection(); PreparedStatement ps = c.prepareStatement(sql)) {
-            ps.setInt(1, productId);
-            ps.setInt(2, limit);
-            try (ResultSet rs = ps.executeQuery()) {
-                while (rs.next()) {
-                    Map<String, Object> m = new HashMap<>();
-                    m.put("id", rs.getInt("id"));
-                    m.put("name", rs.getString("name"));
-                    m.put("price", rs.getBigDecimal("price"));
-                    m.put("stock", rs.getInt("stock"));
-                    m.put("soldCount", rs.getInt("sold_count"));
-                    m.put("categoryId", rs.getInt("id_category"));
-                    m.put("categoryName", rs.getString("category_name"));
-                    m.put("shopName", rs.getString("shop_name"));
-                    m.put("image", rs.getString("image"));
-                    m.put("rating", rs.getDouble("rating"));
-                    list.add(m);
-                }
-            }
-        }
-        return list;
-    }
-
 }

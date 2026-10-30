@@ -1,0 +1,299 @@
+/* ==========================================================================
+   Admin Disputes & Violations Management Page Styles
+   ========================================================================== */
+
+/* Thống kê (Grid 4 cột theo chuẩn Admin) */
+.dispute-stats {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
+    margin-bottom: 24px;
+}
+
+/* Card hồ sơ khiếu nại */
+.dispute-list {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.dispute-card {
+    background: var(--white);
+    border: 1px solid var(--gray-light);
+    border-left: 4px solid var(--accent-gold);
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.dispute-card:hover {
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
+}
+
+.dispute-card.status-open {
+    border-left-color: #E74C3C;
+}
+
+.dispute-card.status-investigating,
+.dispute-card.status-awaiting_information {
+    border-left-color: var(--accent-gold);
+}
+
+.dispute-card.status-resolved_buyer,
+.dispute-card.status-resolved_seller,
+.dispute-card.status-closed {
+    border-left-color: #27AE60;
+}
+
+.dispute-card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding-bottom: 12px;
+    border-bottom: 1px dashed var(--gray-light);
+}
+
+.dispute-card-header h3 {
+    margin: 0;
+    font-family: 'Baloo 2', cursive;
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--primary-brown);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.dispute-card-header h3 .dispute-id {
+    color: var(--primary-blue);
+    font-weight: 700;
+}
+
+/* Chi tiết nội dung khiếu nại */
+.dispute-card-details {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.dispute-desc-box {
+    background: #FDFBF7;
+    border: 1px solid #F0EAE1;
+    border-radius: 8px;
+    padding: 12px 16px;
+    font-size: 14px;
+    color: var(--text-main);
+    line-height: 1.5;
+}
+
+.dispute-meta-chips {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 12px;
+    font-size: 13px;
+    color: var(--text-muted);
+}
+
+.dispute-meta-chips span {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: #F8F9FA;
+    padding: 4px 10px;
+    border-radius: 6px;
+    border: 1px solid #ECEEF0;
+}
+
+.dispute-meta-chips span i {
+    color: var(--primary-blue);
+}
+
+.dispute-resolution {
+    background: #EBF7EE;
+    border: 1px solid #C3E6CB;
+    border-radius: 8px;
+    padding: 10px 14px;
+    color: #155724;
+    font-size: 13.5px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* Phần ghi chú của Admin */
+.dispute-admin-note-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.dispute-admin-note-wrapper label {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--primary-brown);
+}
+
+.dispute-admin-note {
+    width: 100%;
+    min-height: 40px;
+    padding: 10px 12px;
+    border: 1px solid var(--gray-light);
+    border-radius: 8px;
+    background: var(--white);
+    color: var(--text-main);
+    font: 14px 'Mulish', sans-serif;
+    resize: vertical;
+    transition: border-color 0.2s;
+}
+
+.dispute-admin-note:focus {
+    outline: none;
+    border-color: var(--primary-blue);
+    box-shadow: 0 0 0 3px rgba(66, 91, 154, 0.1);
+}
+
+.dispute-admin-note:disabled {
+    background: #F5F5F5;
+    color: #777;
+    cursor: not-allowed;
+}
+
+/* Thanh điều khiển tác vụ */
+.dispute-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding-top: 12px;
+    border-top: 1px dashed var(--gray-light);
+}
+
+.dispute-action-group {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+}
+
+.dispute-next-status {
+    min-width: 180px;
+    height: 38px;
+    padding: 0 10px;
+    border: 1px solid var(--gray-light);
+    border-radius: 6px;
+    background: var(--white);
+    color: var(--primary-brown);
+    font: 13.5px 'Mulish', sans-serif;
+}
+
+.dispute-created-at {
+    font-size: 12px;
+    color: var(--text-muted);
+}
+
+.dispute-feedback {
+    min-height: 20px;
+    color: var(--primary-blue);
+    font-size: 13.5px;
+    font-weight: 600;
+    margin: 8px 0;
+}
+
+/* Modal / Card Form Tiếp nhận */
+.dispute-intake {
+    background: var(--white);
+    border: 1px solid var(--gray-light);
+    border-radius: 12px;
+    padding: 24px;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.05);
+}
+
+.dispute-intake-header .close-btn {
+    background: transparent;
+    border: none;
+    font-size: 18px;
+    color: var(--text-muted);
+    cursor: pointer;
+    padding: 4px 8px;
+    border-radius: 4px;
+    transition: color 0.2s;
+}
+
+.dispute-intake-header .close-btn:hover {
+    color: var(--primary-brown);
+}
+
+/* Bảng Vi Phạm Vận Hành */
+.violation-section {
+    background: var(--white);
+    border: 1px solid var(--gray-light);
+    border-radius: 12px;
+    padding: 24px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+}
+
+.violation-heading {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+}
+
+/* Empty State */
+.empty-users {
+    text-align: center;
+    padding: 48px 20px;
+    color: var(--text-muted);
+}
+
+.empty-users i {
+    font-size: 44px;
+    color: #CBD5E1;
+    margin-bottom: 12px;
+}
+
+.empty-users p {
+    font-size: 15px;
+    margin: 0;
+}
+
+/* Responsive */
+@media (max-width: 992px) {
+    .dispute-stats {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 600px) {
+    .dispute-stats {
+        grid-template-columns: 1fr;
+    }
+
+    .dispute-card-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .dispute-actions {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .dispute-action-group {
+        flex-direction: column;
+        width: 100%;
+    }
+
+    .dispute-action-group .btn,
+    .dispute-next-status {
+        width: 100%;
+    }
+}

@@ -7,7 +7,7 @@ document.addEventListener("DOMContentLoaded", function() {
             .then(response => response.text())
             .then(data => {
                 sidebarPlaceholder.outerHTML = data;
-                
+
                 // Cập nhật trạng thái active cho menu dựa trên URL hiện tại
                 setTimeout(() => {
                     const currentPage = window.location.pathname.split('/').pop();
