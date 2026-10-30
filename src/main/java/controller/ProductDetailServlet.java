@@ -74,6 +74,20 @@ public class ProductDetailServlet extends HttpServlet {
                 similar.put("image", resolveImage((String) similar.get("image"), categoryId, 0));
             }
             request.setAttribute("similarProducts", similarProducts);
+
+            // Gợi ý "Có thể bạn cũng thích" từ luật kết hợp (bảng product_rules).
+            // Lỗi ở phần gợi ý (vd: chưa tạo bảng) không được làm hỏng cả trang chi tiết.
+            List<Map<String, Object>> recommendedProducts = List.of();
+            try {
+                recommendedProducts = productDAO.findRecommendedProducts(id, 4);
+                for (Map<String, Object> recommended : recommendedProducts) {
+                    recommended.put("image", resolveImage((String) recommended.get("image"),
+                            (Integer) recommended.get("categoryId"), 0));
+                }
+            } catch (SQLException exception) {
+                getServletContext().log("Unable to load association-rule recommendations", exception);
+            }
+            request.setAttribute("recommendedProducts", recommendedProducts);
             request.setAttribute("productDetailReady", true);
             request.getRequestDispatcher("/pages/product-detail.jsp").forward(request, response);
         } catch (SQLException exception) {

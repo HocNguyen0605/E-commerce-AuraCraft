@@ -1,0 +1,124 @@
+.home-section-heading {
+    display: flex;
+    align-items: end;
+    justify-content: space-between;
+    gap: 24px;
+    margin-bottom: 36px;
+}
+
+.home-section-heading .section-title {
+    margin: 0 0 8px;
+}
+
+.home-section-heading p {
+    color: #756663;
+}
+
+.home-section-heading .btn {
+    flex: 0 0 auto;
+}
+
+.home-product-card {
+    height: 100%;
+}
+
+.home-product-link {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    color: inherit;
+}
+
+.home-product-card > a > img {
+    background: #f3eee4;
+}
+
+.home-product-card .product-info {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    align-items: flex-start;
+    text-align: left;
+    gap: 7px;
+}
+
+.home-product-category {
+    color: #80726c;
+    font-size: .85rem;
+}
+
+.home-product-card .product-info h3 {
+    display: -webkit-box;
+    min-height: 2.8em;
+    margin: 0;
+    line-height: 1.4;
+    overflow: hidden;
+    overflow-wrap: anywhere;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    flex: 0 0 auto;
+}
+
+.home-product-card .product-shop {
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.home-product-card .product-rating {
+    margin: 0;
+}
+
+.home-review-count {
+    color: #756663;
+    margin-left: 4px;
+}
+
+.home-product-card .price {
+    margin-top: auto;
+    padding-top: 6px;
+}
+
+.home-product-sold {
+    color: #a16d21;
+    font-size: .9rem;
+}
+
+.home-products-empty {
+    grid-column: 1 / -1;
+    display: grid;
+    justify-items: center;
+    gap: 14px;
+    padding: 44px 20px;
+    border: 1px solid var(--gray-light);
+    border-radius: 18px;
+    color: #756663;
+    text-align: center;
+}
+
+.home-products-empty > i {
+    color: var(--primary-blue);
+    font-size: 2rem;
+}
+
+.home-products-empty .btn {
+    width: auto;
+}
+
+@media (max-width: 768px) {
+    .home-section-heading {
+        align-items: flex-start;
+        flex-direction: column;
+        margin-bottom: 24px;
+    }
+
+    .home-section-heading .section-title {
+        margin-bottom: 4px;
+    }
+
+    .home-section-heading .btn {
+        width: auto;
+    }
+}

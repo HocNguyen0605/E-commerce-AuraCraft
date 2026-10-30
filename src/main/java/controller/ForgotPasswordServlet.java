@@ -2,6 +2,7 @@ package controller;
 
 import com.google.gson.Gson;
 import dao.PasswordResetDAO;
+import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
@@ -25,7 +26,7 @@ import java.util.regex.Pattern;
  * POST /forgot/verify-otp  : kiểm tra mã; đúng thì cho phép đổi mật khẩu trong 5 phút
  * POST /forgot/reset       : đặt mật khẩu mới cho đúng email đã xác thực (email lấy từ session, không tin client)
  */
-@WebServlet({"/forgot/send-otp", "/forgot/verify-otp", "/forgot/reset"})
+@WebServlet({"/forgot/send-otp", "/forgot/verify-otp", "/forgot/reset", "/pages/forgot"})
 public class ForgotPasswordServlet extends HttpServlet {
 
     private static final int IP_COOLDOWN_SECONDS = 10;
@@ -234,5 +235,10 @@ public class ForgotPasswordServlet extends HttpServlet {
         body.put("message", message);
         if (extra != null) body.putAll(extra);
         resp.getWriter().write(gson.toJson(body));
+    }
+    @Override
+    protected void doGet(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        request.getRequestDispatcher("/pages/forgot.jsp").forward(request, response);
     }
 }

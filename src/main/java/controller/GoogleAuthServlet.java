@@ -33,7 +33,7 @@ public class GoogleAuthServlet extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-        resp.sendRedirect(req.getContextPath() + "/pages/login.jsp");
+        resp.sendRedirect(req.getContextPath() + "/pages/login");
     }
 
     @Override

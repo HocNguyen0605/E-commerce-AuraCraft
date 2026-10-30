@@ -45,16 +45,16 @@ E_Commerce_Final_exam/
 
 | Tầng | Vị trí | Nhiệm vụ |
 |------|--------|----------|
-| Controller | `src/main/java/controller` | Nhận request, gọi DAO, chuyển dữ liệu cho giao diện |
-| DAO | `src/main/java/dao` | Chỉ làm việc với database (SQL), không xử lý giao diện |
-| Util | `src/main/java/util` | Hàm dùng chung (kết nối DB, mã hóa, v.v.) |
-| View | `src/main/webapp` | HTML/JSP/CSS/JS, không viết SQL ở đây |
+| Controller | `src_old` | Nhận request, gọi DAO, chuyển dữ liệu cho giao diện |
+| DAO | `src_old` | Chỉ làm việc với database (SQL), không xử lý giao diện |
+| Util | `src_old` | Hàm dùng chung (kết nối DB, mã hóa, v.v.) |
+| View | `src_old` | HTML/JSP/CSS/JS, không viết SQL ở đây |
 
 ### Ghi chú về file `.properties`
 
 `db.properties` là **file cấu hình dạng `key=value`** dùng để lưu thông tin kết nối database, giúp không phải viết cứng (hard-code) vào code Java.
 
-**Vị trí:** bắt buộc đặt trong `src/main/resources/`. Maven sẽ tự copy file này vào `WEB-INF/classes` khi build, nhờ đó code đọc được qua classpath.
+**Vị trí:** bắt buộc đặt trong `src_old`. Maven sẽ tự copy file này vào `WEB-INF/classes` khi build, nhờ đó code đọc được qua classpath.
 
 **Nội dung mẫu:**
 ```properties
@@ -64,13 +64,13 @@ db.password=your_password_here
 db.driver=com.mysql.cj.jdbc.Driver
 ```
 
-**Cách đọc trong code** (đường dẫn KHÔNG có `src/` hay `resources/`):
+**Cách đọc trong code** (đường dẫn KHÔNG có `src_old` hay `resources/`):
 ```java
 DBConnection.class.getClassLoader().getResourceAsStream("db.properties");
 ```
 
 **Quy tắc cho cả nhóm:**
-- **KHÔNG** commit mật khẩu thật lên Git. Thêm `src/main/resources/db.properties` vào `.gitignore`.
+- **KHÔNG** commit mật khẩu thật lên Git. Thêm `src_old` vào `.gitignore`.
 - Tạo file mẫu `db.properties.example` (để trống mật khẩu) và commit file này. Thành viên mới copy ra thành `db.properties` rồi điền thông tin máy mình.
 - Mỗi người dùng database local khác nhau nên phải tự sửa `db.user` và `db.password` cho phù hợp.
 - Sửa `db.properties` xong phải **build lại và restart Tomcat** thì thay đổi mới có hiệu lực.

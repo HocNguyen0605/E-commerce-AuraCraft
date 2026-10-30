@@ -2,6 +2,7 @@ package controller;
 
 import com.google.gson.Gson;
 import dao.CartDAO;
+import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
@@ -13,13 +14,18 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-@WebServlet("/api/cart")
+@WebServlet({"/api/cart","/pages/cart"})
 public class CartServlet extends HttpServlet {
     private final CartDAO cartDAO = new CartDAO();
     private final Gson gson = new Gson();
 
     @Override
-    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
+    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        if ("/pages/cart".equals(request.getServletPath())) {
+            request.getRequestDispatcher("/pages/cart.jsp").forward(request, response);
+            return;
+        }
+
         Integer userId = buyerId(request);
         if (userId == null) { writeError(response, 401, "Đăng nhập tài khoản người mua để đồng bộ giỏ hàng."); return; }
         try {

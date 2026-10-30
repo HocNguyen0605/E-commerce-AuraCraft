@@ -1,9 +1,14 @@
 # ── Build output ──────────────────────────────────────────────────────────────
-target/
+E-commerce-AuraCraft/target/
 
-# ── Database config (sensitive) ───────────────────────────────────────────────
+
+# ── Sensitive config (Database, AI API Keys) ──────────────────────────
 **/db.properties
 db.properties
+**/ai.properties
+ai.properties
+**/mail.properties
+mail.properties
 
 # ── IDE ───────────────────────────────────────────────────────────────────────
 .idea/
@@ -25,3 +30,6 @@ logs/
 
 # ── Tomcat ────────────────────────────────────────────────────────────────────
 .smarttomcat/
+
+# ── TARGET ───────────────────────────────────────────────────────────────────────
+target/

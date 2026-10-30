@@ -69,13 +69,10 @@ document.addEventListener("DOMContentLoaded", () => {
         if (user.shopId) {
             content.append(document.createElement("br"));
             const link = document.createElement("a");
-            link.className = "user-portfolio";
-            link.href = "shop-profile.jsp?id=" + user.shopId;
-            link.target = "_blank";
-            link.textContent = "Mở portfolio";
-            link.style.color = "var(--primary-blue)";
-            link.style.textDecoration = "underline";
-            link.style.fontSize = "13px";
+            link.className = "btn-portfolio";
+            link.href = CTX + "/pages/admin/admin-portfolio.jsp?shopId=" + user.shopId;
+            link.title = "Xem hồ sơ chi tiết của thợ";
+            link.innerHTML = '<i class="fa-solid fa-id-card"></i> Mở Portfolio';
             content.append(link);
         }
     } else {

@@ -19,6 +19,10 @@ public class CheckoutResponseDTO {
     private int coinsUsed;
     private int remainingCoins;
     private int rewardCoinsPending;
+    private boolean hasCustomItem;
+
+    public boolean isHasCustomItem() { return hasCustomItem; }
+    public void setHasCustomItem(boolean hasCustomItem) { this.hasCustomItem = hasCustomItem; }
 
     public int getOrderId() { return orderId; }
     public void setOrderId(int orderId) { this.orderId = orderId; }

@@ -1,17 +1,7 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" pageEncoding="UTF-8" %>
 <%@ taglib prefix="c" uri="jakarta.tags.core" %>
 <%@ taglib prefix="fmt" uri="jakarta.tags.fmt" %>
-<%--
-  Đặt tại: webapp/pages/order-management.jsp  (SellerOrdersServlet forward tới đây)
-
-  Servlet set (request attribute):
-    shop      : Shop (name, avatar) - dùng cho sidebar
-    orders    : List<SellerOrder> (id, buyerId, buyerName, productNames, amount, dateCreate, address,
-                                   status, deadline, latestNote, pendingExtension, uiStatus, overdueDays)
-    lateCount : số đơn trễ hạn
-    success / error : flash message
-  POST /seller/orders  action = start | progress | extend | deliver, orderId, (note | reason + days)
---%>
+<%@ taglib prefix="fn" uri="jakarta.tags.functions" %>
 <fmt:setLocale value="vi_VN"/>
 <c:set var="ctx" value="${pageContext.request.contextPath}"/>
 <c:set var="sellerTab" value="orders" scope="request"/>
@@ -27,22 +17,15 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
 
     <!-- Styles -->
-    <link rel="stylesheet" href="${ctx}/src/main/webapp/assets/css/style.css">
-    <link rel="stylesheet" href="${ctx}/src/main/webapp/assets/css/header-footer.css">
-    <link rel="stylesheet" href="${ctx}/src/main/webapp/assets/css/pages/styleSeller.css">
-    <link rel="stylesheet" href="${ctx}/src/main/webapp/assets/css/pages/styleOrders.css">
-    <style>
-        .alert { padding: 15px; margin-bottom: 20px; border-radius: 4px; }
-        .alert-success { background:#d4edda; color:#155724; border:1px solid #c3e6cb; }
-        .alert-danger  { background:#f8d7da; color:#721c24; border:1px solid #f5c6cb; }
-        .empty-orders { text-align:center; padding: 30px; color: var(--text-muted); }
-    </style>
+    <link rel="stylesheet" href="${ctx}/assets/css/style.css">
+    <link rel="stylesheet" href="${ctx}/assets/css/header-footer.css">
+    <link rel="stylesheet" href="${ctx}/assets/css/pages/styleSeller.css">
+    <link rel="stylesheet" href="${ctx}/assets/css/pages/styleOrders.css">
 </head>
 <body>
-<jsp:include page="/src/main/webapp/components/header.html"/>
 
 <main class="seller-layout container">
-    <%@ include file="/src/main/webapp/components/seller-sidebar.jspf" %>
+    <%@ include file="/components/seller-sidebar.jsp" %>
 
     <!-- Content -->
     <section class="seller-content">
@@ -64,48 +47,43 @@
                 <div class="tab-item" data-tab="done">Đã hoàn thành</div>
             </div>
 
-            <section class="custom-orders-section" aria-label="Đơn hàng Custom">
-                <h2>Đơn hàng Custom</h2>
-                <div class="order-list" id="customOrderList"></div>
-            </section>
+            <%--            <section class="custom-orders-section" aria-label="Đơn hàng Custom">--%>
+            <%--                <h2>Đơn hàng Custom</h2>--%>
+            <%--                <div class="order-list" id="customOrderList"></div>--%>
+            <%--            </section>--%>
 
             <!-- Danh sách đơn hàng -->
-            <div class="order-list">
+            <div class="order-list" id="serverOrderList">
                 <c:if test="${empty orders}">
                     <div class="empty-orders">Chưa có đơn hàng nào.</div>
                 </c:if>
 
                 <c:forEach var="o" items="${orders}">
                     <c:set var="ui" value="${o.uiStatus}"/>
-                    <div class="order-card" data-status="${ui}"
+                    <c:choose>
+                        <c:when test="${ui eq 'pending'}"><c:set var="uiText" value="Chờ xử lý"/></c:when>
+                        <c:when test="${ui eq 'crafting'}"><c:set var="uiText" value="Đang chế tác"/></c:when>
+                        <c:when test="${ui eq 'late'}"><c:set var="uiText" value="Trễ hạn chế tác"/></c:when>
+                        <c:when test="${ui eq 'shipping'}"><c:set var="uiText" value="Đang giao hàng"/></c:when>
+                        <c:otherwise><c:set var="uiText" value="Đã hoàn thành"/></c:otherwise>
+                    </c:choose>
+
+                    <div class="order-card" data-status="${ui}" data-id="#ORD-${o.id}"
                          <c:if test="${ui eq 'late'}">style="border-left: 4px solid var(--status-late);"</c:if>
-                         <c:if test="${ui eq 'done'}">style="opacity: 0.8;"</c:if>
-                         data-id="#ORD-${o.id}"
-                         data-buyer="<c:out value='${o.buyerName}'/>"
-                         data-product="<c:out value='${o.productNames}'/>"
-                         data-price="<fmt:formatNumber value='${o.amount}' pattern='#,##0'/> đ"
-                         data-date="<fmt:formatDate value='${o.dateCreate}' pattern='dd/MM/yyyy - HH:mm'/>"
-                         data-address="<c:out value='${o.address}'/>"
-                         data-note="<c:out value='${empty o.latestNote ? "Chưa có cập nhật tiến độ." : o.latestNote}'/>">
+                         <c:if test="${ui eq 'done'}">style="opacity: 0.8;"</c:if>>
 
                         <div class="order-header">
                             <span class="order-id" <c:if test="${ui eq 'late'}">style="color: var(--status-late);"</c:if>>Mã ĐH: #ORD-${o.id}</span>
-                            <c:choose>
-                                <c:when test="${ui eq 'pending'}"><span class="badge pending">Chờ xử lý</span></c:when>
-                                <c:when test="${ui eq 'crafting'}"><span class="badge crafting">Đang chế tác</span></c:when>
-                                <c:when test="${ui eq 'late'}"><span class="badge late">Trễ hạn chế tác</span></c:when>
-                                <c:when test="${ui eq 'shipping'}"><span class="badge shipping">Đang giao hàng</span></c:when>
-                                <c:otherwise><span class="badge done">Đã hoàn thành</span></c:otherwise>
-                            </c:choose>
+                            <span class="badge ${ui}">${uiText}</span>
                         </div>
 
-                        <div class="order-body" onclick="openOrderDetail(this.parentElement)" style="cursor: pointer;" title="Nhấn để xem chi tiết">
+                        <div class="order-body" onclick="openOrderDetail(this.closest('.order-card'))" style="cursor: pointer;" title="Nhấn để xem chi tiết">
                             <div class="order-info">
                                 <h3 class="hover-title" <c:if test="${ui eq 'done'}">style="color: var(--text-muted);"</c:if>><c:out value="${o.productNames}"/></h3>
-                                <p class="req-desc" style="margin: 0; color: var(--text-muted); font-size: 14px;">Khách hàng: <strong><c:out value="${o.buyerName}"/></strong></p>
+                                <p class="req-desc" style="margin: 0; color: var(--text-muted); font-size: 14px;">Khách hàng: <strong><c:out value="${empty o.receiver ? o.buyerName : o.receiver}"/></strong></p>
                                 <c:choose>
                                     <c:when test="${ui eq 'pending'}">
-                                        <span class="deadline" style="color: var(--text-muted); background: var(--gray-light);"><i class="fa-regular fa-clock"></i> Khách vừa thanh toán</span>
+                                        <span class="deadline" style="color: var(--text-muted); background: var(--gray-light);"><i class="fa-regular fa-clock"></i> Đơn mới, chờ bạn xác nhận</span>
                                     </c:when>
                                     <c:when test="${ui eq 'crafting' and not empty o.deadline}">
                                         <span class="deadline"><i class="fa-regular fa-clock"></i> Deadline: <fmt:formatDate value="${o.deadline}" pattern="dd/MM/yyyy - HH:mm"/></span>
@@ -121,8 +99,10 @@
                         </div>
 
                         <div class="order-footer">
-                            <div class="total-price"><fmt:formatNumber value="${o.amount}" pattern="#,##0"/> đ</div>
+                            <div class="total-price"><fmt:formatNumber value="${o.amount}" pattern="#,##0"/>đ</div>
                             <div class="order-actions">
+                                <button type="button" class="btn btn-outline" onclick="openOrderDetail(this.closest('.order-card'))">
+                                </button>
                                 <c:if test="${ui eq 'late'}">
                                     <button type="button" class="btn btn-outline" style="color:var(--status-late); border-color:var(--status-late);"
                                         ${o.pendingExtension ? 'disabled title="Đã có yêu cầu gia hạn đang chờ duyệt"' : ''}
@@ -149,6 +129,58 @@
                                 </c:if>
                             </div>
                         </div>
+
+                        <!-- Nội dung popup chi tiết (không hiển thị, JS sao chép vào modal) -->
+                        <template class="order-detail-tpl">
+                            <div class="od-grid">
+                                <div class="od-field"><span>Trạng thái</span><strong><span class="badge ${ui}">${uiText}</span></strong></div>
+                                <div class="od-field"><span>Ngày đặt</span><strong><fmt:formatDate value="${o.dateCreate}" pattern="dd/MM/yyyy - HH:mm"/></strong></div>
+                                <div class="od-field"><span>Người nhận</span><strong><c:out value="${empty o.receiver ? o.buyerName : o.receiver}"/></strong></div>
+                                <div class="od-field"><span>Số điện thoại</span><strong><c:out value="${empty o.phone ? 'Chưa có' : o.phone}"/></strong></div>
+                                <div class="od-field"><span>Thanh toán</span><strong><c:out value="${o.paymentLabel}"/></strong></div>
+                                <c:if test="${not empty o.deadline}">
+                                    <div class="od-field"><span>Hạn chế tác</span><strong><fmt:formatDate value="${o.deadline}" pattern="dd/MM/yyyy - HH:mm"/></strong></div>
+                                </c:if>
+                                <div class="od-field od-full"><span>Địa chỉ giao hàng</span><strong><c:out value="${o.address}"/></strong></div>
+                                <c:if test="${not empty o.buyerNote}">
+                                    <div class="od-field od-full"><span>Ghi chú của người mua</span><strong><c:out value="${o.buyerNote}"/></strong></div>
+                                </c:if>
+                            </div>
+
+                            <h4 class="od-heading">Sản phẩm trong đơn (${fn:length(o.items)} loại, ${o.itemCount} sản phẩm)</h4>
+                            <div class="od-items">
+                                <c:forEach var="it" items="${o.items}">
+                                    <div class="od-item">
+                                        <img src="<c:out value='${it.imageUrl}'/>" alt="<c:out value='${it.name}'/>"
+                                             onerror="this.onerror=null;this.src='${ctx}/assets/img/products/bracelet_01.jpg'">
+                                        <div class="od-item-info">
+                                            <div class="od-item-name"><c:out value="${it.name}"/></div>
+                                            <div class="od-item-meta">
+                                                <fmt:formatNumber value="${it.price}" pattern="#,##0"/>đ × ${it.quantity}
+                                            </div>
+                                        </div>
+                                        <div class="od-item-total"><fmt:formatNumber value="${it.lineTotal}" pattern="#,##0"/>đ</div>
+                                    </div>
+                                </c:forEach>
+                                <c:if test="${empty o.items}">
+                                    <div class="od-empty">Không có dữ liệu sản phẩm cho đơn này.</div>
+                                </c:if>
+                            </div>
+
+                            <div class="od-summary">
+                                <div class="od-sum-row"><span>Tiền hàng</span><span><fmt:formatNumber value="${o.itemsTotal}" pattern="#,##0"/>đ</span></div>
+                                <div class="od-sum-row"><span>Phí vận chuyển</span><span><fmt:formatNumber value="${o.shippingFee}" pattern="#,##0"/>đ</span></div>
+                                <c:if test="${o.discount > 0}">
+                                    <div class="od-sum-row"><span>Giảm giá</span><span>-<fmt:formatNumber value="${o.discount}" pattern="#,##0"/>đ</span></div>
+                                </c:if>
+                                <div class="od-sum-row od-sum-total"><span>Tổng thanh toán</span><span><fmt:formatNumber value="${o.amount}" pattern="#,##0"/>đ</span></div>
+                            </div>
+
+                            <div class="od-note">
+                                <strong>Ghi chú / Tiến độ nội bộ</strong>
+                                <span><c:out value="${empty o.latestNote ? 'Chưa có cập nhật tiến độ.' : o.latestNote}"/></span>
+                            </div>
+                        </template>
                     </div>
                 </c:forEach>
             </div>
@@ -156,10 +188,10 @@
     </section>
 </main>
 
-<jsp:include page="/src/main/webapp/components/footer.html"/>
+<jsp:include page="/components/footer.html"/>
 
 <!-- Form ẩn dùng chung cho các hành động (start / progress / extend / deliver) -->
-<form id="orderActionForm" action="${ctx}/seller/orders" method="POST" style="display:none;">
+<form id="orderActionForm" action="${ctx}/pages/seller/order-management" method="POST" style="display:none;">
     <input type="hidden" name="action"  id="actAction">
     <input type="hidden" name="orderId" id="actOrderId">
     <input type="hidden" name="note"    id="actNote">
@@ -169,71 +201,66 @@
 
 <!-- Chi Tiết Đơn Hàng -->
 <div class="modal-overlay" id="orderModal">
-    <div class="modal-content" style="max-width: 600px;">
+    <div class="modal-content order-modal">
         <div class="modal-header">
-            <h2>Chi Tiết Đơn Hàng <span id="modalOrderId" style="color: var(--primary-brown);"></span></h2>
-            <button type="button" class="close-btn" onclick="closeOrderDetail()"><i class="fa-solid fa-times"></i></button>
+            <h2>Chi tiết đơn hàng <span id="modalOrderId" style="color: var(--primary-brown);"></span></h2>
+            <button type="button" class="close-btn" onclick="closeOrderDetail()" aria-label="Đóng"><i class="fa-solid fa-times"></i></button>
         </div>
-        <div class="detail-body">
-            <h3 id="modalProduct" style="margin-top: 0; color: var(--primary-blue);"></h3>
-
-            <div class="info-row"><strong>Khách hàng:</strong> <span id="modalBuyer"></span></div>
-            <div class="info-row"><strong>Ngày đặt:</strong> <span id="modalDate"></span></div>
-            <div class="info-row"><strong>Địa chỉ giao hàng:</strong> <span id="modalAddress"></span></div>
-            <div class="info-row" style="margin-top: 15px; padding: 15px; background: var(--bg-cream); border-radius: 8px;">
-                <strong style="display: block; margin-bottom: 5px;">Ghi chú / Tiến độ nội bộ:</strong>
-                <span id="modalNote" style="color: var(--text-muted); font-size: 14px; line-height: 1.5;"></span>
-            </div>
-
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 24px; border-top: 1px dashed var(--gray-light); padding-top: 16px;">
-                <span style="font-size: 16px;">Tổng thanh toán:</span>
-                <span id="modalPrice" class="total-price"></span>
-            </div>
-        </div>
-        <div class="modal-actions">
+        <div class="od-body" id="modalBody"></div>
+        <div class="od-footer">
             <button type="button" class="btn btn-primary" onclick="closeOrderDetail()" style="width: 100%;">Đóng</button>
         </div>
     </div>
 </div>
 
 <!-- Scripts -->
-<script src="${ctx}/src/main/webapp/assets/js/custom-workflow.js"></script>
-<script src="${ctx}/src/main/webapp/assets/js/custom-order-management.js"></script>
+<%--<script src="${ctx}/assets/js/custom-workflow.js"></script>--%>
+<%--<script src="${ctx}/assets/js/custom-order-management.js"></script>--%>
 <script>
-    // --- LỌC THEO TAB ---
-    const tabs = document.querySelectorAll('.tab-item');
-    const orders = document.querySelectorAll('.order-card');
+    // --- LỌC THEO TAB (chỉ áp dụng cho danh sách đơn từ server) ---
+    const sellerTabEls   = document.querySelectorAll('.tabs .tab-item');
+    const sellerOrderEls = document.querySelectorAll('#serverOrderList .order-card');
 
-    tabs.forEach(tab => {
+    sellerTabEls.forEach(tab => {
         tab.addEventListener('click', () => {
-            tabs.forEach(t => t.classList.remove('active'));
+            sellerTabEls.forEach(t => t.classList.remove('active'));
             tab.classList.add('active');
             const filter = tab.getAttribute('data-tab');
-            orders.forEach(order => {
-                const status = order.getAttribute('data-status');
-                order.style.display = (filter === 'all' || filter === status) ? 'block' : 'none';
+            sellerOrderEls.forEach(card => {
+                const status = card.getAttribute('data-status');
+                card.style.display = (filter === 'all' || filter === status) ? 'block' : 'none';
             });
         });
     });
 
     // --- MODAL CHI TIẾT ---
-    const orderModal = document.getElementById('orderModal');
+    const sellerOrderModal = document.getElementById('orderModal');
 
-    function openOrderDetail(cardElement) {
-        document.getElementById('modalOrderId').innerText = cardElement.getAttribute('data-id');
-        document.getElementById('modalProduct').innerText = cardElement.getAttribute('data-product');
-        document.getElementById('modalBuyer').innerText = cardElement.getAttribute('data-buyer');
-        document.getElementById('modalDate').innerText = cardElement.getAttribute('data-date');
-        document.getElementById('modalAddress').innerText = cardElement.getAttribute('data-address');
-        document.getElementById('modalNote').innerText = cardElement.getAttribute('data-note');
-        document.getElementById('modalPrice').innerText = cardElement.getAttribute('data-price');
-        orderModal.classList.add('active');
+    function openOrderDetail(card) {
+        if (!card) return;
+        const tpl = card.querySelector('.order-detail-tpl');
+        document.getElementById('modalOrderId').textContent = card.getAttribute('data-id');
+        document.getElementById('modalBody').innerHTML = tpl ? tpl.innerHTML : '';
+        document.getElementById('modalBody').scrollTop = 0;
+        sellerOrderModal.classList.add('active');
     }
 
-    function closeOrderDetail() { orderModal.classList.remove('active'); }
+    // Dùng cho đơn Custom (custom-order-management.js): đưa 1 phần tử DOM vào popup
+    function showOrderDetailNode(title, node) {
+        document.getElementById('modalOrderId').textContent = title || '';
+        const body = document.getElementById('modalBody');
+        body.replaceChildren(node);
+        body.scrollTop = 0;
+        sellerOrderModal.classList.add('active');
+    }
 
-    orderModal.addEventListener('click', function (e) {
-        if (e.target === orderModal) closeOrderDetail();
+    function closeOrderDetail() { sellerOrderModal.classList.remove('active'); }
+
+    sellerOrderModal.addEventListener('click', function (e) {
+        if (e.target === sellerOrderModal) closeOrderDetail();
+    });
+    document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape') closeOrderDetail();
     });
 
     // --- GỬI HÀNH ĐỘNG LÊN SERVER ---
@@ -247,7 +274,7 @@
         document.getElementById('orderActionForm').submit();
     }
 
-    function openChat(buyerId) { location.href = '${ctx}/seller/chat?buyer=' + buyerId; }
+    function openChat(buyerId) { location.href = '${ctx}/pages/seller/chat-seller?buyer=' + buyerId; }
 
     function confirmOrder(orderId) {
         if (confirm("Bạn đã chuẩn bị đủ nguyên liệu và muốn chuyển đơn #" + orderId + " sang trạng thái Đang Chế Tác?")) {
@@ -274,7 +301,7 @@
         }
     }
 </script>
-<script src="assets/js/auth.js"></script>
-<script src="${ctx}/src/main/webapp/assets/js/popup.js"></script>
+<script src="${ctx}/assets/js/auth.js"></script>
+<script src="${ctx}/assets/js/popup.js"></script>
 </body>
 </html>

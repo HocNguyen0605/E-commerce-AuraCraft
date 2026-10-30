@@ -138,7 +138,7 @@ document.addEventListener("DOMContentLoaded", () => {
       metaChips.innerHTML = `
         <span><i class="fa-solid fa-user"></i> Người mua: <strong>${dispute.buyerEmail}</strong></span>
         <span><i class="fa-solid fa-hammer"></i> Thợ: <strong>${dispute.sellerEmail}</strong></span>
-        <span><i class="fa-solid fa-receipt"></i> Đơn: <strong>${dispute.orderId}</strong> (${order?.productType || "Custom"} · ${order ? Number(order.price).toLocaleString("vi-VN") : 0} đ)</span>
+        <span><i class="fa-solid fa-receipt"></i> Đơn: <strong>${dispute.orderId}</strong> (${order?.productType || "Custom"} · ${order ? Number(order.price).toLocaleString("vi-VN") : 0}đ)</span>
         <span><i class="fa-solid fa-circle-info"></i> Tiến độ đơn: <strong>${order?.status || "N/A"}</strong></span>
       `;
       

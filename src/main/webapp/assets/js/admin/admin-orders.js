@@ -357,7 +357,7 @@ document.addEventListener("DOMContentLoaded", function () {
         document.getElementById("modalItemCount").textContent = order.itemCount || 0;
         document.getElementById("modalPrice").textContent = formatMoney(order.amount);
         document.getElementById("modalShippingFee").textContent = "+" + formatMoney(order.shippingFee);
-        document.getElementById("modalDiscount").textContent = order.discount > 0 ? "-" + formatMoney(order.discount) : "0 đ";
+        document.getElementById("modalDiscount").textContent = order.discount > 0 ? "-" + formatMoney(order.discount) : "0đ";
         document.getElementById("modalFee").textContent = "-" + formatMoney(order.totalFee);
 
         // Set current status in select

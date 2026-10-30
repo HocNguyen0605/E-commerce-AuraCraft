@@ -3,6 +3,7 @@ package controller;
 import com.google.gson.Gson;
 import dao.RegisterDAO;
 import jakarta.servlet.annotation.WebServlet;
+import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -15,7 +16,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.regex.Pattern;
 
-@WebServlet("/register")
+@WebServlet(urlPatterns = {"/register", "/pages/register"})
 public class RegisterServlet extends HttpServlet {
     private static final Pattern USERNAME = Pattern.compile("^[a-z0-9_]{4,30}$");
     private static final Pattern EMAIL = Pattern.compile("^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$");
@@ -24,8 +25,8 @@ public class RegisterServlet extends HttpServlet {
     private final Gson gson = new Gson();
 
     @Override
-    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-        resp.sendRedirect(req.getContextPath() + "/pages/register.jsp");
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        req.getRequestDispatcher("/pages/register.jsp").forward(req, resp);
     }
 
     @Override

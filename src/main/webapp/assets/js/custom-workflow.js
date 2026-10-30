@@ -3,8 +3,8 @@
 
   function makeId(prefix) {
     const randomPart = window.crypto && window.crypto.randomUUID
-      ? window.crypto.randomUUID()
-      : `${Date.now()}-${Math.random().toString(16).slice(2)}`;
+        ? window.crypto.randomUUID()
+        : `${Date.now()}-${Math.random().toString(16).slice(2)}`;
     return `${prefix}-${randomPart}`;
   }
 
@@ -218,7 +218,7 @@
         description: "Thợ nhận làm vòng sau 3 ngày thì hủy đơn, làm lỡ ngày sinh nhật của bạn mình.",
         status: "resolved_buyer",
         adminNote: "Đã xác minh thợ đơn phương hủy đơn không báo trước.",
-        resolution: "Hoàn tiền 100% cho Buyer (520.000 đ) và trừ điểm uy tín của Thợ (BR48).",
+        resolution: "Hoàn tiền 100% cho Buyer (520.000đ) và trừ điểm uy tín của Thợ (BR48).",
         createdAt: "2026-09-25T11:00:00.000Z",
         updatedAt: "2026-09-26T14:30:00.000Z"
       }
@@ -255,7 +255,8 @@
     ],
     messages: [],
     changes: [],
-    adminActions: []
+    adminActions: [],
+    customDesigns: []
   };
 
   function readState() {
@@ -279,7 +280,8 @@
         changes: Array.isArray(stored.changes) ? stored.changes : [],
         disputes: Array.isArray(stored.disputes) && stored.disputes.length > 0 ? stored.disputes : defaultWorkflowState.disputes,
         violations: Array.isArray(stored.violations) && stored.violations.length > 0 ? stored.violations : defaultWorkflowState.violations,
-        adminActions: Array.isArray(stored.adminActions) ? stored.adminActions : []
+        adminActions: Array.isArray(stored.adminActions) ? stored.adminActions : [],
+        customDesigns: Array.isArray(stored.customDesigns) ? stored.customDesigns : []
       };
     } catch (error) {
       return defaultWorkflowState;
@@ -298,6 +300,76 @@
 
   function listRequests() {
     return readState().requests;
+  }
+
+  function listCustomDesigns() {
+    return readState().customDesigns.slice().sort((a, b) => new Date(b.updatedAt || b.createdAt) - new Date(a.updatedAt || a.createdAt));
+  }
+
+  function saveCustomDesign(design) {
+    const state = readState();
+    const slots = Array.isArray(design.slots) ? design.slots : [];
+    if (!slots.some(Boolean) && !design.baseMaterial) throw new Error("Thiết kế cần có dây nền, hạt hoặc charm.");
+    const saved = {
+      ...design,
+      id: design.id || makeId("DESIGN"),
+      slots: slots.map(item => item ? { ...item } : null),
+      baseMaterial: design.baseMaterial ? { ...design.baseMaterial } : null,
+      price: (Number(design.baseMaterial?.price) || 0) + slots.reduce((sum, item) => sum + (item ? Number(item.price) || 0 : 0), 0),
+      updatedAt: new Date().toISOString()
+    };
+    const index = state.customDesigns.findIndex(item => item.id === saved.id);
+    if (index >= 0) state.customDesigns[index] = saved;
+    else {
+      saved.createdAt = saved.updatedAt;
+      state.customDesigns.unshift(saved);
+    }
+    writeState(state);
+    return saved;
+  }
+
+  function createDesignerOrder(design) {
+    const state = readState();
+    const slots = Array.isArray(design.slots) ? design.slots : [];
+    const materials = slots.map((item, index) => item ? `Vị trí ${index + 1}: ${item.name}` : null).filter(Boolean);
+    if (design.baseMaterial?.name) materials.unshift(`Dây nền: ${design.baseMaterial.name}`);
+    const price = (Number(design.baseMaterial?.price) || 0) + slots.reduce((sum, item) => sum + (item ? Number(item.price) || 0 : 0), 0);
+    if (!materials.length || price < 1) throw new Error("Thiết kế cần có ít nhất một vật liệu có giá hợp lệ.");
+
+    const now = new Date().toISOString();
+    const requestId = makeId("REQ-CUSTOM");
+    const quoteId = makeId("QUOTE-CUSTOM");
+    const order = {
+      id: makeId("AC"), requestId, quoteId,
+      orderType: design.orderType || "shop_design",
+      buyerName: "Khách hàng AuraCraft", buyerEmail: "",
+      sellerName: design.sellerName || "AuraCraft", sellerEmail: "",
+      productType: design.productType || design.name || "Thiết kế sản phẩm riêng",
+      price, shippingFee: 25300, days: 5, status: "pending_payment", paymentStatus: "unpaid",
+      customDesignId: design.customDesignId || design.id || null,
+      design: slots.map(item => item ? { ...item } : null),
+      baseMaterial: design.baseMaterial ? { ...design.baseMaterial } : null,
+      designSize: Number(design.size) || slots.length,
+      shopId: design.shopId || "", createdAt: now,
+      paymentDeadlineAt: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString()
+    };
+    const request = {
+      id: requestId, buyerName: order.buyerName, buyerEmail: order.buyerEmail,
+      productType: order.productType, materials: [...new Set([
+        design.baseMaterial?.name, ...slots.filter(Boolean).map(item => item.name)
+      ].filter(Boolean))].join(", "),
+      charmDescription: materials.join("\n"), budget: price, status: "awarded",
+      selectedQuoteId: quoteId, sourceId: "designer", createdAt: now, updatedAt: now
+    };
+    const quote = {
+      id: quoteId, requestId, sellerName: order.sellerName, sellerEmail: "",
+      price, days: order.days, status: "selected", createdAt: now
+    };
+    state.requests.unshift(request);
+    state.quotes.push(quote);
+    state.orders.unshift(order);
+    writeState(state);
+    return order;
   }
 
   function getRequest(requestId) {
@@ -401,7 +473,7 @@
       createdAt: new Date().toISOString()
     };
     if (!quote.sellerName || !Number.isFinite(quote.price) || quote.price < 1 || !Number.isInteger(quote.days) || quote.days < 1 || quote.days > 15
-      || !Number.isFinite(quote.rating) || quote.rating < 1 || quote.rating > 5 || !Number.isInteger(quote.completedOrders) || quote.completedOrders < 0) {
+        || !Number.isFinite(quote.rating) || quote.rating < 1 || quote.rating > 5 || !Number.isInteger(quote.completedOrders) || quote.completedOrders < 0) {
       throw new Error("Giá, thời gian chế tác hoặc thông tin hồ sơ thợ không hợp lệ.");
     }
     state.quotes.push(quote);
@@ -418,7 +490,7 @@
     if (request.status === "awarded" || request.status === "cancelled") throw new Error("Yêu cầu này đã được xử lý.");
     quote.status = "selected";
     state.quotes.filter((item) => item.requestId === request.id && item.id !== quote.id)
-      .forEach((item) => { item.status = "rejected"; });
+        .forEach((item) => { item.status = "rejected"; });
     request.status = "awarded";
     request.selectedQuoteId = quote.id;
     request.updatedAt = new Date().toISOString();
@@ -426,12 +498,14 @@
       id: makeId("AC"),
       requestId: request.id,
       quoteId: quote.id,
+      orderType: "quote_request",
       buyerName: request.buyerName,
       buyerEmail: request.buyerEmail,
       sellerName: quote.sellerName,
       sellerEmail: quote.sellerEmail,
       productType: request.productType,
       price: quote.price,
+      shippingFee: 25300,
       days: quote.days,
       status: "pending_payment",
       paymentStatus: "unpaid",
@@ -475,21 +549,39 @@
   function recordPayment(orderId, result, details) {
     const state = readState();
     const order = requireRecord(state.orders, orderId, "Đơn hàng");
-    if (order.paymentStatus === "paid") throw new Error("Đơn hàng này đã thanh toán.");
+    if (["paid", "deposit_paid"].includes(order.paymentStatus)) throw new Error("Đơn hàng này đã được thanh toán hoặc đã cọc.");
     const isAdjustment = order.paymentStatus === "adjustment_due";
+    const requestedAmount = Number(details.amount);
+    const amount = isAdjustment
+        ? Math.abs(Number(order.priceDifference) || 0)
+        : Math.max(0, Number.isFinite(requestedAmount) ? requestedAmount : Number(order.price) || 0);
     const transaction = {
       id: makeId("TXN"),
       orderId,
       method: details.method,
       result,
-      amount: isAdjustment ? Math.abs(order.priceDifference || 0) : order.price,
+      amount,
       createdAt: new Date().toISOString()
     };
     state.transactions.push(transaction);
+    if (result === "pending" && details.method === "cod") {
+      order.paymentStatus = "cod_due";
+      order.paymentMethod = "cod";
+      order.status = "crafting";
+      order.paidAmount = 0;
+      order.remainingAmount = Math.max(0, Number(order.price || 0) + Number(order.shippingFee || 25300));
+      order.deadlineAt = new Date(Date.now() + Number(order.days || 5) * 24 * 60 * 60 * 1000).toISOString();
+    }
     if (result === "success") {
-      order.paymentStatus = "paid";
+      const isDeposit = details.method === "vnpay_deposit" && !isAdjustment;
+      order.paymentStatus = isDeposit ? "deposit_paid" : "paid";
       order.status = "crafting";
       order.paidAt = transaction.createdAt;
+      order.paidAmount = amount;
+      order.remainingAmount = isDeposit
+          ? Math.max(0, Number(order.price || 0) + Number(order.shippingFee || 25300) - amount)
+          : 0;
+      if (isDeposit) order.depositPaidAt = transaction.createdAt;
       order.deadlineAt = new Date(new Date(transaction.createdAt).getTime() + order.days * 24 * 60 * 60 * 1000).toISOString();
     }
     writeState(state);
@@ -553,7 +645,7 @@
       request.updatedAt = change.respondedAt;
       if (order) {
         if (change.proposedPrice !== null) {
-          const wasPaid = order.paymentStatus === "paid";
+          const wasPaid = ["paid", "deposit_paid"].includes(order.paymentStatus);
           order.priceDifference = change.proposedPrice - order.price;
           order.price = change.proposedPrice;
           if (wasPaid && order.priceDifference > 0) {
@@ -690,16 +782,16 @@
   function calculateRefundDue(state, order) {
     const transactions = state.transactions.filter((transaction) => transaction.orderId === order.id);
     const successfulPayments = transactions
-      .filter((transaction) => transaction.method !== "refund" && transaction.result === "success")
-      .reduce((total, transaction) => total + Number(transaction.amount || 0), 0);
+        .filter((transaction) => transaction.method !== "refund" && transaction.result === "success")
+        .reduce((total, transaction) => total + Number(transaction.amount || 0), 0);
     const settledRefunds = transactions
-      .filter((transaction) => transaction.method === "refund" && transaction.result === "success")
-      .reduce((total, transaction) => total + Number(transaction.amount || 0), 0);
+        .filter((transaction) => transaction.method === "refund" && transaction.result === "success")
+        .reduce((total, transaction) => total + Number(transaction.amount || 0), 0);
     const pendingRefunds = transactions.filter((transaction) => transaction.method === "refund" && transaction.result === "pending");
     const pendingAmount = pendingRefunds.reduce((total, transaction) => total + Number(transaction.amount || 0), 0);
     const fallbackAmount = transactions.length === 0 && ["paid", "adjustment_due", "refund_due"].includes(order.paymentStatus)
-      ? Number(order.price || 0)
-      : successfulPayments;
+        ? Number(order.price || 0)
+        : successfulPayments;
     return {
       amount: Math.max(0, fallbackAmount - settledRefunds - pendingAmount),
       hasPendingRefund: pendingRefunds.length > 0
@@ -827,6 +919,7 @@
 
   window.AuraCraftCustom = {
     listRequests, getRequest, createRequest, updateRequest, cancelRequest,
+    listCustomDesigns, saveCustomDesign, createDesignerOrder,
     listOpenRequests, listQuotes, addQuote, selectQuote, getOrder, listOrders, listTransactions, getOrderForRequest, saveOrderDetails, recordPayment,
     listDisputes, listViolations, clearViolation, listAdminActions, extendOrderDeadline, reviewLateOrder,
     advanceOrderStatus, cancelOrder, processRefund, createDispute, updateDispute, resolveDispute,

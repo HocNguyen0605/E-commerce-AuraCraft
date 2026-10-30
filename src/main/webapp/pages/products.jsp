@@ -1,6 +1,7 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <%@ taglib prefix="c" uri="jakarta.tags.core" %>
 <%@ taglib prefix="fmt" uri="jakarta.tags.fmt" %>
+<fmt:setLocale value="vi_VN"/>
 <%@ taglib prefix="fn" uri="jakarta.tags.functions" %>
 <%
     if (request.getAttribute("productListingReady") == null) {
@@ -26,7 +27,8 @@
 <div id="header-placeholder"></div>
 
 
-<main class="products-page">
+<main class="products-page" data-context="${pageContext.request.contextPath}"
+      data-database-cart="${sessionScope.role eq 'buyer' and not empty sessionScope.userId}">
     <div class="container products-layout">
         <form class="sidebar-filter" method="get" action="${pageContext.request.contextPath}/pages/products">
             <input type="hidden" name="categoryFilter" value="1">
@@ -86,6 +88,8 @@
                                       <c:if test="${rating2Selected}">checked</c:if>> 2 sao</label></li>
                     <li><label><input type="checkbox" name="rating" value="1"
                                       <c:if test="${rating1Selected}">checked</c:if>> 1 sao</label></li>
+                    <li><label><input type="checkbox" name="rating" value="0"
+                                      <c:if test="${rating0Selected}">checked</c:if>> Chưa có đánh giá (0 sao)</label></li>
                 </ul>
             </div>
             <button class="btn-filter" type="submit">Áp dụng lọc</button>
@@ -154,19 +158,6 @@
 
                     <c:otherwise>
                         <c:forEach var="product" items="${products}">
-                            <c:choose>
-                                <c:when test="${product.categoryId eq 2}"><c:set var="customizerType" value="necklace"/></c:when>
-                                <c:when test="${product.categoryId eq 3}"><c:set var="customizerType"
-                                                                                 value="charm"/></c:when>
-                                <c:otherwise><c:set var="customizerType" value="bracelet"/></c:otherwise>
-                            </c:choose>
-                            <c:url var="customizerUrl" value="/pages/customizer.html">
-                                <c:param name="id" value="${product.id}"/>
-                                <c:param name="type" value="${customizerType}"/>
-                                <c:param name="name" value="${product.name}"/>
-                                <c:param name="shop" value="${product.shopName}"/>
-                                <c:param name="context" value="${pageContext.request.contextPath}"/>
-                            </c:url>
                             <c:set var="fallbackImage"
                                    value="${pageContext.request.contextPath}/assets/img/products/bracelet_01.jpg"/>
                             <c:if test="${product.categoryId eq 2}"><c:set var="fallbackImage"
@@ -212,7 +203,16 @@
                                         <p class="product-sold">Đã bán <c:out value="${product.soldCount}"/></p>
                                     </div>
                                 </a>
-<%--                                <a class="product-customizer-link" href="${customizerUrl}">Tùy chỉnh sản phẩm</a>--%>
+                                <button class="product-add-cart-link" type="button"
+                                        data-product-id="${product.id}"
+                                        data-product-name="<c:out value='${product.name}'/>"
+                                        data-product-price="${product.price}"
+                                        data-product-stock="${product.stock}"
+                                        data-product-shop="<c:out value='${product.shopName}'/>"
+                                        data-product-category="<c:out value='${product.categoryName}'/>"
+                                        <c:if test="${product.stock le 0}">disabled</c:if>>
+                                    <c:choose><c:when test="${product.stock le 0}">Hết hàng</c:when><c:otherwise>Thêm giỏ hàng</c:otherwise></c:choose>
+                                </button>
                             </article>
                         </c:forEach>
                     </c:otherwise>
@@ -252,31 +252,77 @@
 
 <div id="footer-placeholder"></div>
 <script>
-    const appContextPath = '${pageContext.request.contextPath}';
-    fetch(appContextPath + '/components/header.html')
-        .then(response => response.text())
-        .then(html => {
-            html = html.replace(/href="index\.html"/g, 'href="' + appContextPath + '/index.html"');
-            html = html.replace(/href="login\.html"/g, 'href="' + appContextPath + '/pages/login.html"').replace(/href="profile\.html"/g, 'href="' + appContextPath + '/profile"').replace(/href="cart\.jsp"/g, 'href="' + appContextPath + '/pages/cart.jsp"');
-            html = html.replace(/href="pages\/products"/g, 'href="' + appContextPath + '/pages/products"').replace(/href="\.\.\/products"/g, 'href="' + appContextPath + '/pages/products"');
-            document.getElementById('header-placeholder').innerHTML = html;
-        })
-        .catch(error => console.error('Không thể tải header:', error));
-    fetch(appContextPath + '/components/footer.html')
-        .then(response => response.text())
-        .then(html => {
-            html = html.replace(/href="index\.html"/g, 'href="' + appContextPath + '/index.html"');
-            html = html.replace(/href="pages\/products"/g, 'href="' + appContextPath + '/pages/products"').replace(/href="\.\.\/products"/g, 'href="' + appContextPath + '/pages/products"');
-            document.getElementById('footer-placeholder').innerHTML = html;
-        })
-        .catch(error => console.error('Không thể tải footer:', error));
-    document.querySelectorAll('img[data-fallback]').forEach(image => {
-        image.addEventListener('error', () => {
-            image.src = image.dataset.fallback;
-            image.removeAttribute('data-fallback');
-        }, {once: true});
-    });
+    <%--const appContextPath = '${pageContext.request.contextPath}';--%>
+    <%--fetch(appContextPath + '/components/header.html')--%>
+    <%--    .then(response => response.text())--%>
+    <%--    .then(html => {--%>
+    <%--        html = html.replace(/href="index\.html"/g, 'href="' + appContextPath + '/index.html"');--%>
+    <%--        html = html.replace(/href="login\.html"/g, 'href="' + appContextPath + '/pages/login.html"').replace(/href="profile\.html"/g, 'href="' + appContextPath + '/profile"').replace(/href="cart\.jsp"/g, 'href="' + appContextPath + '/pages/cart.jsp"');--%>
+    <%--        html = html.replace(/href="pages\/products"/g, 'href="' + appContextPath + '/pages/products"').replace(/href="\.\.\/products"/g, 'href="' + appContextPath + '/pages/products"');--%>
+    <%--        document.getElementById('header-placeholder').innerHTML = html;--%>
+    <%--    })--%>
+    <%--    .catch(error => console.error('Không thể tải header:', error));--%>
+    <%--fetch(appContextPath + '/components/footer.html')--%>
+    <%--    .then(response => response.text())--%>
+    <%--    .then(html => {--%>
+    <%--        html = html.replace(/href="index\.html"/g, 'href="' + appContextPath + '/index.html"');--%>
+    <%--        html = html.replace(/href="pages\/products"/g, 'href="' + appContextPath + '/pages/products"').replace(/href="\.\.\/products"/g, 'href="' + appContextPath + '/pages/products"');--%>
+    <%--        document.getElementById('footer-placeholder').innerHTML = html;--%>
+    <%--    })--%>
+    <%--    .catch(error => console.error('Không thể tải footer:', error));--%>
+    <%--document.querySelectorAll('img[data-fallback]').forEach(image => {--%>
+    <%--    image.addEventListener('error', () => {--%>
+    <%--        image.src = image.dataset.fallback;--%>
+    <%--        image.removeAttribute('data-fallback');--%>
+    <%--    }, {once: true});--%>
+    <%--});--%>
     const selectAllCategories = document.getElementById('select-all-categories');
+    const productsPage = document.querySelector('.products-page');
+    const productsContext = productsPage.dataset.context;
+    const databaseCart = productsPage.dataset.databaseCart === 'true';
+
+    document.querySelectorAll('.product-add-cart-link').forEach(button => {
+        button.addEventListener('click', async () => {
+            if (button.disabled) return;
+            button.disabled = true;
+            try {
+                const productId = button.dataset.productId;
+                if (databaseCart) {
+                    const response = await fetch(productsContext + '/api/cart', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8' },
+                        body: new URLSearchParams({ action: 'add', productId, quantity: '1' })
+                    });
+                    const result = await response.json();
+                    if (!response.ok) throw new Error(result.message || 'Không thể thêm sản phẩm vào giỏ.');
+                } else {
+                    const cart = JSON.parse(localStorage.getItem('AuraCraftCart') || '[]');
+                    const existing = cart.find(item => String(item.id) === productId);
+                    if (existing) {
+                        existing.quantity = Math.min(Number(button.dataset.productStock || 99), Number(existing.quantity || 1) + 1);
+                        existing.selected = true;
+                    } else {
+                        const image = button.closest('.product-card').querySelector('.product-card-link img');
+                        cart.push({
+                            id: Number(productId), name: button.dataset.productName,
+                            price: Number(button.dataset.productPrice), quantity: 1,
+                            stock: Number(button.dataset.productStock || 99), image: image?.src || '',
+                            shopName: button.dataset.productShop, categoryName: button.dataset.productCategory,
+                            selected: true
+                        });
+                    }
+                    localStorage.setItem('AuraCraftCart', JSON.stringify(cart));
+                }
+                window.dispatchEvent(new Event('auracraft:cart-updated'));
+                button.textContent = 'Đã thêm vào giỏ';
+                window.setTimeout(() => { button.textContent = 'Thêm giỏ hàng'; button.disabled = false; }, 1400);
+            } catch (error) {
+                window.alert(error.message || 'Không thể thêm sản phẩm vào giỏ.');
+                button.disabled = false;
+            }
+        });
+    });
+
     const categoryCheckboxes = Array.from(document.querySelectorAll('.sidebar-filter input[name="category"]'));
     const submittedFilters = new URLSearchParams(window.location.search);
     if (submittedFilters.has('categoryFilter')) {
@@ -309,6 +355,6 @@
 </script>
 <script src="${pageContext.request.contextPath}/assets/js/popup.js"></script>
 <script src="${pageContext.request.contextPath}/assets/js/site-shell.js"></script>
-<script src="assets/js/auth.js"></script>
+<script src="${pageContext.request.contextPath}/assets/js/auth.js"></script>
 </body>
 </html>

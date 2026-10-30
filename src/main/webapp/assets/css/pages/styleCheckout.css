@@ -1,3 +1,22 @@
+:root {
+    --bg-cream: #F8F6F2;
+    --white: #FFFFFF;
+
+    --primary-blue: #4D5E9B;
+    --primary-brown: #432F2E;
+
+    --text-muted: #777777;
+    --gray-light: #E2E2E2;
+
+    --card-bg: #F5F3EF;
+    --shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+
+    --error-color: #D9534F;
+    --success-text: #28734A;
+    --accent-gold: #D4AF37;
+}
+
+
 .checkout-page,
 .success-page {
     padding: 40px 0 60px;
@@ -141,6 +160,14 @@ textarea.form-control {
     font-weight: 600;
 }
 
+.field-help-msg {
+    display: block;
+    margin-top: 5px;
+    color: var(--text-muted);
+    font-size: 12px;
+    line-height: 1.45;
+}
+
 .form-group.invalid .field-error-msg {
     display: block;
 }
@@ -163,7 +190,7 @@ textarea.form-control {
     gap: 14px;
 }
 
-.payment-method-card:hover {
+.payment-method-card:not(.disabled):hover {
     border-color: var(--primary-blue);
     background-color: rgba(66, 91, 154, 0.02);
 }
@@ -204,6 +231,46 @@ textarea.form-control {
     padding: 2px 8px;
     border-radius: 12px;
     font-weight: 600;
+    white-space: nowrap;
+}
+
+.payment-badge.badge-standard {
+    background-color: #e8f5e9;
+    color: #2e7d32;
+    border: 1px solid #c8e6c9;
+}
+
+.payment-badge.badge-custom {
+    background-color: #fff8e1;
+    color: #b78103;
+    border: 1px solid #ffe082;
+}
+
+.payment-badge.badge-online {
+    background-color: #e3f2fd;
+    color: #1565c0;
+    border: 1px solid #bbdefb;
+}
+
+.payment-method-card.disabled {
+    opacity: 0.55;
+    filter: grayscale(1);
+    background-color: #f4f4f4;
+    border-color: #dedede;
+    box-shadow: none;
+    cursor: not-allowed;
+}
+
+.payment-method-card.disabled * {
+    cursor: not-allowed;
+}
+
+.payment-method-card.disabled .payment-method-desc {
+    color: #929292;
+}
+
+.payment-method-card.disabled .payment-method-name span:first-child {
+    color: #888;
 }
 
 .payment-method-desc {
@@ -502,12 +569,17 @@ textarea.form-control {
     position: fixed;
     inset: 0;
     z-index: 99999;
-    display: none;
+    display: flex;
     align-items: center;
     justify-content: center;
     padding: 20px;
     background: rgb(0 0 0 / 60%);
     backdrop-filter: blur(4px);
+    transition: opacity 0.2s ease;
+}
+
+.qr-payment-overlay[hidden] {
+    display: none !important;
 }
 
 .qr-payment-card {

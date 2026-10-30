@@ -115,6 +115,7 @@
         .item-info {
             flex-grow: 1;
             min-width: 0;
+            overflow: hidden;
         }
         .item-name {
             font-size: 14px;
@@ -362,7 +363,7 @@
                 let html = '';
                 for (let idx = 0; idx < featuredProducts.length; idx++) {
                     const p = featuredProducts[idx];
-                    const priceFormatted = Number(p.price || 0).toLocaleString('vi-VN') + ' đ';
+                    const priceFormatted = Number(p.price || 0).toLocaleString('vi-VN') + 'đ';
                     const isFirst = (idx === 0);
                     const isLast = (idx === featuredProducts.length - 1);
                     const imgSrc = getProductImage(p.image, p.categoryId, p.id);
@@ -406,7 +407,7 @@
                 for (let i = 0; i < searchProducts.length; i++) {
                     const p = searchProducts[i];
                     const isAdded = featuredIds.has(p.id);
-                    const priceFormatted = Number(p.price || 0).toLocaleString('vi-VN') + ' đ';
+                    const priceFormatted = Number(p.price || 0).toLocaleString('vi-VN') + 'đ';
                     const imgSrc = getProductImage(p.image, p.categoryId, p.id);
 
                     html += '<div class="item-row">' +
