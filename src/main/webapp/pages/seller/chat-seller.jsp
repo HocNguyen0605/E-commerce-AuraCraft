@@ -15,7 +15,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
     <link rel="stylesheet" href="${ctx}/assets/css/style.css">
-    <link rel="stylesheet" href="${ctx}/assets/css/header-footer.css">
+    <link rel="stylesheet" href="${ctx}/src/main/webap/assets/css/header-footer.css">
     <link rel="stylesheet" href="${ctx}/assets/css/pages/styleChat.css">
     <link rel="stylesheet" href="${ctx}/assets/css/pages/styleSeller.css">
 </head>

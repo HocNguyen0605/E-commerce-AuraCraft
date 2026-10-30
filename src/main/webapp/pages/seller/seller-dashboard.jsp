@@ -455,7 +455,6 @@
 </main>
 
 <jsp:include page="/components/footer.html"/>
-
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <script>
     function openWithdrawModal()  { document.getElementById('withdrawModal').classList.add('active'); }
