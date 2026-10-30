@@ -233,6 +233,35 @@
             </form>
         </c:if>
     </section>
+    <%-- Gợi ý từ luật kết hợp (Association Rules): chỉ hiện khi sản phẩm này có luật --%>
+    <c:if test="${not empty recommendedProducts}">
+    <section class="pd-shop-suggestions" id="pdRecommendations">
+        <h2 class="section-title">Có thể bạn cũng thích</h2>
+        <div class="similar-carousel">
+        <button class="review-nav prev" type="button" aria-label="Xem gợi ý trước" data-carousel="recommendGrid">‹</button>
+        <div class="shop-suggest-grid" id="recommendGrid">
+            <c:forEach items="${recommendedProducts}" var="rec"><article class="similar-product-card"><a class="shop-suggest-item"
+                    href="${pageContext.request.contextPath}/pages/product-detail?id=${rec.id}">
+                <c:choose>
+                    <c:when test="${not empty rec.image}">
+                        <div class="shop-suggest-img" style="background-image:url('${rec.image}')"></div>
+                    </c:when>
+                    <c:otherwise>
+                        <div class="shop-suggest-img">AuraCraft</div>
+                    </c:otherwise>
+                </c:choose>
+                <div class="shop-suggest-body"><strong><c:out value="${rec.name}"/></strong><span class="shop-suggest-price">
+                    <fmt:formatNumber value="${rec.price}" type="number" groupingUsed="true"/>đ
+                </span><span class="shop-suggest-rating">★
+                    <fmt:formatNumber value="${rec.rating}" maxFractionDigits="1"/>
+                    · Đã bán ${rec.soldCount}
+                </span></div>
+            </a><button type="button" class="btn btn-outline similar-add-cart" data-id="${rec.id}" data-name="<c:out value='${rec.name}'/>" data-price="${rec.price}" data-stock="${rec.stock}" data-category="<c:out value='${rec.categoryName}'/>" data-shop="<c:out value='${rec.shopName}'/>">Thêm giỏ hàng</button></article></c:forEach>
+        </div>
+        <button class="review-nav next" type="button" aria-label="Xem gợi ý tiếp theo" data-carousel="recommendGrid">›</button>
+        </div>
+    </section>
+    </c:if>
     <section class="pd-shop-suggestions" id="pdShopSuggestions">
         <h2 class="section-title">Sản phẩm cùng danh mục</h2>
         <div class="similar-carousel">
@@ -288,20 +317,21 @@
         window.addEventListener('resize', updateArrows);
         requestAnimationFrame(updateArrows);
     }
-    const similarGrid = document.getElementById('similarGrid');
-    if (similarGrid) {
-        const prev = document.querySelector('[data-carousel="similarGrid"].prev');
-        const next = document.querySelector('[data-carousel="similarGrid"].next');
+    ['similarGrid', 'recommendGrid'].forEach(gridId => {
+        const grid = document.getElementById(gridId);
+        if (!grid) return;
+        const prev = document.querySelector('[data-carousel="' + gridId + '"].prev');
+        const next = document.querySelector('[data-carousel="' + gridId + '"].next');
         const updateArrows = () => {
-            prev.disabled = similarGrid.scrollLeft <= 2;
-            next.disabled = similarGrid.scrollLeft + similarGrid.clientWidth >= similarGrid.scrollWidth - 2;
+            prev.disabled = grid.scrollLeft <= 2;
+            next.disabled = grid.scrollLeft + grid.clientWidth >= grid.scrollWidth - 2;
         };
-        prev.addEventListener('click', () => similarGrid.scrollBy({left: -Math.max(300, similarGrid.clientWidth * .8), behavior: 'smooth'}));
-        next.addEventListener('click', () => similarGrid.scrollBy({left: Math.max(300, similarGrid.clientWidth * .8), behavior: 'smooth'}));
-        similarGrid.addEventListener('scroll', updateArrows, {passive: true});
+        prev.addEventListener('click', () => grid.scrollBy({left: -Math.max(300, grid.clientWidth * .8), behavior: 'smooth'}));
+        next.addEventListener('click', () => grid.scrollBy({left: Math.max(300, grid.clientWidth * .8), behavior: 'smooth'}));
+        grid.addEventListener('scroll', updateArrows, {passive: true});
         window.addEventListener('resize', updateArrows);
         requestAnimationFrame(updateArrows);
-    }
+    });
     document.querySelectorAll('.pd-thumb').forEach(b => b.addEventListener('click', () => {
         document.querySelectorAll('.pd-thumb').forEach(x => { x.classList.remove('is-active'); x.setAttribute('aria-pressed', 'false'); });
         b.classList.add('is-active');
