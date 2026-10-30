@@ -43,14 +43,39 @@ public class ShopProfileServlet extends HttpServlet {
             }
 
             int totalProducts = productDAO.countActiveProductsByShop(shopId);
-            java.util.Map<String, Object> reviewSummary = shopDAO.getShopReviewSummary(shopId);
+            Object shopRating = 0.0;
+            Object shopReviewCount = 0;
+            java.util.List<java.util.Map<String, Object>> shopReviews = java.util.Collections.emptyList();
+            int successfulCustomOrders = 0;
+            try {
+                java.util.Map<String, Object> reviewSummary = shopDAO.getShopReviewSummary(shopId);
+                shopRating = reviewSummary.get("rating");
+                shopReviewCount = reviewSummary.get("count");
+                shopReviews = shopDAO.findShopReviews(shopId, 20);
+            } catch (SQLException reviewException) {
+                getServletContext().log("Unable to load shop review data", reviewException);
+            }
+            try {
+                successfulCustomOrders = shopDAO.countSuccessfulCustomOrders(shopId);
+            } catch (SQLException customOrderException) {
+                getServletContext().log("Unable to load custom order count for shop", customOrderException);
+            }
             HttpSession session = request.getSession(false);
             Object sessionUserId = session == null ? null : session.getAttribute("userId");
             Object sessionRole = session == null ? null : session.getAttribute("role");
             boolean isBuyer = sessionUserId instanceof Number && sessionRole != null
                     && "buyer".equalsIgnoreCase(sessionRole.toString());
-            int followerCount = followDAO.countFollowers(shopId);
-            boolean following = isBuyer && followDAO.isFollowing(((Number) sessionUserId).intValue(), shopId);
+            // Following is an optional feature. A missing shopfollows table (for
+            // databases that have not applied db_addition.sql yet) must not make
+            // the public shop page unavailable.
+            int followerCount = 0;
+            boolean following = false;
+            try {
+                followerCount = followDAO.countFollowers(shopId);
+                following = isBuyer && followDAO.isFollowing(((Number) sessionUserId).intValue(), shopId);
+            } catch (SQLException followException) {
+                getServletContext().log("Unable to load shop follow data; check db_addition.sql", followException);
+            }
 
             int totalPages = Math.max(1, (totalProducts + PAGE_SIZE - 1) / PAGE_SIZE);
             int page = 1;
@@ -65,10 +90,10 @@ public class ShopProfileServlet extends HttpServlet {
             request.setAttribute("products", productDAO.findActiveProductsByShop(
                     shopId, PAGE_SIZE, (page - 1) * PAGE_SIZE));
             request.setAttribute("totalProducts", totalProducts);
-            request.setAttribute("shopRating", reviewSummary.get("rating"));
-            request.setAttribute("shopReviewCount", reviewSummary.get("count"));
-            request.setAttribute("shopReviews", shopDAO.findShopReviews(shopId, 20));
-            request.setAttribute("successfulCustomOrders", shopDAO.countSuccessfulCustomOrders(shopId));
+            request.setAttribute("shopRating", shopRating);
+            request.setAttribute("shopReviewCount", shopReviewCount);
+            request.setAttribute("shopReviews", shopReviews);
+            request.setAttribute("successfulCustomOrders", successfulCustomOrders);
             request.setAttribute("shopFollowerCount", followerCount);
             request.setAttribute("shopFollowing", following);
             request.setAttribute("isBuyer", isBuyer);
