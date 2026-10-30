@@ -254,20 +254,10 @@
         }
     }, true);
 
-    fetch('./components/header.html')
-        .then(response => response.text())
-        .then(data => {
-            document.getElementById('header-placeholder').innerHTML = data;
-        })
-        .catch(error => console.error('Error loading header:', error));
-
-    fetch('./components/footer.html')
-        .then(response => response.text())
-        .then(data => {
-            let html = data.replace(/href="((?!index\.html|http|#)[^"]+)"/g, 'href="pages/$1"');
-            document.getElementById('footer-placeholder').innerHTML = html;
-        })
-        .catch(error => console.error('Error loading footer:', error));
+    const CTX = '${pageContext.request.contextPath}';
+    fetch(CTX + '/components/header.html')
+        .then(r => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.text(); })
+        .then(html => document.getElementById('header-placeholder').innerHTML = html);
 </script>
 
 <script src="${pageContext.request.contextPath}/assets/js/popup.js"></script>
