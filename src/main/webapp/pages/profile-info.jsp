@@ -95,7 +95,7 @@
                         <div class="address-item">
                             <div><b><c:out value="${a.receiver}"/></b> | <c:out value="${a.phone}"/>
                                 <c:if test="${a.defaultAddress}"><span class="tag">Mặc định</span></c:if>
-                                <c:if test="${empty a.provinceCode}"><span class="tag-warn">Địa chỉ cũ - vui lòng cập nhật tỉnh / xã</span></c:if>
+                                <c:if test="${empty a.provinceCode or empty a.ward}"><span class="tag-warn">Địa chỉ cũ - vui lòng cập nhật tỉnh / xã</span></c:if>
                                 <p><c:out value="${a.fullAddress}"/></p></div>
                             <div class="address-actions">
                                 <button type="button" class="link-btn js-edit-address"

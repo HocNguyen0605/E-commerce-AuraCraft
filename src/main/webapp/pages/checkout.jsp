@@ -42,7 +42,10 @@
         <form id="checkoutForm" novalidate data-context="${pageContext.request.contextPath}"
               data-database-checkout="${databaseCheckoutAvailable}"
               data-has-custom="${hasCustomItem}"
-              data-product-ids="<c:out value='${checkoutProductIds}'/>">
+              data-product-ids="<c:out value='${checkoutProductIds}'/>"
+              data-default-province-code="<c:out value='${checkoutProvinceCode}'/>"
+              data-default-ward-code="<c:out value='${checkoutWardCode}'/>"
+              data-default-ward="<c:out value='${checkoutWard}'/>">
             <div class="checkout-layout">
 
                 <div class="checkout-form-section">
