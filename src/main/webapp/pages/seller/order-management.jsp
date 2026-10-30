@@ -47,10 +47,10 @@
                 <div class="tab-item" data-tab="done">Đã hoàn thành</div>
             </div>
 
-            <%--            <section class="custom-orders-section" aria-label="Đơn hàng Custom">--%>
-            <%--                <h2>Đơn hàng Custom</h2>--%>
-            <%--                <div class="order-list" id="customOrderList"></div>--%>
-            <%--            </section>--%>
+<%--            <section class="custom-orders-section" aria-label="Đơn hàng Custom">--%>
+<%--                <h2>Đơn hàng Custom</h2>--%>
+<%--                <div class="order-list" id="customOrderList"></div>--%>
+<%--            </section>--%>
 
             <!-- Danh sách đơn hàng -->
             <div class="order-list" id="serverOrderList">
@@ -102,6 +102,7 @@
                             <div class="total-price"><fmt:formatNumber value="${o.amount}" pattern="#,##0"/>đ</div>
                             <div class="order-actions">
                                 <button type="button" class="btn btn-outline" onclick="openOrderDetail(this.closest('.order-card'))">
+                                    <i class="fa-regular fa-eye"></i> Xem chi tiết
                                 </button>
                                 <c:if test="${ui eq 'late'}">
                                     <button type="button" class="btn btn-outline" style="color:var(--status-late); border-color:var(--status-late);"

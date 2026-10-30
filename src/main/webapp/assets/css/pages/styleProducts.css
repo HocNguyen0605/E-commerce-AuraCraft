@@ -316,11 +316,11 @@
     .products-layout {
         flex-direction: column;
     }
-    
+
     .sidebar-filter {
         width: 100%;
     }
-    
+
     .products-header {
         flex-direction: column;
         align-items: flex-start;
@@ -332,11 +332,12 @@
     .sort-box select {
         width: 100%;
     }
-    
+
     .products-main .product-grid {
         grid-template-columns: 1fr;
     }
 }
+
 /* Gian hang tim thay */
 .shop-result-card {
     background: linear-gradient(135deg, #ffffff 0%, #f8faff 100%);
@@ -438,4 +439,3 @@
         align-items: stretch;
     }
 }
-

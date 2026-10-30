@@ -53,10 +53,10 @@ public class CheckoutServlet extends HttpServlet {
                     if (profile.getPhone() != null && !profile.getPhone().isBlank()) {
                         request.setAttribute("checkoutPhone", profile.getPhone());
                     }
-                    if ((request.getAttribute("checkoutEmail") == null
-                            || request.getAttribute("checkoutEmail").toString().isBlank())
-                            && profile.getEmail() != null) {
+                    // Email lấy từ DB (nguồn đúng), không tin giá trị cũ trong session
+                    if (profile.getEmail() != null && !profile.getEmail().isBlank()) {
                         request.setAttribute("checkoutEmail", profile.getEmail());
+                        request.getSession(false).setAttribute("email", profile.getEmail());
                     }
                 }
                 String requestedIds = request.getParameter("productIds");
@@ -89,15 +89,22 @@ public class CheckoutServlet extends HttpServlet {
                     request.setAttribute("hasCustomItem", false);
                     request.setAttribute("availableVouchers", checkoutDAO.findAvailableVouchers(buyerId, productIds));
                 }
-                Map<String, String> savedAddress = checkoutDAO.findDefaultAddress(buyerId);
-                if (!savedAddress.isEmpty()) {
-                    if (savedAddress.get("receiver") != null && !savedAddress.get("receiver").isBlank()) {
-                        request.setAttribute("checkoutFullName", savedAddress.get("receiver"));
+                // Địa chỉ mặc định: lấy từ ProfileDAO (đã tách tỉnh / xã / địa chỉ chi tiết)
+                dto.AddressDTO defaultAddress = null;
+                for (dto.AddressDTO a : new dao.ProfileDAO().findAddresses(buyerId)) { // đã ORDER BY is_default DESC
+                    if (a.isDefaultAddress()) { defaultAddress = a; break; }
+                }
+                if (defaultAddress != null) {
+                    if (defaultAddress.getReceiver() != null && !defaultAddress.getReceiver().isBlank()) {
+                        request.setAttribute("checkoutFullName", defaultAddress.getReceiver());
                     }
-                    if (savedAddress.get("phone") != null && !savedAddress.get("phone").isBlank()) {
-                        request.setAttribute("checkoutPhone", savedAddress.get("phone"));
+                    if (defaultAddress.getPhone() != null && !defaultAddress.getPhone().isBlank()) {
+                        request.setAttribute("checkoutPhone", defaultAddress.getPhone());
                     }
-                    request.setAttribute("checkoutAddress", savedAddress.get("address"));
+                    request.setAttribute("checkoutAddress", defaultAddress.getAddress()); // chỉ số nhà, tên đường
+                    request.setAttribute("checkoutProvinceCode", defaultAddress.getProvinceCode());
+                    request.setAttribute("checkoutWardCode", defaultAddress.getWardCode());
+                    request.setAttribute("checkoutWard", defaultAddress.getWard());
                 }
             } catch (SQLException exception) {
                 getServletContext().log("Unable to load buyer delivery address", exception);

@@ -25,16 +25,24 @@ public class ProfileDAO {
     }
 
     public List<AddressDTO> findAddresses(int userId) throws SQLException {
-        String sql = "SELECT id, receiver, phone, address, is_default FROM addresses " +
-                "WHERE id_user = ? ORDER BY is_default DESC, id";
+        String sql = "SELECT id, receiver, phone, province_code, province, ward_code, ward, address, is_default " +
+                "FROM addresses WHERE id_user = ? ORDER BY is_default DESC, id";
         List<AddressDTO> list = new ArrayList<>();
         try (Connection con = DBConnection.getConnection();
              PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setInt(1, userId);
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
-                    list.add(new AddressDTO(rs.getInt("id"), rs.getString("receiver"),
-                            rs.getString("phone"), rs.getString("address"), rs.getBoolean("is_default")));
+                    list.add(new AddressDTO(
+                            rs.getInt("id"),
+                            rs.getString("receiver"),
+                            rs.getString("phone"),
+                            rs.getString("province_code"),
+                            rs.getString("province"),
+                            rs.getString("ward_code"),
+                            rs.getString("ward"),
+                            rs.getString("address"),
+                            rs.getBoolean("is_default")));
                 }
             }
         }
@@ -63,8 +71,13 @@ public class ProfileDAO {
         }
     }
 
-    /** Thêm địa chỉ. Địa chỉ đầu tiên luôn là mặc định; nếu isDefault thì bỏ mặc định của các địa chỉ khác. */
-    public boolean addAddress(int userId, String receiver, String phone, String address, boolean isDefault) throws Exception {
+    /**
+     * Thêm địa chỉ. Địa chỉ đầu tiên luôn là mặc định; nếu isDefault thì bỏ mặc định của các địa chỉ khác.
+     * wardCode có thể null (khi người dùng nhập xã/phường thủ công).
+     */
+    public boolean addAddress(int userId, String receiver, String phone,
+                              String provinceCode, String province, String wardCode, String ward,
+                              String address, boolean isDefault) throws Exception {
         try (Connection c = DBConnection.getConnection()) {
             c.setAutoCommit(false);
             try {
@@ -78,14 +91,19 @@ public class ProfileDAO {
                 boolean makeDefault = isDefault || first;
                 if (makeDefault) clearDefault(c, userId);
 
-                String sql = "INSERT INTO addresses (id_user, receiver, phone, address, is_default) VALUES (?,?,?,?,?)";
+                String sql = "INSERT INTO addresses (id_user, receiver, phone, province_code, province, ward_code, ward, address, is_default) " +
+                        "VALUES (?,?,?,?,?,?,?,?,?)";
                 int rows;
                 try (PreparedStatement ps = c.prepareStatement(sql)) {
                     ps.setInt(1, userId);
                     ps.setString(2, receiver);
                     ps.setString(3, phone);
-                    ps.setString(4, address);
-                    ps.setBoolean(5, makeDefault);
+                    ps.setString(4, provinceCode);
+                    ps.setString(5, province);
+                    setNullableString(ps, 6, wardCode);
+                    ps.setString(7, ward);
+                    ps.setString(8, address);
+                    ps.setBoolean(9, makeDefault);
                     rows = ps.executeUpdate();
                 }
                 c.commit();
@@ -100,7 +118,9 @@ public class ProfileDAO {
     }
 
     /** Sửa địa chỉ (chỉ sửa được địa chỉ của chính user). Địa chỉ đang mặc định không thể bỏ mặc định trực tiếp. */
-    public boolean updateAddress(int id, int userId, String receiver, String phone, String address, boolean isDefault) throws Exception {
+    public boolean updateAddress(int id, int userId, String receiver, String phone,
+                                 String provinceCode, String province, String wardCode, String ward,
+                                 String address, boolean isDefault) throws Exception {
         try (Connection c = DBConnection.getConnection()) {
             c.setAutoCommit(false);
             try {
@@ -119,14 +139,19 @@ public class ProfileDAO {
                 if (makeDefault && !wasDefault) clearDefault(c, userId);
 
                 int rows;
-                String sql = "UPDATE addresses SET receiver = ?, phone = ?, address = ?, is_default = ? WHERE id = ? AND id_user = ?";
+                String sql = "UPDATE addresses SET receiver = ?, phone = ?, province_code = ?, province = ?, " +
+                        "ward_code = ?, ward = ?, address = ?, is_default = ? WHERE id = ? AND id_user = ?";
                 try (PreparedStatement ps = c.prepareStatement(sql)) {
                     ps.setString(1, receiver);
                     ps.setString(2, phone);
-                    ps.setString(3, address);
-                    ps.setBoolean(4, makeDefault);
-                    ps.setInt(5, id);
-                    ps.setInt(6, userId);
+                    ps.setString(3, provinceCode);
+                    ps.setString(4, province);
+                    setNullableString(ps, 5, wardCode);
+                    ps.setString(6, ward);
+                    ps.setString(7, address);
+                    ps.setBoolean(8, makeDefault);
+                    ps.setInt(9, id);
+                    ps.setInt(10, userId);
                     rows = ps.executeUpdate();
                 }
                 c.commit();
@@ -215,5 +240,9 @@ public class ProfileDAO {
             ps.setInt(1, userId);
             ps.executeUpdate();
         }
+    }
+
+    private static void setNullableString(PreparedStatement ps, int index, String value) throws SQLException {
+        if (value == null) ps.setNull(index, Types.VARCHAR); else ps.setString(index, value);
     }
 }

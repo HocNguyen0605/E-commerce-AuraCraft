@@ -3,13 +3,9 @@
    ========================================================== */
 
 /* ---------- Layout chung ---------- */
-<<<<<<< HEAD
-.seller-layout {
-=======
 /* Full màn hình như trang admin: bỏ giới hạn .container, sidebar dính sát trái */
 .seller-layout,
 .seller-layout.container {
->>>>>>> fc860c7a2b68cb24bda94fa72f31c88b6fe6f8f7
     display: flex;
     gap: 0;
     align-items: flex-start;
@@ -21,11 +17,7 @@
     background: #f5f6fa;
 }
 
-<<<<<<< HEAD
-/* ---------- Sidebar ---------- */
-=======
 /* ---------- Sidebar (kiểu giống sidebar admin) ---------- */
->>>>>>> fc860c7a2b68cb24bda94fa72f31c88b6fe6f8f7
 .seller-sidebar {
     width: 350px;
     height: 100vh;
@@ -151,18 +143,12 @@
     transition: color 0.2s;
 }
 
-<<<<<<< HEAD
-.seller-nav a:hover,
-.seller-nav a.active {
-    background-color: rgba(66, 91, 154, 0.05);
-=======
 .seller-nav a:hover {
     background-color: #f3f5fa;
 }
 
 .seller-nav a.active {
     background-color: #eaeef8;
->>>>>>> fc860c7a2b68cb24bda94fa72f31c88b6fe6f8f7
     color: var(--primary-blue);
 }
 
@@ -226,10 +212,7 @@
 }
 
 /* ---------- Thống kê doanh thu ---------- */
-<<<<<<< HEAD
-=======
 /* Tự chia 1-2-3 cột tùy chiều rộng màn hình */
->>>>>>> fc860c7a2b68cb24bda94fa72f31c88b6fe6f8f7
 .stats-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
@@ -1194,38 +1177,6 @@ textarea.form-control {
    Responsive
    ========================================================== */
 @media (max-width: 992px) {
-<<<<<<< HEAD
-    .seller-layout {
-        overflow-x: auto;
-    }
-
-    .seller-sidebar {
-        width: 80px;
-        padding: 20px 0;
-    }
-
-    .seller-profile h3,
-    .seller-profile .seller-role {
-        display: none;
-    }
-
-    .seller-profile .profile-img {
-        width: 45px;
-        height: 45px;
-        border-width: 2px;
-    }
-
-    .seller-nav a {
-        justify-content: center;
-        padding: 15px 0;
-        font-size: 0;
-    }
-
-    .seller-nav a i {
-        font-size: 1.4rem;
-        margin: 0;
-    }
-=======
     .seller-content { padding: 24px 24px 40px; }
 
     /* Sidebar thu gọn: chỉ còn icon */
@@ -1243,7 +1194,6 @@ textarea.form-control {
     .seller-nav a span:not(.noti-count) { display: none; }
     .seller-nav a i { width: auto; font-size: 1.4rem; margin: 0; }
     .seller-nav-divider { margin: 8px 16px; }
->>>>>>> fc860c7a2b68cb24bda94fa72f31c88b6fe6f8f7
 
     .noti-count {
         position: absolute;
@@ -1251,13 +1201,6 @@ textarea.form-control {
         right: 15px;
     }
 
-<<<<<<< HEAD
-    .stats-grid {
-        grid-template-columns: 1fr 1fr;
-    }
-
-=======
->>>>>>> fc860c7a2b68cb24bda94fa72f31c88b6fe6f8f7
     .filter-bar {
         flex-direction: column;
         gap: 20px;
@@ -1279,8 +1222,6 @@ textarea.form-control {
     .charm-row { grid-template-columns: 96px 1fr; }
     .charm-row .charm-price,
     .charm-row .charm-remove { grid-column: 2; }
-<<<<<<< HEAD
-=======
 
     /* Điện thoại: sidebar thành thanh menu ngang dính ở trên cùng */
     .seller-layout,
@@ -1311,7 +1252,6 @@ textarea.form-control {
     .form-section { padding: 18px; }
     .form-row { flex-direction: column; gap: 0; }
     .y-axis { width: 56px; }
->>>>>>> fc860c7a2b68cb24bda94fa72f31c88b6fe6f8f7
 }
 
 /* ---------- Nút "Rút báo giá" (tab Báo giá của tôi) ---------- */
@@ -1354,8 +1294,6 @@ textarea.form-control {
 .quote-table .btn-withdraw:focus-visible {
     outline: none;
     box-shadow: 0 0 0 3px rgba(217, 83, 79, 0.25);
-<<<<<<< HEAD
-=======
 }
 
 /* ==========================================================
@@ -1707,5 +1645,4 @@ textarea.form-control {
     .od-item { flex-wrap: wrap; }
     .od-item-total { width: 100%; text-align: right; }
     .order-modal .od-body { padding: 16px; }
->>>>>>> fc860c7a2b68cb24bda94fa72f31c88b6fe6f8f7
 }
