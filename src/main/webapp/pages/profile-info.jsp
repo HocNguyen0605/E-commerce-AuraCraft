@@ -34,6 +34,8 @@
         .modal-box .form-input { width: 100%; box-sizing: border-box; }
         .modal-check { display: flex; gap: 8px; align-items: center; margin-bottom: 14px; }
         .modal-actions { display: flex; justify-content: flex-end; gap: 8px; }
+        .modal-box select.form-input { background: #fff; }
+        .tag-warn { background: #fff4e5; color: #b26a00; border: 1px solid #f3d3a2; border-radius: 4px; padding: 1px 6px; font-size: 12px; margin-left: 6px; }
     </style>
 </head>
 <body>
@@ -93,12 +95,16 @@
                         <div class="address-item">
                             <div><b><c:out value="${a.receiver}"/></b> | <c:out value="${a.phone}"/>
                                 <c:if test="${a.defaultAddress}"><span class="tag">Mặc định</span></c:if>
-                                <p><c:out value="${a.address}"/></p></div>
+                                <c:if test="${empty a.provinceCode}"><span class="tag-warn">Địa chỉ cũ - vui lòng cập nhật tỉnh / xã</span></c:if>
+                                <p><c:out value="${a.fullAddress}"/></p></div>
                             <div class="address-actions">
                                 <button type="button" class="link-btn js-edit-address"
                                         data-id="${a.id}"
                                         data-receiver="<c:out value='${a.receiver}'/>"
                                         data-phone="<c:out value='${a.phone}'/>"
+                                        data-province-code="<c:out value='${a.provinceCode}'/>"
+                                        data-ward-code="<c:out value='${a.wardCode}'/>"
+                                        data-ward="<c:out value='${a.ward}'/>"
                                         data-address="<c:out value='${a.address}'/>"
                                         data-default="${a.defaultAddress}">Sửa</button>
                                 <span>·</span>
@@ -140,9 +146,22 @@
             <div class="form-group"><label for="addrPhone">Số điện thoại</label>
                 <input class="form-input" id="addrPhone" name="phone" type="tel" required
                        pattern="[0-9 .\-]{10,14}" title="Số điện thoại gồm 10 chữ số, bắt đầu bằng 0"></div>
-            <div class="form-group"><label for="addrAddress">Địa chỉ</label>
-                <input class="form-input" id="addrAddress" name="address" type="text" required maxlength="500"
-                       placeholder="Số nhà, đường, phường/xã, quận/huyện, tỉnh/thành"></div>
+            <div class="form-group"><label for="addrProvince">Tỉnh / thành phố</label>
+                <select class="form-input" id="addrProvince" name="provinceCode" required>
+                    <option value="">Chọn tỉnh / thành phố</option>
+<option value="01">Hà Nội</option><option value="04">Cao Bằng</option><option value="08">Tuyên Quang</option><option value="11">Điện Biên</option><option value="12">Lai Châu</option><option value="14">Sơn La</option><option value="15">Lào Cai</option><option value="19">Thái Nguyên</option><option value="20">Lạng Sơn</option><option value="22">Quảng Ninh</option><option value="24">Bắc Ninh</option><option value="25">Phú Thọ</option><option value="31">Hải Phòng</option><option value="33">Hưng Yên</option><option value="37">Ninh Bình</option><option value="38">Thanh Hóa</option><option value="40">Nghệ An</option><option value="42">Hà Tĩnh</option><option value="44">Quảng Trị</option><option value="46">Huế</option><option value="48">Đà Nẵng</option><option value="51">Quảng Ngãi</option><option value="52">Gia Lai</option><option value="56">Khánh Hòa</option><option value="66">Đắk Lắk</option><option value="68">Lâm Đồng</option><option value="75">Đồng Nai</option><option value="79">Thành phố Hồ Chí Minh</option><option value="80">Tây Ninh</option><option value="82">Đồng Tháp</option><option value="86">Vĩnh Long</option><option value="91">An Giang</option><option value="92">Cần Thơ</option><option value="96">Cà Mau</option>
+                </select>
+                <input type="hidden" name="province" id="addrProvinceName"></div>
+            <div class="form-group"><label for="addrWard">Xã / phường</label>
+                <select class="form-input" id="addrWard" name="wardCode" required disabled>
+                    <option value="">Vui lòng chọn tỉnh / thành phố trước</option>
+                </select>
+                <input class="form-input" id="addrWardFallback" type="text" maxlength="120"
+                       placeholder="Nhập xã, phường" hidden>
+                <input type="hidden" name="ward" id="addrWardName"></div>
+            <div class="form-group"><label for="addrAddress">Số nhà, tên đường / địa chỉ chi tiết</label>
+                <input class="form-input" id="addrAddress" name="address" type="text" required maxlength="250"
+                       placeholder="Số nhà, tên đường, thôn / tổ dân phố..."></div>
             <label class="modal-check"><input type="checkbox" name="isDefault" id="addrDefault"> Đặt làm địa chỉ mặc định</label>
             <div class="modal-actions">
                 <button type="button" class="btn btn-outline btn-sm" id="btnCancelAddress">Hủy</button>
@@ -154,6 +173,7 @@
 
 <div id="footer-placeholder"></div>
 
+<script src="${ctx}/assets/js/vn-address.js"></script>
 <script>
     const CTX = '${ctx}';
     fetch(CTX + '/components/header.html').then(r => r.text())
@@ -165,6 +185,13 @@
     (function () {
         const modal = document.getElementById('addressModal');
         const $ = id => document.getElementById(id);
+        const picker = VnAddressPicker.init({
+            province: $('addrProvince'),
+            ward: $('addrWard'),
+            fallback: $('addrWardFallback'),
+            provinceName: $('addrProvinceName'),
+            wardName: $('addrWardName')
+        });
 
         function openModal(data) {
             const isEdit = !!data;
@@ -174,6 +201,8 @@
             $('addrReceiver').value = isEdit ? data.receiver : '';
             $('addrPhone').value = isEdit ? data.phone : '';
             $('addrAddress').value = isEdit ? data.address : '';
+            if (isEdit) picker.setValues(data.provinceCode, data.wardCode, data.ward);
+            else picker.reset();
             $('addrDefault').checked = isEdit ? data.isDefault : false;
             // Địa chỉ đang mặc định thì không cho bỏ tick (phải đặt địa chỉ khác làm mặc định)
             $('addrDefault').disabled = isEdit && data.isDefault;
@@ -196,6 +225,9 @@
                 id: btn.dataset.id,
                 receiver: btn.dataset.receiver,
                 phone: btn.dataset.phone,
+                provinceCode: btn.dataset.provinceCode,
+                wardCode: btn.dataset.wardCode,
+                ward: btn.dataset.ward,
                 address: btn.dataset.address,
                 isDefault: btn.dataset.default === 'true'
             }));

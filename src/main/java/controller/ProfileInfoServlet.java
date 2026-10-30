@@ -19,6 +19,7 @@ public class ProfileInfoServlet extends HttpServlet {
     private final ProfileDAO dao = new ProfileDAO();
 
     private static final Pattern PHONE = Pattern.compile("^0\\d{9}$");
+    private static final Pattern CODE = Pattern.compile("^\\d{1,6}$"); // mã tỉnh / xã dạng số, vd "01", "79"
 
     private Integer currentUserId(HttpServletRequest req) {
         HttpSession session = req.getSession(false);
@@ -120,7 +121,11 @@ public class ProfileInfoServlet extends HttpServlet {
     private void handleSaveAddress(HttpServletRequest req, HttpSession session, int userId, boolean isEdit) throws Exception {
         String receiver = trim(req.getParameter("receiver"));
         String phone = cleanPhone(req.getParameter("phone"));
-        String address = trim(req.getParameter("address"));
+        String provinceCode = trim(req.getParameter("provinceCode"));
+        String province = trim(req.getParameter("province"));
+        String wardCode = trim(req.getParameter("wardCode"));   // có thể rỗng khi người dùng nhập xã tay (fallback)
+        String ward = trim(req.getParameter("ward"));
+        String address = trim(req.getParameter("address"));      // chỉ còn số nhà, tên đường...
         boolean isDefault = "on".equals(req.getParameter("isDefault")) || "1".equals(req.getParameter("isDefault"));
 
         if (receiver == null || receiver.length() > 100) {
@@ -131,14 +136,24 @@ public class ProfileInfoServlet extends HttpServlet {
             session.setAttribute("flashError", "Số điện thoại người nhận không hợp lệ.");
             return;
         }
-        if (address == null || address.length() > 500) {
-            session.setAttribute("flashError", "Địa chỉ không được để trống và tối đa 500 ký tự.");
+        if (provinceCode == null || !CODE.matcher(provinceCode).matches()
+                || province == null || province.length() > 100) {
+            session.setAttribute("flashError", "Vui lòng chọn tỉnh / thành phố.");
+            return;
+        }
+        if (ward == null || ward.length() > 150 || (wardCode != null && !CODE.matcher(wardCode).matches())) {
+            session.setAttribute("flashError", "Vui lòng chọn xã / phường.");
+            return;
+        }
+        if (address == null || address.length() > 250) {
+            session.setAttribute("flashError", "Địa chỉ chi tiết không được để trống và tối đa 250 ký tự.");
             return;
         }
 
         if (isEdit) {
             int id = parseId(req.getParameter("addressId"));
-            if (id <= 0 || !dao.updateAddress(id, userId, receiver, phone, address, isDefault)) {
+            if (id <= 0 || !dao.updateAddress(id, userId, receiver, phone,
+                    provinceCode, province, wardCode, ward, address, isDefault)) {
                 session.setAttribute("flashError", "Không tìm thấy địa chỉ cần sửa.");
                 return;
             }
@@ -148,7 +163,8 @@ public class ProfileInfoServlet extends HttpServlet {
                 session.setAttribute("flashError", "Bạn chỉ có thể lưu tối đa 10 địa chỉ.");
                 return;
             }
-            if (dao.addAddress(userId, receiver, phone, address, isDefault)) {
+            if (dao.addAddress(userId, receiver, phone,
+                    provinceCode, province, wardCode, ward, address, isDefault)) {
                 session.setAttribute("flashSuccess", "Thêm địa chỉ mới thành công.");
             } else {
                 session.setAttribute("flashError", "Không thể thêm địa chỉ.");
@@ -203,4 +219,4 @@ public class ProfileInfoServlet extends HttpServlet {
             return -1;
         }
     }
-}
+}
