@@ -14,7 +14,15 @@ document.addEventListener("DOMContentLoaded", () => {
       return text.slice(0, -name.length).replace(addressSeparator, "").trim();
     };
     let savedAddressRemainder = savedAddressField?.value.trim() || "";
-    if (savedAddressRemainder && provinceSelect) {
+    // Địa chỉ mặc định đã lưu theo cấu trúc mới: tỉnh / xã / địa chỉ chi tiết tách riêng
+    const defaultProvinceCode = checkoutForm.dataset.defaultProvinceCode || "";
+    const defaultWardCode = checkoutForm.dataset.defaultWardCode || "";
+    const defaultWardName = checkoutForm.dataset.defaultWard || "";
+    if (defaultProvinceCode && provinceSelect) {
+      provinceSelect.value = defaultProvinceCode;
+    }
+    // Địa chỉ cũ (chỉ có 1 chuỗi): giữ cách đoán tỉnh từ đuôi chuỗi như trước
+    if (!defaultProvinceCode && savedAddressRemainder && provinceSelect) {
       const options = Array.from(provinceSelect.options).filter(option => option.value);
       const match = options.sort((a, b) => b.textContent.length - a.textContent.length)
           .find(option => cleanAddressSuffix(savedAddressRemainder, option.textContent) !== null
@@ -63,7 +71,12 @@ document.addEventListener("DOMContentLoaded", () => {
         wardSelect.hidden = false;
         if (wardFallback) { wardFallback.hidden = true; wardFallback.required = false; }
         if (wardLoadingMessage) wardLoadingMessage.textContent = `${options.length} xã / phường`;
-        if (restoreSavedWard && savedAddressRemainder) {
+        if (restoreSavedWard && defaultProvinceCode) {
+          // Địa chỉ mới: chọn lại xã theo mã, không có thì khớp theo tên
+          const match = options.find(item => defaultWardCode && String(item.code) === String(defaultWardCode))
+              || options.find(item => defaultWardName && item.name.toLocaleLowerCase("vi") === defaultWardName.toLocaleLowerCase("vi"));
+          if (match) wardSelect.value = match.code;
+        } else if (restoreSavedWard && savedAddressRemainder) {
           const match = options.find(item => cleanAddressSuffix(savedAddressRemainder, item.name) !== null);
           if (match) {
             savedAddressRemainder = cleanAddressSuffix(savedAddressRemainder, match.name);
@@ -75,7 +88,10 @@ document.addEventListener("DOMContentLoaded", () => {
         wardSelect.replaceChildren(new Option("Không tải được danh sách — vui lòng nhập bên dưới", ""));
         wardSelect.hidden = true;
         wardSelect.required = false;
-        if (wardFallback) { wardFallback.hidden = false; wardFallback.required = true; }
+        if (wardFallback) {
+          wardFallback.hidden = false; wardFallback.required = true;
+          if (restoreSavedWard && defaultWardName && !wardFallback.value) wardFallback.value = defaultWardName;
+        }
         if (wardLoadingMessage) wardLoadingMessage.textContent = "Có thể nhập tên xã, phường thủ công nếu danh sách chưa tải được.";
       }
     }
