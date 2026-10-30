@@ -33,6 +33,7 @@
         <form class="sidebar-filter" method="get" action="${pageContext.request.contextPath}/pages/products">
             <input type="hidden" name="categoryFilter" value="1">
             <input type="hidden" name="sort" value="${sort}">
+            <c:if test="${not empty shopId}"><input type="hidden" name="shopId" value="${shopId}"></c:if>
             <c:if test="${not empty keyword}"><input type="hidden" name="q" value="<c:out value='${keyword}'/>"/></c:if>
             <div class="filter-group">
                 <h2 class="filter-title">Danh mục</h2>
@@ -100,6 +101,7 @@
                 <h1 id="products-title">Tất cả sản phẩm</h1>
                 <form class="products-search" method="get" action="${pageContext.request.contextPath}/pages/products">
                     <input type="hidden" name="sort" value="${sort}">
+                    <c:if test="${not empty shopId}"><input type="hidden" name="shopId" value="${shopId}"></c:if>
                     <c:forEach var="categoryId" items="${selectedCategories}">
                         <input type="hidden" name="category" value="${categoryId}">
                     </c:forEach>
@@ -114,6 +116,7 @@
                                                                    aria-hidden="true"></i></button>
                 </form>
                 <form class="sort-box" method="get" action="${pageContext.request.contextPath}/pages/products">
+                    <c:if test="${not empty shopId}"><input type="hidden" name="shopId" value="${shopId}"></c:if>
                     <c:forEach var="categoryId" items="${selectedCategories}">
                         <input type="hidden" name="category" value="${categoryId}">
                     </c:forEach>
@@ -139,6 +142,48 @@
                     </select>
                 </form>
             </div>
+
+            <!-- Shop Card khi tìm thấy gian hàng -->
+            <c:if test="${not empty matchedShop}">
+                <div class="shop-result-card">
+                    <a href="${pageContext.request.contextPath}/pages/shop-profile?id=${matchedShop.id}"
+                       class="shop-card-avatar" style="text-decoration: none;">
+                        <c:choose>
+                            <c:when test="${not empty matchedShop.avatar and not empty fn:trim(matchedShop.avatar)}">
+                                <img src="${pageContext.request.contextPath}/assets/img/${matchedShop.avatar}"
+                                     alt="<c:out value='${matchedShop.name}'/>"
+                                     onerror="this.onerror=null; this.parentElement.textContent='${fn:toUpperCase(fn:substring(matchedShop.name, 0, 1))}';">
+                            </c:when>
+                            <c:otherwise>
+                                ${fn:toUpperCase(fn:substring(matchedShop.name, 0, 1))}
+                            </c:otherwise>
+                        </c:choose>
+                    </a>
+                    <div class="shop-card-main-info">
+                        <a href="${pageContext.request.contextPath}/pages/shop-profile?id=${matchedShop.id}"
+                           style="text-decoration: none; color: inherit;">
+                            <h2 class="shop-card-name">
+                                <c:out value="${matchedShop.name}" />
+                            </h2>
+                        </a>
+                        <div class="shop-card-stats-row">
+                            <span><i class="fa-solid fa-star" style="color: #f59e0b;"></i>
+                                <fmt:formatNumber value="${matchedShop.rating}" maxFractionDigits="1" /> / 5.0
+                            </span>
+                            <span class="stat-divider">|</span>
+                            <span><i class="fa-solid fa-box"></i> ${matchedShop.productCount} sản phẩm</span>
+                            <span class="stat-divider">|</span>
+                            <span><i class="fa-solid fa-bag-shopping"></i> ${matchedShop.totalSold} đã bán</span>
+                        </div>
+                        <div class="shop-card-btn-wrap">
+                            <a href="${pageContext.request.contextPath}/pages/shop-profile?id=${matchedShop.id}"
+                               class="btn-visit-shop">
+                                <i class="fa-solid fa-store"></i> Xem Shop
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </c:if>
 
             <div class="products-result-bar" aria-live="polite">
                 <span>Hiển thị <strong>${firstProduct}–${lastProduct}</strong> / ${totalProducts} sản phẩm</span>
@@ -223,6 +268,7 @@
                       action="${pageContext.request.contextPath}/pages/products">
                     <input type="hidden" name="categoryFilter" value="1">
                     <input type="hidden" name="sort" value="${sort}">
+                    <c:if test="${not empty shopId}"><input type="hidden" name="shopId" value="${shopId}"></c:if>
                     <c:if test="${not empty keyword}"><input type="hidden" name="q"
                                                              value="<c:out value='${keyword}'/>"/></c:if>
                     <c:forEach var="categoryId" items="${selectedCategories}"><input type="hidden" name="category"
