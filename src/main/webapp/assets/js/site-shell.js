@@ -105,7 +105,7 @@
             };
             searchBox.addEventListener("submit", submit);
         }
-        const cartLink = header.querySelector(".cart-icon-btn");
+        const cartLink = header?.querySelector(".cart-icon-btn");
         if (cartLink && !cartLink.dataset.cartCountBound) {
             cartLink.dataset.cartCountBound = "true";
             const badge = cartLink.querySelector(".cart-count-badge");
@@ -152,7 +152,7 @@
             };
         }
         const login = document.getElementById("nav-login");
-        if (login && !login.dataset.shellAuthLoaded) {
+        if (header && login && !login.dataset.shellAuthLoaded) {
             login.dataset.shellAuthLoaded = "true";
             fetch(context + "/api/me", { credentials: "same-origin", cache: "no-store" })
                 .then(response => response.ok ? response.json() : { loggedIn: false })
