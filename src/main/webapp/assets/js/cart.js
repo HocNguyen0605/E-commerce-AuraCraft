@@ -2,6 +2,9 @@ document.addEventListener("DOMContentLoaded", () => {
   const page = document.querySelector(".cart-page");
   const context = page.dataset.context;
   const databaseMode = page.dataset.databaseCart === "true";
+  if (new URLSearchParams(window.location.search).has("payment")) {
+    sessionStorage.removeItem("auracraft_pending_design_deposit");
+  }
   if (new URLSearchParams(window.location.search).get("checkout") === "invalid") {
     window.alert("Giỏ hàng đã thay đổi hoặc sản phẩm không còn bán. Vui lòng kiểm tra lại sản phẩm được chọn.");
   }
@@ -16,6 +19,10 @@ document.addEventListener("DOMContentLoaded", () => {
     catch { return []; }
   };
   const notifyCartChanged = () => window.dispatchEvent(new Event("auracraft:cart-updated"));
+  const hasSettledDeposit = item => {
+    const order = item.pendingOrderId && window.AuraCraftCustom?.getOrder(item.pendingOrderId);
+    return ["deposit_paid", "paid"].includes(order?.paymentStatus);
+  };
   const saveLocal = () => { localStorage.setItem("AuraCraftCart", JSON.stringify(items)); notifyCartChanged(); };
   const saveCartState = () => {
     if (!databaseMode || databaseFallback) { saveLocal(); return; }
@@ -53,7 +60,7 @@ document.addEventListener("DOMContentLoaded", () => {
         if (!response.ok) throw new Error(result.message || "Không tải được giỏ hàng.");
         const savedSelection = selectedIds();
         const productItems = (result.items || []).map(item => ({ ...item, selected: savedSelection[String(item.id)] !== false }));
-        const customItems = readLocal().filter(item => item.customDesignId).map(item => ({
+        const customItems = readLocal().filter(item => item.customDesignId && !hasSettledDeposit(item)).map(item => ({
           ...item,
           selected: Object.prototype.hasOwnProperty.call(savedSelection, String(item.id))
               ? savedSelection[String(item.id)] !== false
@@ -66,7 +73,7 @@ document.addEventListener("DOMContentLoaded", () => {
         window.alert(error.message + " Đang hiển thị giỏ hàng trên trình duyệt.");
       }
     }
-    items = readLocal().map(item => ({ ...item, selected: item.selected !== false }));
+    items = readLocal().filter(item => !hasSettledDeposit(item)).map(item => ({ ...item, selected: item.selected !== false }));
   }
 
   function render() {
@@ -100,22 +107,30 @@ document.addEventListener("DOMContentLoaded", () => {
               : item.pendingOrderId
                   ? `Chưa thanh toán · ${item.categoryName || "Thiết kế riêng"}`
                   : item.categoryName || "Sản phẩm handmade";
-      const price = document.createElement("p"); price.className = "item-price"; price.textContent = money(item.price);
+      const price = document.createElement("p"); price.className = "item-price";
+      const itemQuantity = isCustom
+          ? Math.min(99, Math.max(1, Number(item.quantity) || 1))
+          : Math.max(1, Number(item.quantity) || 1);
+      if (isCustom) item.quantity = itemQuantity;
+      price.textContent = money(item.price);
       info.append(name, category, price); left.append(check, image, info);
       const right = document.createElement("div"); right.className = "cart-item-right";
-      const quantity = document.createElement("div"); quantity.className = "item-quantity"; quantity.hidden = isCustom;
+      const quantity = document.createElement("div"); quantity.className = "item-quantity";
       const minus = document.createElement("button"); minus.type = "button"; minus.className = "qty-btn"; minus.dataset.action = "decrease"; minus.textContent = "−"; minus.setAttribute("aria-label", "Giảm số lượng");
-      const count = document.createElement("span"); count.className = "qty-value"; count.textContent = item.quantity || 1;
+      const count = document.createElement("span"); count.className = "qty-value"; count.textContent = itemQuantity;
       const plus = document.createElement("button"); plus.type = "button"; plus.className = "qty-btn"; plus.dataset.action = "increase"; plus.textContent = "+"; plus.setAttribute("aria-label", "Tăng số lượng");
       quantity.append(minus, count, plus);
+      const quantityActions = document.createElement("div"); quantityActions.className = "item-quantity-actions";
+      const remove = document.createElement("button"); remove.type = "button"; remove.className = "remove-btn"; remove.dataset.action = "remove"; remove.setAttribute("aria-label", "Xóa " + (item.name || "sản phẩm") + " khỏi giỏ hàng"); remove.title = "Xóa khỏi giỏ hàng";
+      remove.innerHTML = '<i class="fa-solid fa-trash-can" aria-hidden="true"></i>';
+      quantityActions.append(quantity, remove);
       const actions = document.createElement("div"); actions.className = "item-actions";
       const detail = document.createElement("a"); detail.className = "action-btn find-similar";
       detail.href = isCustom
           ? context + "/pages/customizer?designId=" + encodeURIComponent(item.customDesignId)
           : context + "/pages/product-detail?id=" + encodeURIComponent(item.id);
       detail.textContent = isCustom ? "Sửa thiết kế" : "Xem sản phẩm";
-      const remove = document.createElement("button"); remove.type = "button"; remove.className = "action-btn remove-btn"; remove.dataset.action = "remove"; remove.textContent = "Xóa";
-      actions.append(detail, remove); right.append(quantity, actions); content.append(left, right); card.append(header, content); container.appendChild(card);
+      actions.append(detail); right.append(quantityActions, actions); content.append(left, right); card.append(header, content); container.appendChild(card);
     });
     updateSummary();
   }
@@ -146,8 +161,9 @@ document.addEventListener("DOMContentLoaded", () => {
         if (databaseMode && !item.customDesignId) await api("remove", { productId: id });
         items = items.filter(entry => String(entry.id) !== id);
       } else {
+        const isCustomItem = Boolean(item.customDesignId);
         const nextQuantity = button.dataset.action === "increase"
-            ? Math.min(Number(item.stock || 99), Number(item.quantity || 1) + 1)
+            ? Math.min(isCustomItem ? 99 : Number(item.stock || 99), Number(item.quantity || 1) + 1)
             : Math.max(1, Number(item.quantity || 1) - 1);
         if (databaseMode && !item.customDesignId) await api("quantity", { productId: id, quantity: nextQuantity });
         item.quantity = nextQuantity;
@@ -187,7 +203,8 @@ document.addEventListener("DOMContentLoaded", () => {
         item.pendingOrderId = order.id;
         saveCartState();
       }
-      window.location.href = context + "/pages/checkout?orderId=" + encodeURIComponent(order.id);
+      window.location.href = context + "/pages/checkout?orderId=" + encodeURIComponent(order.id)
+          + "&quantity=" + encodeURIComponent(Math.max(1, Number(item.quantity) || 1));
       return;
     }
     localStorage.setItem("AuraCraftCheckoutCart", JSON.stringify(selected));

@@ -113,6 +113,20 @@
                                                     <c:if test="${not empty quote.portfolio}"><a
                                                             href="<c:out value='${quote.portfolio}'/>" target="_blank"
                                                             rel="noopener noreferrer">Xem portfolio</a></c:if>
+                                                    <c:if test="${quote.status eq 'pending' and quoteRequest.filterStatus eq 'quoted'}">
+                                                        <div class="quote-offer-actions">
+                                                            <button type="button" class="quote-select-button"
+                                                                    data-request-id="${quoteRequest.id}"
+                                                                    data-quote-id="${quote.id}">
+                                                                <i class="fa-solid fa-circle-check" aria-hidden="true"></i>
+                                                                Xác nhận chọn thợ
+                                                            </button>
+                                                            <span class="quote-select-hint">Các báo giá khác sẽ được đóng khi bạn xác nhận.</span>
+                                                        </div>
+                                                    </c:if>
+                                                    <c:if test="${quote.status eq 'accepted'}">
+                                                        <div class="quote-selected-note"><i class="fa-solid fa-circle-check" aria-hidden="true"></i> Đây là thợ bạn đã chọn.</div>
+                                                    </c:if>
                                                 </section>
                                             </c:forEach>
                                             <c:if test="${empty quoteRequest.quotes}">
@@ -144,6 +158,31 @@
         const filter = tab.dataset.filter;
         document.querySelectorAll('.quote-request-card').forEach(card => card.hidden = filter !== 'all' && card.dataset.status !== filter);
     }));
+    document.addEventListener('click', async event => {
+        const button = event.target.closest('.quote-select-button');
+        if (!button || button.disabled) return;
+        button.disabled = true;
+        button.innerHTML = '<i class="fa-solid fa-spinner fa-spin" aria-hidden="true"></i> Đang xác nhận...';
+        try {
+            const response = await fetch(ctx + '/api/buyer/quotes/select', {
+                method: 'POST', credentials: 'same-origin',
+                headers: {'Content-Type': 'application/json', 'Accept': 'application/json'},
+                body: JSON.stringify({requestId: Number(button.dataset.requestId), quoteId: Number(button.dataset.quoteId)})
+            });
+            if (!(response.headers.get('content-type') || '').includes('application/json')) {
+                throw new Error(response.status === 404
+                    ? 'Máy chủ chưa có chức năng xác nhận thợ. Hãy build và redeploy bản AuraCraft mới nhất.'
+                    : 'Máy chủ không trả về kết quả xác nhận. Vui lòng đăng nhập lại và thử lại.');
+            }
+            const result = await response.json();
+            if (!response.ok) throw new Error(result.message || 'Chưa xác nhận được thợ.');
+            window.location.reload();
+        } catch (error) {
+            window.alert(error.message || 'Chưa xác nhận được thợ. Vui lòng thử lại.');
+            button.disabled = false;
+            button.innerHTML = '<i class="fa-solid fa-circle-check" aria-hidden="true"></i> Xác nhận chọn thợ';
+        }
+    });
     const focusId = document.body.dataset.focusRequest;
     if (focusId) {
         const card = document.getElementById('quote-request-' + focusId);

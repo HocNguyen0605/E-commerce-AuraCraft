@@ -122,8 +122,48 @@
         .order-card-actions {
             display: flex;
             justify-content: flex-end;
-            padding-top: 4px;
+            padding: 6px 0 16px;
+            margin-bottom: 14px;
+            border-bottom: 1px solid #eee7e3;
         }
+
+        .order-detail-item-info {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 14px;
+            min-width: 0;
+        }
+
+        .order-detail-item-copy { min-width: 0; }
+
+        .order-review-link {
+            display: inline-flex;
+            flex: 0 0 auto;
+            align-items: center;
+            gap: 7px;
+            min-height: 38px;
+            padding: 8px 14px;
+            border: 1px solid #d8bb7b;
+            border-radius: 999px;
+            color: #fff;
+            background: #9a6c22;
+            font-size: 13px;
+            font-weight: 700;
+            text-decoration: none;
+            box-shadow: 0 3px 8px rgba(118, 85, 28, .16);
+            transition: background .18s ease, border-color .18s ease, box-shadow .18s ease, transform .18s ease;
+        }
+
+        .order-review-link:hover {
+            color: #fff;
+            border-color: #76511a;
+            background: #76511a;
+            box-shadow: 0 5px 12px rgba(118, 85, 28, .24);
+            transform: translateY(-2px);
+        }
+
+        .order-review-link:focus-visible { outline: 3px solid rgba(154, 108, 34, .3); outline-offset: 2px; }
 
         .order-detail-toggle {
             min-width: 150px;
@@ -141,7 +181,6 @@
 
         .order-detail {
             padding-top: 12px;
-            border-top: 1px solid #eee7e3;
         }
 
         .order-detail[hidden] {
@@ -189,12 +228,33 @@
             margin: 3px 0;
         }
 
+        .order-summary-footer {
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-between;
+            gap: 18px;
+            padding-top: 12px;
+            border-top: 1px solid #eee7e3;
+        }
+
+        .order-review-actions {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .order-review-actions:empty { display: none; }
+
+        .order-review-link { margin-top: 0; }
+
         .order-total-lines {
             display: grid;
             gap: 6px;
             justify-items: end;
             padding-top: 10px;
             border-top: 1px solid #eee7e3;
+            border-top: 0;
         }
 
         @media (max-width: 600px) {
@@ -220,9 +280,13 @@
 
             .order-summary-text strong { font-size: 15px; }
             .order-summary-text p { font-size: 12px; }
-            .order-detail-item { grid-template-columns: 44px minmax(0, 1fr) 82px; gap: 8px; }
+            .order-detail-item { grid-template-columns: 44px minmax(0, 1fr); gap: 8px; }
             .order-detail-item img { width: 44px; height: 44px; }
-            .order-detail-item > strong { font-size: 13px; }
+            .order-detail-item-info { grid-column: 2; flex-wrap: wrap; gap: 8px; }
+            .order-detail-item > strong { grid-column: 2; justify-self: start; font-size: 13px; }
+            .order-review-link { min-height: 36px; padding: 7px 12px; }
+            .order-summary-footer { align-items: flex-start; flex-direction: column; gap: 12px; }
+            .order-review-actions { width: 100%; }
         }
     </style>
 </head>
@@ -318,17 +382,35 @@
                                         <c:otherwise><img src="${ctx}/assets/img/products/belly_02.jpg"
                                                           alt=""></c:otherwise>
                                     </c:choose>
-                                    <span class="order-detail-item-name"><c:out
-                                            value="${it.name}"/> × ${it.quantity}</span>
+                                    <div class="order-detail-item-info">
+                                        <div class="order-detail-item-copy">
+                                            <span class="order-detail-item-name"><c:out value="${it.name}"/> × ${it.quantity}</span>
+                                        </div>
+                                    </div>
                                     <strong><fmt:formatNumber value="${it.price}" pattern="#,##0"/>đ</strong>
                                 </div>
                             </c:forEach>
-                            <div class="order-total-lines">
+                            <div class="order-summary-footer">
+                                <div class="order-review-actions">
+                                    <c:forEach var="it" items="${o.items}">
+                                        <c:if test="${o.status eq 'completed' and it.type eq 'product' and it.productId gt 0}">
+                                            <a class="order-review-link" href="${ctx}/pages/product-detail?id=${it.productId}&amp;orderId=${o.id}#reviews">
+                                                <i class="fa-solid fa-star" aria-hidden="true"></i> Đánh giá
+                                            </a>
+                                        </c:if>
+                                    </c:forEach>
+                                </div>
+                                <div class="order-total-lines">
                                 <c:if test="${o.shippingFee.signum() gt 0}"><span>Phí vận chuyển: <fmt:formatNumber
                                         value="${o.shippingFee}" pattern="#,##0"/>đ</span></c:if>
                                 <c:if test="${o.discount.signum() gt 0}"><span>Giảm giá: -<fmt:formatNumber
                                         value="${o.discount}" pattern="#,##0"/>đ</span></c:if>
                                 <strong>Tổng đơn: <fmt:formatNumber value="${o.amount}" pattern="#,##0"/>đ</strong>
+                                <c:if test="${o.depositAmount.signum() gt 0}">
+                                    <span>Đã cọc qua VNPay: <fmt:formatNumber value="${o.depositAmount}" pattern="#,##0"/>đ</span>
+                                    <strong>Còn lại thu khi nhận hàng (COD): <fmt:formatNumber value="${o.remainingAmount}" pattern="#,##0"/>đ</strong>
+                                </c:if>
+                                </div>
                             </div>
                         </div>
                     </div>

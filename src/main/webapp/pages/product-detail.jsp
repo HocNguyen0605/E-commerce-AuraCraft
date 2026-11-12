@@ -167,7 +167,7 @@
                 </span><span class="pd-shop-body"><strong class="pd-shop-name">
                         <c:out value="${product.shopName}"/>
                     </strong><span class="pd-shop-meta">★
-                        <fmt:formatNumber value="${product.shopRating}" maxFractionDigits="1"/> · Cửa hàng
+                        <fmt:formatNumber value="${product.shopRating}" minFractionDigits="1" maxFractionDigits="1"/> · Cửa hàng
                         AuraCraft
                     </span></span><span class="pd-shop-arrow">›</span></a>
     </section>
@@ -204,9 +204,15 @@
                                             </c:choose>
                                         </c:forEach>
                                     </span></div>
-                                <p>
-                                    <c:out value="${review.comment}"/>
-                                </p><small>
+                                <c:if test="${not empty review.comment}"><p><c:out value="${review.comment}"/></p></c:if>
+                                <c:if test="${not empty review.images}">
+                                    <div class="pd-review-images">
+                                        <c:forEach items="${review.images}" var="reviewImage">
+                                            <img src="${pageContext.request.contextPath}/${reviewImage}" alt="Ảnh do người mua đăng tải" loading="lazy">
+                                        </c:forEach>
+                                    </div>
+                                </c:if>
+                                <small>
                                 <fmt:formatDate value="${review.date}" pattern="dd/MM/yyyy"/>
                             </small>
                             </article>
@@ -219,17 +225,36 @@
                 <p class="pd-empty">Sản phẩm chưa có đánh giá.</p>
             </c:otherwise>
         </c:choose>
+        <c:if test="${reviewStatus eq 'success'}"><div class="pd-review-success" id="reviewSuccessToast" role="status"><i class="fa-solid fa-circle-check" aria-hidden="true"></i><span>Cảm ơn bạn! Đánh giá của bạn đã được gửi.</span><button type="button" aria-label="Đóng thông báo" onclick="this.parentElement.classList.add('is-hiding')">&times;</button></div></c:if>
+        <c:if test="${reviewStatus eq 'invalid-image' or reviewStatus eq 'too-many-images'}"><div class="pd-review-error" role="alert">Vui lòng chọn tối đa 4 ảnh JPG, PNG hoặc WEBP hợp lệ (không quá 2 MB mỗi ảnh).</div></c:if>
+        <c:if test="${reviewStatus eq 'not-eligible'}"><div class="pd-review-error" role="alert">Đơn hàng này chưa đủ điều kiện đánh giá hoặc bạn đã đánh giá sản phẩm trong đơn hàng đó.</div></c:if>
         <c:if test="${not empty reviewableOrders}">
-            <form class="pd-review-form card" action="${pageContext.request.contextPath}/pages/product-review" method="post">
-                <h3>Viết đánh giá của bạn</h3>
+            <form class="pd-review-form card" action="${pageContext.request.contextPath}/pages/product-review" method="post" enctype="multipart/form-data">
+                <div class="pd-review-form-heading">
+                    <span class="pd-review-form-icon"><i class="fa-solid fa-pen-to-square" aria-hidden="true"></i></span>
+                    <div><h3>Chia sẻ cảm nhận của bạn</h3><p>Đánh giá thật của bạn giúp khách hàng khác chọn sản phẩm phù hợp.</p></div>
+                </div>
                 <input type="hidden" name="productId" value="${product.id}">
-                <label for="reviewOrder">Đơn hàng đã hoàn thành</label>
-                <select id="reviewOrder" name="orderId" required><c:forEach items="${reviewableOrders}" var="orderId"><option value="${orderId}">Đơn hàng #${orderId}</option></c:forEach></select>
-                <label for="reviewRating">Số sao</label>
-                <select id="reviewRating" name="rating" required><option value="5">5 sao</option><option value="4">4 sao</option><option value="3">3 sao</option><option value="2">2 sao</option><option value="1">1 sao</option></select>
-                <label for="reviewComment">Nhận xét</label>
-                <textarea id="reviewComment" name="comment" maxlength="2000" rows="4" required placeholder="Chia sẻ trải nghiệm của bạn về sản phẩm"></textarea>
-                <button class="btn btn-primary" type="submit">Gửi đánh giá</button>
+                <label class="pd-review-label" for="reviewOrder">Đơn hàng</label>
+                <select id="reviewOrder" name="orderId" required><c:forEach items="${reviewableOrders}" var="orderId"><option value="${orderId}" ${preferredReviewOrder eq orderId ? 'selected' : ''}>Đơn hàng #${orderId}</option></c:forEach></select>
+                <fieldset class="pd-review-rating">
+                    <legend class="pd-review-label">Bạn chấm sản phẩm này thế nào?</legend>
+                    <div class="pd-review-stars" role="radiogroup" aria-label="Chọn số sao">
+                        <input id="reviewRating5" type="radio" name="rating" value="5" required checked><label for="reviewRating5" aria-label="5 sao">★</label>
+                        <input id="reviewRating4" type="radio" name="rating" value="4"><label for="reviewRating4" aria-label="4 sao">★</label>
+                        <input id="reviewRating3" type="radio" name="rating" value="3"><label for="reviewRating3" aria-label="3 sao">★</label>
+                        <input id="reviewRating2" type="radio" name="rating" value="2"><label for="reviewRating2" aria-label="2 sao">★</label>
+                        <input id="reviewRating1" type="radio" name="rating" value="1"><label for="reviewRating1" aria-label="1 sao">★</label>
+                    </div>
+                    <span class="pd-review-rating-hint">Chạm vào số sao để lựa chọn</span>
+                </fieldset>
+                <label class="pd-review-label" for="reviewComment">Nhận xét</label>
+                <textarea id="reviewComment" name="comment" maxlength="2000" rows="4" placeholder="Sản phẩm có đúng như mong đợi? Chia sẻ trải nghiệm của bạn nhé."></textarea>
+                <label class="pd-review-label" for="reviewImages">Ảnh sản phẩm <span>(không bắt buộc)</span></label>
+                <input class="pd-review-file" id="reviewImages" type="file" name="reviewImages" accept="image/jpeg,image/png,image/webp" multiple>
+                <small class="pd-review-upload-hint">Tối đa 4 ảnh · JPG, PNG hoặc WEBP · 2 MB mỗi ảnh</small>
+                <div class="pd-review-image-preview" id="reviewImagePreview" aria-live="polite"></div>
+                <div class="pd-review-form-footer"><small>Nhận xét tối đa 2.000 ký tự</small><button class="btn btn-primary" type="submit"><i class="fa-solid fa-paper-plane" aria-hidden="true"></i> Gửi đánh giá</button></div>
             </form>
         </c:if>
     </section>
@@ -394,12 +419,46 @@
             button.textContent = 'Đã thêm vào giỏ'; setTimeout(() => button.textContent = 'Thêm giỏ hàng', 1500);
         } catch (error) { alert(error.message); }
     }));
+    const reviewImageInput = document.getElementById('reviewImages');
+    const reviewImagePreview = document.getElementById('reviewImagePreview');
+    reviewImageInput?.addEventListener('change', () => {
+        const files = Array.from(reviewImageInput.files || []);
+        const validTypes = ['image/jpeg', 'image/png', 'image/webp'];
+        if (files.length > 4 || files.some(file => !validTypes.includes(file.type) || file.size > 2 * 1024 * 1024)) {
+            alert('Chọn tối đa 4 ảnh JPG, PNG hoặc WEBP, mỗi ảnh không quá 2 MB.');
+            reviewImageInput.value = '';
+            reviewImagePreview.replaceChildren();
+            return;
+        }
+        reviewImagePreview.replaceChildren(...files.map(file => {
+            const image = document.createElement('img');
+            image.src = URL.createObjectURL(file);
+            image.alt = 'Ảnh xem trước: ' + file.name;
+            image.onload = () => URL.revokeObjectURL(image.src);
+            return image;
+        }));
+    });
     // fetch(ctx + '/components/header.html').then(r => r.text()).then(html => {
     //     document.getElementById('header-placeholder').innerHTML = html.replace(/href="index\.html"/g, 'href="' + ctx + '/index.html"').replace(/href="login\.html"/g, 'href="' + ctx + '/pages/login.html"').replace(/href="profile\.html"/g, 'href="' + ctx + '/profile"').replace(/href="pages\/products"/g, 'href="' + ctx + '/pages/products"').replace(/href="cart\.jsp"/g, 'href="' + ctx + '/pages/cart.jsp"').replace(/href="pages\/cart\.jsp"/g, 'href="' + ctx + '/pages/cart.jsp"').replace(/href="\.\.\/products"/g, 'href="' + ctx + '/pages/products"')
     // });
     // fetch(ctx + '/components/footer.html').then(r => r.text()).then(html => {
     //     document.getElementById('footer-placeholder').innerHTML = html.replace(/href="index\.html"/g, 'href="' + ctx + '/index.html"').replace(/href="pages\/products"/g, 'href="' + ctx + '/pages/products"').replace(/href="\.\.\/products"/g, 'href="' + ctx + '/pages/products"')
     // });
+</script>
+<script>
+    (() => {
+        const toast = document.getElementById('reviewSuccessToast');
+        if (!toast) return;
+        const url = new URL(window.location.href);
+        if (url.searchParams.has('review')) {
+            url.searchParams.delete('review');
+            history.replaceState(null, '', url.pathname + url.search + url.hash);
+        }
+        window.setTimeout(() => toast.classList.add('is-hiding'), 5000);
+        toast.addEventListener('transitionend', event => {
+            if (event.propertyName === 'opacity' && toast.classList.contains('is-hiding')) toast.remove();
+        });
+    })();
 </script>
 <script src="${pageContext.request.contextPath}/assets/js/popup.js"></script>
 <script src="${pageContext.request.contextPath}/assets/js/site-shell.js"></script>

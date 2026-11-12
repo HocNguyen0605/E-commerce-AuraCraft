@@ -293,6 +293,65 @@
     overflow-wrap: anywhere;
 }
 
+.profile-quotes-page .quote-offer-actions {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px 14px;
+    margin-top: 14px;
+    padding-top: 12px;
+    border-top: 1px solid #ece7e4;
+}
+
+.profile-quotes-page .quote-select-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    min-height: 42px;
+    padding: 9px 16px;
+    border: 1px solid #4963a7;
+    border-radius: 999px;
+    background: #4963a7;
+    color: #fff;
+    font: inherit;
+    font-size: .9rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background .18s ease, box-shadow .18s ease, transform .18s ease;
+}
+
+.profile-quotes-page .quote-select-button:hover:not(:disabled) {
+    background: #394f8b;
+    box-shadow: 0 5px 13px rgba(73, 99, 167, .2);
+    transform: translateY(-1px);
+}
+
+.profile-quotes-page .quote-select-button:focus-visible {
+    outline: 3px solid rgba(73, 99, 167, .25);
+    outline-offset: 2px;
+}
+
+.profile-quotes-page .quote-select-button:disabled {
+    cursor: wait;
+    opacity: .72;
+}
+
+.profile-quotes-page .quote-select-hint {
+    color: #81736d;
+    font-size: .84rem;
+}
+
+.profile-quotes-page .quote-selected-note {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 13px;
+    color: #287347;
+    font-size: .9rem;
+    font-weight: 700;
+}
+
 .profile-quotes-page .quote-offer a {
     display: inline-block;
     margin-top: 10px;

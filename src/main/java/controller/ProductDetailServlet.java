@@ -1,6 +1,7 @@
 package controller;
 
 import dao.ProductDAO;
+import dao.ShopDAO;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -15,6 +16,7 @@ import java.util.Map;
 @WebServlet(urlPatterns = {"/pages/product-detail", "/product-detail"})
 public class ProductDetailServlet extends HttpServlet {
     private final ProductDAO productDAO = new ProductDAO();
+    private final ShopDAO shopDAO = new ShopDAO();
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
@@ -34,6 +36,10 @@ public class ProductDetailServlet extends HttpServlet {
                 response.sendError(HttpServletResponse.SC_NOT_FOUND, "Sản phẩm không tồn tại hoặc đã ngừng bán.");
                 return;
             }
+            Map<String, Object> shopRatingSummary = shopDAO.getShopReviewSummary(
+                    ((Number) product.get("shopId")).intValue());
+            product.put("shopRating", shopRatingSummary.get("rating"));
+            product.put("shopReviewCount", shopRatingSummary.get("count"));
             request.setAttribute("product", product);
             Object cartUserId = request.getSession(false) == null ? null
                     : request.getSession(false).getAttribute("userId");
@@ -68,6 +74,7 @@ public class ProductDetailServlet extends HttpServlet {
                 request.setAttribute("reviewSignedIn", false);
             }
             request.setAttribute("reviewStatus", request.getParameter("review"));
+            request.setAttribute("preferredReviewOrder", request.getParameter("orderId"));
             List<Map<String, Object>> similarProducts = productDAO.findSimilarProducts(
                     id, (Integer) product.get("categoryId"), 8);
             for (Map<String, Object> similar : similarProducts) {

@@ -101,7 +101,35 @@
 
 <div id="footer-placeholder"></div>
 
+<script src="../assets/js/custom-workflow.js"></script>
 <script src="../assets/js/checkout.js"></script>
+<script>
+    (() => {
+        if (new URLSearchParams(window.location.search).get('payment') !== 'vnpay-success') return;
+        let pending;
+        try { pending = JSON.parse(sessionStorage.getItem('auracraft_pending_design_deposit') || 'null'); }
+        catch (_) { pending = null; }
+        if (!pending) return;
+        try {
+            const order = window.AuraCraftCustom?.getOrder(pending.customOrderId);
+            if (order && !['deposit_paid', 'paid'].includes(order.paymentStatus)) {
+                window.AuraCraftCustom.recordPayment(pending.customOrderId, 'success', {
+                    method: 'vnpay_deposit', amount: Number(pending.amount) || 0
+                });
+            }
+            const cart = JSON.parse(localStorage.getItem('AuraCraftCart') || '[]');
+            localStorage.setItem('AuraCraftCart', JSON.stringify(cart.filter(item =>
+                String(item.customDesignId || '') !== String(pending.designId)
+                && String(item.pendingOrderId || '') !== String(pending.customOrderId))));
+            sessionStorage.removeItem('AuraCraftCartSelected');
+            window.dispatchEvent(new Event('auracraft:cart-updated'));
+        } catch (error) {
+            console.error('Could not update the local design after deposit payment', error);
+        } finally {
+            sessionStorage.removeItem('auracraft_pending_design_deposit');
+        }
+    })();
+</script>
 <script>
     fetch('../components/header.html')
         .then(r => r.text())

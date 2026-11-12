@@ -73,6 +73,15 @@
             text-align: center;
         }
 
+        .saved-design-sync-error {
+            margin: 0 0 14px;
+            padding: 10px 12px;
+            border: 1px solid #f0d1c8;
+            border-radius: 8px;
+            color: #9b3d2d;
+            background: #fff5f2;
+        }
+
         @media (max-width: 1024px) {
             .saved-design-grid {
                 grid-template-columns:repeat(2, minmax(0, 1fr));
@@ -108,6 +117,7 @@
             <div class="col-9 over_content">
                 <div class="col-12 panel">
                     <h2 class="panel-title">Thiết kế đã lưu</h2>
+                    <p id="savedDesignSyncError" class="saved-design-sync-error" hidden>Chưa kết nối được kho thiết kế của tài khoản. Các thiết kế bên dưới có thể chỉ là bản lưu trên thiết bị.</p>
                     <div class="saved-design-grid" id="savedDesignGrid"></div>
                     <div class="empty-state" id="savedDesignEmpty" hidden>
                         <p>Bạn chưa lưu thiết kế nào.</p>
@@ -126,10 +136,10 @@
 </script>
 <script src="${ctx}/assets/js/custom-workflow.js"></script>
 <script>
-    (() => {
+    (async () => {
         const grid = document.getElementById('savedDesignGrid');
         const empty = document.getElementById('savedDesignEmpty');
-        const designs = window.AuraCraftCustom ? window.AuraCraftCustom.listCustomDesigns() : [];
+        const localDesigns = window.AuraCraftCustom ? window.AuraCraftCustom.listCustomDesigns() : [];
         const money = value => (Number(value) || 0).toLocaleString('vi-VN') + 'đ';
         const escapeHtml = value => String(value || '').replace(/[&<>"']/g, ch => ({
             '&': '&amp;',
@@ -143,25 +153,52 @@
             const image = item && (item.image || item.imageUrl);
             return image ? (image.startsWith('/') ? CTX + image : image) : CTX + '/assets/img/products/belly_02.jpg';
         };
-        if (!designs.length) {
-            empty.hidden = false;
-            return;
+        const render = designs => {
+            grid.replaceChildren();
+            if (!designs.length) {
+                empty.hidden = false;
+                return;
+            }
+            empty.hidden = true;
+            designs.forEach(design => {
+                const card = document.createElement('article');
+                card.className = 'saved-design-card';
+                const title = design.name || design.productType || 'Thiết kế của tôi';
+                const materials = (design.slots || []).filter(Boolean).length + (design.baseMaterial ? 1 : 0);
+                const url = CTX + '/pages/customizer?designId=' + encodeURIComponent(design.id);
+                card.innerHTML = '<img src="' + escapeHtml(imageUrl(design)) + '" alt="' + escapeHtml(title) + '">' +
+                    '<div class="saved-design-info"><h3 title="' + escapeHtml(title) + '">' + escapeHtml(title) + '</h3>' +
+                    '<p>' + escapeHtml(design.designType || design.productType || 'Thiết kế sản phẩm') + ' · ' + materials + ' vật liệu</p>' +
+                    '<p>' + escapeHtml(design.sellerName || design.shopName || 'AuraCraft') + '</p>' +
+                    '<strong>' + money(design.price) + '</strong>' +
+                    '<div class="saved-design-actions"><a class="btn btn-outline btn-sm" href="' + escapeHtml(url) + '">Xem thiết kế</a></div></div>';
+                grid.appendChild(card);
+            });
+        };
+        try {
+            let response = await fetch(CTX + '/api/buyer/saved-designs', { credentials: 'same-origin' });
+            if (!response.ok) throw new Error('Không tải được thiết kế từ tài khoản.');
+            let result = await response.json();
+            const savedKeys = new Set((result.designs || []).map(row => String(row.design.id)));
+            const legacyDesigns = localDesigns.filter(design => !savedKeys.has(String(design.id)));
+            for (const design of legacyDesigns) {
+                const syncResponse = await fetch(CTX + '/api/buyer/saved-designs', {
+                    method: 'POST', credentials: 'same-origin', headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ design })
+                });
+                if (!syncResponse.ok) throw new Error('Không đồng bộ được thiết kế cũ.');
+            }
+            if (legacyDesigns.length) {
+                response = await fetch(CTX + '/api/buyer/saved-designs', { credentials: 'same-origin' });
+                if (!response.ok) throw new Error('Không đồng bộ được thiết kế cũ.');
+                result = await response.json();
+            }
+            render((result.designs || []).map(row => row.design));
+        } catch (error) {
+            console.error(error);
+            document.getElementById('savedDesignSyncError').hidden = false;
+            render(localDesigns);
         }
-        designs.forEach(design => {
-            const card = document.createElement('article');
-            card.className = 'saved-design-card';
-            const title = design.name || design.productType || 'Thiết kế của tôi';
-            const materials = (design.slots || []).filter(Boolean).length + (design.baseMaterial ? 1 : 0);
-            const url = CTX + '/pages/customizer?designId=' + encodeURIComponent(design.id);
-            card.innerHTML = '<img src="' + escapeHtml(imageUrl(design)) + '" alt="' + escapeHtml(title) + '">' +
-                '<div class="saved-design-info"><h3 title="' + escapeHtml(title) + '">' + escapeHtml(title) + '</h3>' +
-                '<p>' + escapeHtml(design.designType || design.productType || 'Thiết kế sản phẩm') + ' · ' + materials + ' vật liệu</p>' +
-                '<p>' + escapeHtml(design.sellerName || design.shopName || 'AuraCraft') + '</p>' +
-                '<strong>' + money(design.price) + '</strong>' +
-                '<div class="saved-design-actions"><a class="btn btn-outline btn-sm" href="' + escapeHtml(url) + '">Xem thiết kế</a>' +
-                '<a class="btn btn-primary btn-sm" href="' + escapeHtml(CTX + '/pages/buyer-request-form?designId=' + encodeURIComponent(design.id)) + '">Gửi chợ báo giá</a></div></div>';
-            grid.appendChild(card);
-        });
     })();
 </script>
 <script src="${ctx}/assets/js/popup.js"></script>

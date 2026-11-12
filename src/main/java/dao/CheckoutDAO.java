@@ -546,7 +546,7 @@ public class CheckoutDAO {
 
     private static volatile boolean shippingColumnsEnsured = false;
 
-    private void ensureShippingColumns(Connection connection) throws SQLException {
+    void ensureShippingColumns(Connection connection) throws SQLException {
         if (shippingColumnsEnsured) return;
         boolean migrateLegacyShipping = !hasOrderColumn(connection, "shipping_receiver")
                 || !hasOrderColumn(connection, "shipping_phone")

@@ -711,6 +711,18 @@ document.addEventListener('DOMContentLoaded', () => {
       slots: slots.map(item => item ? {...item} : null), size: totalSlots,
       price: (baseMaterial?.price || 0) + slots.reduce((sum, item) => sum + (item ? Number(item.price) || 0 : 0), 0) };
   }
+  async function saveDesignToAccount(design) {
+    const response = await fetch(`${context}/api/buyer/saved-designs`, {
+      method: 'POST', credentials: 'same-origin', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ design })
+    });
+    if (response.status === 401) return false;
+    if (!response.ok) {
+      const result = await response.json().catch(() => ({}));
+      throw new Error(result.message || 'Không đồng bộ được thiết kế với tài khoản.');
+    }
+    return true;
+  }
   function persistDesignInCart() {
     const saved = window.AuraCraftCustom.saveCustomDesign(designPayload());
     currentDesignId = saved.id;
@@ -829,7 +841,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const saved = window.AuraCraftCustom.listCustomDesigns().find(item => item.id === draftSelect.value);
     loadDesign(saved);
   });
-  if (saveDesignBtn) saveDesignBtn.addEventListener('click', () => {
+  if (saveDesignBtn) saveDesignBtn.addEventListener('click', async () => {
     if (!filledCount() && !baseMaterial) {
       const message = 'Hãy chọn dây nền, hạt hoặc charm trước khi lưu thiết kế.';
       setFeedback(message, 'error');
@@ -838,8 +850,11 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     try {
       const saved = window.AuraCraftCustom.saveCustomDesign(designPayload());
+      const storedInAccount = await saveDesignToAccount(saved);
       currentDesignId = saved.id; refreshSavedDesigns(saved.id);
-      const message = 'Đã lưu thiết kế thành công. Bạn có thể tải lại trong mục “Thiết kế đã lưu”.';
+      const message = storedInAccount
+        ? 'Đã lưu thiết kế vào tài khoản. Bạn có thể tải lại trong mục “Thiết kế đã lưu”.'
+        : 'Đã lưu thiết kế trên thiết bị. Đăng nhập để đồng bộ thiết kế với tài khoản.';
       setFeedback(message, 'success');
       showNotice(message, 'success');
     } catch (error) {
@@ -868,7 +883,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  sendShopBtn.addEventListener('click', () => {
+  sendShopBtn.addEventListener('click', async () => {
     if (filledCount() === 0 && !baseMaterial) {
       const message = 'Hãy chọn dây nền, hạt hoặc charm trước khi tiếp tục thanh toán.';
       setFeedback(message, 'error');
@@ -877,6 +892,8 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     try {
       const { saved, cartItem } = persistDesignInCart();
+      const storedInAccount = await saveDesignToAccount(saved);
+      if (!storedInAccount) throw new Error('Vui lòng đăng nhập tài khoản người mua để thanh toán đơn thiết kế.');
       let order = cartItem.pendingOrderId && window.AuraCraftCustom.getOrder(cartItem.pendingOrderId);
       if (!order || order.paymentStatus === 'paid') {
         order = window.AuraCraftCustom.createDesignerOrder({ ...saved, customDesignId: saved.id });

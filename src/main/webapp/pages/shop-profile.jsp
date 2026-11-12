@@ -54,29 +54,6 @@
                 <span><i class="fa-solid fa-wand-magic-sparkles" aria-hidden="true"></i> ${successfulCustomOrders} đơn custom thành công</span>
             </div>
             <c:if test="${not empty shop.address}"><p class="shop-location"><i class="fa-solid fa-location-dot" aria-hidden="true"></i> <c:out value="${shop.address}"/></p></c:if>
-            <div class="shop-profile-actions" id="shop-actions">
-                <c:choose>
-                    <c:when test="${isBuyer}">
-                        <form method="post" action="${pageContext.request.contextPath}/shop-follow">
-                            <input type="hidden" name="shopId" value="${shop.id}">
-                            <input type="hidden" name="action" value="${shopFollowing ? 'unfollow' : 'follow'}">
-                            <button class="shop-action-button shop-follow-button ${shopFollowing ? 'is-following' : ''}" type="submit">
-                                <i class="${shopFollowing ? 'fa-solid fa-heart' : 'fa-regular fa-heart'}" aria-hidden="true"></i>
-                                ${shopFollowing ? 'Đang theo dõi' : 'Theo dõi xưởng'}
-                            </button>
-                        </form>
-                    </c:when>
-                    <c:otherwise>
-                        <a class="shop-action-button shop-follow-button" href="${pageContext.request.contextPath}/pages/login">
-                            <i class="fa-regular fa-heart" aria-hidden="true"></i> Theo dõi xưởng
-                        </a>
-                    </c:otherwise>
-                </c:choose>
-                <span class="shop-follower-count"><i class="fa-solid fa-users" aria-hidden="true"></i> ${shopFollowerCount} người theo dõi</span>
-                <a class="shop-action-button shop-chat-button" href="${pageContext.request.contextPath}/pages/chat-buyer?shopId=${shop.id}">
-                    <i class="fa-regular fa-comment-dots" aria-hidden="true"></i> Chat với thợ
-                </a>
-            </div>
         </div>
     </section>
 
@@ -136,9 +113,17 @@
         </div>
         <c:choose>
             <c:when test="${not empty shopReviews}">
+                <div class="shop-review-filters" role="group" aria-label="Lọc đánh giá theo số sao">
+                    <button class="shop-review-filter is-active" type="button" data-rating="all" aria-pressed="true">Tất cả</button>
+                    <button class="shop-review-filter" type="button" data-rating="5" aria-pressed="false"><i class="fa-solid fa-star" aria-hidden="true"></i> 5 sao</button>
+                    <button class="shop-review-filter" type="button" data-rating="4" aria-pressed="false"><i class="fa-solid fa-star" aria-hidden="true"></i> 4 sao</button>
+                    <button class="shop-review-filter" type="button" data-rating="3" aria-pressed="false"><i class="fa-solid fa-star" aria-hidden="true"></i> 3 sao</button>
+                    <button class="shop-review-filter" type="button" data-rating="2" aria-pressed="false"><i class="fa-solid fa-star" aria-hidden="true"></i> 2 sao</button>
+                    <button class="shop-review-filter" type="button" data-rating="1" aria-pressed="false"><i class="fa-solid fa-star" aria-hidden="true"></i> 1 sao</button>
+                </div>
                 <div class="shop-review-list">
                     <c:forEach var="review" items="${shopReviews}">
-                        <article class="shop-review-card">
+                        <article class="shop-review-card" data-rating="${review.rating}">
                             <div class="shop-review-head">
                                 <strong><c:out value="${review.reviewerName}"/></strong>
                                 <span class="shop-review-stars" aria-label="${review.rating} trên 5 sao">
@@ -152,6 +137,7 @@
                         </article>
                     </c:forEach>
                 </div>
+                <p class="shop-review-filter-empty" hidden>Không có đánh giá phù hợp với số sao đã chọn.</p>
             </c:when>
             <c:otherwise><div class="shop-empty-reviews"><i class="fa-regular fa-star" aria-hidden="true"></i><p>Shop chưa có đánh giá từ khách hàng.</p></div></c:otherwise>
         </c:choose>
@@ -167,6 +153,28 @@
             image.src = image.dataset.fallback;
         }
     }, true);
+</script>
+<script>
+    (() => {
+        const filters = document.querySelectorAll('.shop-review-filter');
+        const cards = document.querySelectorAll('.shop-review-card');
+        const empty = document.querySelector('.shop-review-filter-empty');
+        filters.forEach(filter => filter.addEventListener('click', () => {
+            filters.forEach(button => {
+                const active = button === filter;
+                button.classList.toggle('is-active', active);
+                button.setAttribute('aria-pressed', String(active));
+            });
+            const rating = filter.dataset.rating;
+            let visible = 0;
+            cards.forEach(card => {
+                const show = rating === 'all' || card.dataset.rating === rating;
+                card.hidden = !show;
+                if (show) visible++;
+            });
+            if (empty) empty.hidden = visible > 0;
+        }));
+    })();
 </script>
 <script src="${pageContext.request.contextPath}/assets/js/site-shell.js"></script>
 <script src="${pageContext.request.contextPath}/assets/js/auth.js"></script>

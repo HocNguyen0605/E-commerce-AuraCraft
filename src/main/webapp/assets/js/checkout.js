@@ -112,9 +112,13 @@ document.addEventListener("DOMContentLoaded", () => {
     const cartCheckoutMode = !customOrder && (new URLSearchParams(window.location.search).get("fromCart") === "1"
         || checkoutCart.length > 0 || Boolean(checkoutForm.dataset.productIds));
     const cartSubtotal = checkoutCart.reduce((sum, item) => sum + Number(item.price || 0) * Number(item.quantity || 1), 0);
+    const requestedCustomQuantity = Number.parseInt(new URLSearchParams(window.location.search).get("quantity"), 10);
+    const customOrderQuantity = customOrder?.orderType === "shop_design"
+        ? Math.min(99, Math.max(1, Number.isInteger(requestedCustomQuantity) ? requestedCustomQuantity : 1))
+        : 1;
     const customAmountDue = customOrder && customOrder.paymentStatus === "adjustment_due"
         ? Math.abs(customOrder.priceDifference)
-        : customOrder && customOrder.price;
+        : customOrder && customOrder.price * customOrderQuantity;
     if (customOrderId && !customOrder) {
       checkoutForm.hidden = true;
       alert("Không tìm thấy đơn Custom cần thanh toán.");
@@ -136,8 +140,9 @@ document.addEventListener("DOMContentLoaded", () => {
       title.textContent = customOrder.productType;
       const selectedMaterials = (customOrder.design || []).filter(Boolean).map(piece => piece.name).join(", ");
       const designSizeText = customOrder.designSize ? ` · ${customOrder.designSize} vị trí` : "";
-      meta.textContent = `Thợ: ${customOrder.sellerName} · Chế tác: ${customOrder.days} ngày${designSizeText}${selectedMaterials ? ` · ${selectedMaterials}` : ""}`;
-      itemPrice.textContent = `${customOrder.price.toLocaleString("vi-VN")}đ`;
+      const quantityText = customOrderQuantity > 1 ? ` · Số lượng: ${customOrderQuantity}` : "";
+      meta.textContent = `Thợ: ${customOrder.sellerName} · Chế tác: ${customOrder.days} ngày${quantityText}${designSizeText}${selectedMaterials ? ` · ${selectedMaterials}` : ""}`;
+      itemPrice.textContent = `${customAmountDue.toLocaleString("vi-VN")}đ`;
       details.append(title, meta);
       product.append(details, itemPrice);
       items.replaceChildren(product);
@@ -154,10 +159,8 @@ document.addEventListener("DOMContentLoaded", () => {
         shippingRow.closest(".cost-row")?.setAttribute("hidden", "hidden");
         document.querySelector(".cost-row .cost-value").previousElementSibling.textContent = "Khoản chênh lệch cần thanh toán";
       }
-      const customerName = document.getElementById("fullName");
-      if (customerName && customOrder.buyerName) customerName.value = customOrder.buyerName;
-      const customerEmail = document.getElementById("email");
-      if (customerEmail && customOrder.buyerEmail) customerEmail.value = customOrder.buyerEmail;
+      // Keep the account/default-address values rendered by CheckoutServlet.
+      // Browser-only custom orders contain placeholder buyer fields and must not overwrite them.
       document.querySelector(".checkout-breadcrumb .active").textContent = "Thanh toán đơn Custom";
     }
 
@@ -253,6 +256,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
       if (["paid", "deposit_paid"].includes(customOrder?.paymentStatus)) {
         const isDepositPaid = customOrder.paymentStatus === "deposit_paid";
+        const paymentOptions = document.querySelector('.payment-methods-grid');
+        if (paymentOptions) paymentOptions.style.display = "none";
         depositAlert.hidden = false;
         depositAlert.innerHTML = isDepositPaid
             ? '<i class="fa-solid fa-circle-check"></i> Đơn này đã cọc 50%. Phần còn lại sẽ thanh toán khi nhận hàng.'
@@ -263,7 +268,9 @@ document.addEventListener("DOMContentLoaded", () => {
         document.getElementById('summaryRemaining').textContent = Number(customOrder.remainingAmount || 0).toLocaleString('vi-VN') + 'đ';
         const submitButton = document.getElementById('btnConfirmOrder');
         submitButton.disabled = true;
-        submitButton.querySelector('#btnConfirmText').textContent = 'Đã thanh toán cọc 50%';
+        submitButton.querySelector('#btnConfirmText').textContent = isDepositPaid
+          ? 'Đã cọc · còn lại COD khi nhận hàng'
+          : 'Đã thanh toán đầy đủ';
         return;
       }
 
@@ -693,6 +700,63 @@ document.addEventListener("DOMContentLoaded", () => {
 
       const paymentRadioChecked = document.querySelector('input[name="paymentMethod"]:checked');
       const isVNPay = paymentRadioChecked && paymentRadioChecked.value === 'vnpay';
+      const isSavedDesignerOrder = customOrder && ["shop_design", "product_customization"].includes(customOrder.orderType);
+      if (isSavedDesignerOrder && paymentRadioChecked?.value === 'vnpay_deposit') {
+        const button = document.getElementById("btnConfirmOrder");
+        if (button) {
+          button.disabled = true;
+          button.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Đang tạo đơn cọc...';
+        }
+        try {
+          const response = await fetch(`${checkoutForm.dataset.context}/api/buyer/custom-design-deposit`, {
+            method: "POST", credentials: "same-origin",
+            headers: { "Content-Type": "application/json", "Accept": "application/json" },
+            body: JSON.stringify({
+              designId: customOrder.customDesignId,
+              quantity: customOrderQuantity,
+              fullName: fullName.value.trim(), phone: phone.value.trim(),
+              address: completeDeliveryAddress(), note: note ? note.value.trim() : ""
+            })
+          });
+          const responseType = response.headers.get("content-type") || "";
+          if (!responseType.includes("application/json")) {
+            await response.text();
+            throw new Error(response.status === 404
+              ? "Máy chủ chưa có API đặt cọc thiết kế. Hãy build và redeploy bản AuraCraft mới nhất rồi thử lại."
+              : "Máy chủ trả về trang HTML thay vì kết quả đặt cọc. Hãy đăng nhập lại hoặc kiểm tra bản ứng dụng đang chạy.");
+          }
+          const result = await response.json();
+          if (!response.ok) throw new Error(result.message || "Không thể tạo đơn đặt cọc.");
+          const total = Number(result.total);
+          const deposit = Number(result.deposit);
+          window.AuraCraftCustom.saveOrderDetails(customOrder.id, {
+            fullName: fullName.value.trim(), phone: phone.value.trim(),
+            address: completeDeliveryAddress(), note: note ? note.value.trim() : ""
+          });
+          sessionStorage.setItem("auracraft_pending_design_deposit", JSON.stringify({
+            customOrderId: customOrder.id, designId: String(customOrder.customDesignId), amount: deposit,
+            createdAt: Date.now()
+          }));
+          sessionStorage.setItem("auracraft_latest_order", JSON.stringify({
+            orderId: "#AC-" + result.orderId,
+            fullName: fullName.value.trim(), phone: phone.value.trim(),
+            address: completeDeliveryAddress(), note: note ? note.value.trim() : "",
+            email: document.getElementById("email")?.value || "",
+            paymentMethod: "VNPay (Đặt cọc 50% đơn thiết kế)",
+            shippingFee: "25.300đ", subtotal: (total - 25300).toLocaleString("vi-VN") + "đ",
+            total: total.toLocaleString("vi-VN") + "đ", paid: deposit.toLocaleString("vi-VN") + "đ",
+            remaining: (total - deposit).toLocaleString("vi-VN") + "đ", createdAt: new Date().toLocaleString("vi-VN")
+          }));
+          window.location.href = `${checkoutForm.dataset.context}/payment/vnpay?paymentReference=${encodeURIComponent(result.paymentReference)}&orderIds=${encodeURIComponent(result.orderId)}`;
+        } catch (error) {
+          window.alert(error.message || "Không thể kết nối VNPay.");
+          if (button) {
+            button.disabled = false;
+            button.innerHTML = '<span id="btnConfirmText">Xác nhận đặt hàng</span><i class="fa-solid fa-arrow-right"></i>';
+          }
+        }
+        return;
+      }
       const hasCustomItemSubmit = hasCustomItem;
 
       let totalStr = document.getElementById('summaryTotal') ? document.getElementById('summaryTotal').textContent.replace(/\D/g, '') : "415300";
