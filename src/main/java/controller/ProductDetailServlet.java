@@ -1,6 +1,7 @@
 package controller;
 
 import dao.ProductDAO;
+import dao.ShopDAO;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -15,6 +16,7 @@ import java.util.Map;
 @WebServlet(urlPatterns = {"/pages/product-detail", "/product-detail"})
 public class ProductDetailServlet extends HttpServlet {
     private final ProductDAO productDAO = new ProductDAO();
+    private final ShopDAO shopDAO = new ShopDAO();
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
@@ -34,6 +36,10 @@ public class ProductDetailServlet extends HttpServlet {
                 response.sendError(HttpServletResponse.SC_NOT_FOUND, "Sản phẩm không tồn tại hoặc đã ngừng bán.");
                 return;
             }
+            Map<String, Object> shopRatingSummary = shopDAO.getShopReviewSummary(
+                    ((Number) product.get("shopId")).intValue());
+            product.put("shopRating", shopRatingSummary.get("rating"));
+            product.put("shopReviewCount", shopRatingSummary.get("count"));
             request.setAttribute("product", product);
             Object cartUserId = request.getSession(false) == null ? null
                     : request.getSession(false).getAttribute("userId");
@@ -68,12 +74,27 @@ public class ProductDetailServlet extends HttpServlet {
                 request.setAttribute("reviewSignedIn", false);
             }
             request.setAttribute("reviewStatus", request.getParameter("review"));
+            request.setAttribute("preferredReviewOrder", request.getParameter("orderId"));
             List<Map<String, Object>> similarProducts = productDAO.findSimilarProducts(
                     id, (Integer) product.get("categoryId"), 8);
             for (Map<String, Object> similar : similarProducts) {
                 similar.put("image", resolveImage((String) similar.get("image"), categoryId, 0));
             }
             request.setAttribute("similarProducts", similarProducts);
+
+            // Gợi ý "Có thể bạn cũng thích" từ luật kết hợp (bảng product_rules).
+            // Lỗi ở phần gợi ý (vd: chưa tạo bảng) không được làm hỏng cả trang chi tiết.
+            List<Map<String, Object>> recommendedProducts = List.of();
+            try {
+                recommendedProducts = productDAO.findRecommendedProducts(id, 4);
+                for (Map<String, Object> recommended : recommendedProducts) {
+                    recommended.put("image", resolveImage((String) recommended.get("image"),
+                            (Integer) recommended.get("categoryId"), 0));
+                }
+            } catch (SQLException exception) {
+                getServletContext().log("Unable to load association-rule recommendations", exception);
+            }
+            request.setAttribute("recommendedProducts", recommendedProducts);
             request.setAttribute("productDetailReady", true);
             request.getRequestDispatcher("/pages/product-detail.jsp").forward(request, response);
         } catch (SQLException exception) {
