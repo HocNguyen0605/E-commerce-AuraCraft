@@ -710,25 +710,96 @@
 
 .pd-review-form {
     display: grid;
-    gap: 10px;
-    max-width: 640px;
-    margin: 20px 0;
-    padding: 20px
+    gap: 12px;
+    max-width: 680px;
+    margin: 28px auto;
+    padding: 26px;
+    border: 1px solid #eee3d6;
+    border-radius: 18px;
+    background: linear-gradient(145deg, #fffdfa 0%, #fff 72%);
+    box-shadow: 0 12px 32px rgba(75, 48, 35, .08)
 }
 
-.pd-review-form h3 {
-    margin: 0 0 4px
+.pd-review-form-heading {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 4px
 }
+
+.pd-review-form-icon {
+    display: grid;
+    width: 48px;
+    height: 48px;
+    flex: 0 0 48px;
+    place-items: center;
+    border-radius: 15px;
+    color: #966a2c;
+    background: #fbf1df;
+    font-size: 20px
+}
+
+.pd-review-form h3 { margin: 0 0 4px; color: #49352d; font-size: 1.25rem }
+.pd-review-form-heading p { margin: 0; color: #81736d; font-size: .92rem; line-height: 1.5 }
+.pd-review-label { color: #51443f; font-size: .94rem; font-weight: 700 }
 
 .pd-review-form select, .pd-review-form textarea {
+    width: 100%;
     font: inherit;
-    padding: 10px;
-    border: 1px solid #ddd;
-    border-radius: 8px
+    padding: 12px 14px;
+    border: 1px solid #ded7d1;
+    border-radius: 10px;
+    color: #493f3a;
+    background: #fff;
+    transition: border-color .18s ease, box-shadow .18s ease
 }
 
-.pd-review-form button {
-    justify-self: start
+.pd-review-form select:focus, .pd-review-form textarea:focus {
+    outline: none;
+    border-color: #a97934;
+    box-shadow: 0 0 0 3px rgba(169, 121, 52, .14)
+}
+
+.pd-review-rating { min-width: 0; margin: 2px 0 0; padding: 0; border: 0 }
+.pd-review-rating legend { margin-bottom: 8px; padding: 0 }
+.pd-review-stars { display: flex; flex-direction: row-reverse; justify-content: flex-end; gap: 3px; width: fit-content }
+.pd-review-stars input { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap }
+.pd-review-stars label { color: #d8d0c7; cursor: pointer; font-size: 2rem; line-height: 1.2; transition: color .15s ease, transform .15s ease }
+.pd-review-stars input:checked + label, .pd-review-stars input:checked + label ~ input + label,
+.pd-review-stars label:hover, .pd-review-stars label:hover ~ label { color: #e1a635 }
+.pd-review-stars label:hover { transform: scale(1.12) }
+.pd-review-stars input:focus-visible + label { outline: 2px solid #a97934; outline-offset: 2px; border-radius: 3px }
+.pd-review-rating-hint { display: block; margin-top: 3px; color: #8c817a; font-size: .82rem }
+.pd-review-form textarea { resize: vertical; min-height: 112px; line-height: 1.55 }
+.pd-review-label span { color: #8c817a; font-size: .84rem; font-weight: 400 }
+.pd-review-file { width: 100%; padding: 10px; border: 1px dashed #d7c8b4; border-radius: 10px; background: #fffaf2; color: #62534a; font: inherit }
+.pd-review-file::file-selector-button { margin-right: 12px; padding: 8px 12px; border: 0; border-radius: 8px; color: #76551c; background: #f4e8d1; font: inherit; font-weight: 700; cursor: pointer }
+.pd-review-upload-hint { margin-top: -7px; color: #8c817a }
+.pd-review-image-preview { display: flex; flex-wrap: wrap; gap: 9px }
+.pd-review-image-preview img { width: 76px; height: 76px; object-fit: cover; border: 1px solid #e5d8c8; border-radius: 10px }
+.pd-review-form-footer { display: flex; align-items: center; justify-content: space-between; gap: 14px; margin-top: 2px }
+.pd-review-form-footer small { color: #8c817a }
+.pd-review-form button { display: inline-flex; align-items: center; gap: 9px; min-height: 44px; padding: 10px 20px; border: 0; border-radius: 999px; background: #a97934; box-shadow: 0 4px 12px rgba(169, 121, 52, .2); transition: background .18s ease, transform .18s ease, box-shadow .18s ease }
+.pd-review-form button:hover { background: #895d22; transform: translateY(-1px); box-shadow: 0 7px 16px rgba(169, 121, 52, .27) }
+.pd-review-images { display: flex; flex-wrap: wrap; gap: 8px; margin: 10px 0 }
+.pd-review-images img { width: 82px; height: 82px; object-fit: cover; border: 1px solid #eee3d6; border-radius: 10px }
+.pd-review-success, .pd-review-error { display: flex; align-items: center; gap: 10px; max-width: 680px; margin: 20px 0; padding: 15px 18px; border-radius: 12px; font-weight: 600 }
+.pd-review-success { position: fixed; z-index: 1200; top: 22px; right: 22px; max-width: min(440px, calc(100vw - 32px)); margin: 0; padding: 15px 16px; border: 1px solid #b9ddc3; color: #28663b; background: #f0faf3; box-shadow: 0 12px 32px rgba(35, 74, 46, .18); animation: review-toast-in .25s ease-out both; transition: opacity .28s ease, transform .28s ease }
+.pd-review-success.is-hiding { opacity: 0; transform: translateY(-8px); pointer-events: none }
+.pd-review-success button { flex: 0 0 auto; margin-left: 8px; padding: 0 2px; border: 0; color: #477650; background: transparent; font-size: 24px; line-height: 1; cursor: pointer }
+.pd-review-success button:hover { color: #224f2d }
+.pd-review-success button:focus-visible { outline: 2px solid #477650; outline-offset: 3px; border-radius: 3px }
+.pd-review-success i { font-size: 18px }
+.pd-review-success span { flex: 1 }
+@keyframes review-toast-in { from { opacity: 0; transform: translateY(-8px) } to { opacity: 1; transform: translateY(0) } }
+.pd-review-error { border: 1px solid #f0d1c8; color: #9b3d2d; background: #fff5f2 }
+
+@media (max-width: 560px) {
+    .pd-review-form { padding: 20px 16px; border-radius: 14px }
+    .pd-review-form-icon { width: 42px; height: 42px; flex-basis: 42px; border-radius: 12px }
+    .pd-review-form h3 { font-size: 1.1rem }
+    .pd-review-form-heading p { font-size: .84rem }
+    .pd-review-form-footer { align-items: flex-start; flex-direction: column }
 }
 
 @media (max-width: 560px) {
