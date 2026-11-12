@@ -21,14 +21,21 @@ public class PaymentDAO {
             try {
                 List<Integer> orderIds = new ArrayList<>();
                 boolean allSettled = true;
+                String gateway = null;
                 try (PreparedStatement query = connection.prepareStatement(
-                        "SELECT o.id,o.status,t.status AS txn_status FROM orders o " +
+                        "SELECT o.id,o.status,t.status AS txn_status,t.gateway FROM orders o " +
                                 "JOIN transactions t ON t.id_order=o.id " +
-                                "WHERE o.id_user=? AND t.gateway='vnpay' AND t.txn_ref LIKE ? FOR UPDATE")) {
+                                "WHERE o.id_user=? AND t.gateway IN ('vnpay','vnpay_deposit') AND t.txn_ref LIKE ? FOR UPDATE")) {
                     query.setInt(1, userId); query.setString(2, reference + "-%");
                     try (ResultSet rs = query.executeQuery()) {
                         while (rs.next()) {
                             orderIds.add(rs.getInt("id"));
+                            String rowGateway = rs.getString("gateway");
+                            if (gateway != null && !gateway.equals(rowGateway)) {
+                                connection.rollback();
+                                return MockResult.UNKNOWN;
+                            }
+                            gateway = rowGateway;
                             if (!"paid".equalsIgnoreCase(rs.getString("status")) ||
                                     !"success".equalsIgnoreCase(rs.getString("txn_status"))) allSettled = false;
                         }
@@ -37,8 +44,9 @@ public class PaymentDAO {
                 if (orderIds.isEmpty()) { connection.rollback(); return MockResult.UNKNOWN; }
                 if (allSettled) { connection.commit(); return MockResult.SUCCESS; }
                 try (PreparedStatement tx = connection.prepareStatement(
-                        "UPDATE transactions SET status='success',date=CURRENT_TIMESTAMP WHERE gateway='vnpay' AND txn_ref LIKE ? AND status='pending'")) {
-                    tx.setString(1, reference + "-%");
+                        "UPDATE transactions SET status='success',date=CURRENT_TIMESTAMP WHERE gateway=? AND txn_ref LIKE ? AND status='pending'")) {
+                    tx.setString(1, gateway);
+                    tx.setString(2, reference + "-%");
                     if (tx.executeUpdate() != orderIds.size()) { connection.rollback(); return MockResult.NOT_PENDING; }
                 }
                 try (PreparedStatement orders = connection.prepareStatement(
@@ -87,7 +95,7 @@ public class PaymentDAO {
     /** Cancels a pending demo checkout and restores its cart, stock, voucher quota, and redeemed coins. */
     public MockResult cancelMockPayment(String reference, int userId, String gateway) throws SQLException {
         if (reference == null || !reference.matches("[a-fA-F0-9]{32}")) return MockResult.UNKNOWN;
-        if (!"vnpay".equals(gateway) && !"cod".equals(gateway)) return MockResult.UNKNOWN;
+        if (!"vnpay".equals(gateway) && !"vnpay_deposit".equals(gateway) && !"cod".equals(gateway)) return MockResult.UNKNOWN;
         try (Connection connection = DBConnection.getConnection()) {
             connection.setAutoCommit(false);
             try {
@@ -98,8 +106,10 @@ public class PaymentDAO {
                 boolean pendingOnly = true;
                 try (PreparedStatement query = connection.prepareStatement(
                         "SELECT o.id,o.status,o.id_voucher,o.points_used FROM orders o " +
-                                "JOIN transactions t ON t.id_order=o.id WHERE o.id_user=? AND t.gateway=? AND t.txn_ref LIKE ? FOR UPDATE")) {
-                    query.setInt(1, userId); query.setString(2, gateway); query.setString(3, reference + "-%");
+                                "JOIN transactions t ON t.id_order=o.id WHERE o.id_user=? " +
+                                "AND ((?='vnpay' AND t.gateway IN ('vnpay','vnpay_deposit')) OR t.gateway=?) " +
+                                "AND t.txn_ref LIKE ? FOR UPDATE")) {
+                    query.setInt(1, userId); query.setString(2, gateway); query.setString(3, gateway); query.setString(4, reference + "-%");
                     try (ResultSet rs = query.executeQuery()) {
                         while (rs.next()) {
                             int orderId = rs.getInt("id"); orderIds.add(orderId);

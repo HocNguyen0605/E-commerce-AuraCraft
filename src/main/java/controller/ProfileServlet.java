@@ -20,10 +20,11 @@ public class ProfileServlet extends HttpServlet {
         // Kiểm tra userId trong Session (Khớp hoàn toàn với MeServlet)
         if (session == null || session.getAttribute("userId") == null) {
             // Chưa đăng nhập -> Chuyển hướng về trang đăng nhập
-            resp.sendRedirect(req.getContextPath() + "/pages/login.jsp");
+            resp.sendRedirect(req.getContextPath() + "/pages/login");
             return;
         }
 
-        // Đã đăng nhập -> Chuyển hướng sang trang giao diện profile.jsp
-        resp.sendRedirect(req.getContextPath() + "/pages/profile.jsp");    }
+        // Đưa người dùng tới hồ sơ có dữ liệu đơn hàng.
+        resp.sendRedirect(req.getContextPath() + "/pages/profile");
+    }
 }

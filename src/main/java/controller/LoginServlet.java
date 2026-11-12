@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import dao.AccountDAO;
 import dto.AccountInfoDTO;
 import jakarta.servlet.annotation.WebServlet;
+import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -14,14 +15,14 @@ import java.io.IOException;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-@WebServlet("/login")
+@WebServlet(urlPatterns = {"/login", "/pages/login"})
 public class LoginServlet extends HttpServlet {
     private final AccountDAO dao = new AccountDAO();
     private final Gson gson = new Gson();
 
     @Override
-    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-        resp.sendRedirect(req.getContextPath() + "/pages/login.jsp");
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        req.getRequestDispatcher("/pages/login.jsp").forward(req, resp);
     }
 
     @Override

@@ -12,9 +12,9 @@
     <!-- Styles -->
     <link rel="stylesheet" href="../../assets/css/style.css">
     <link rel="stylesheet" href="../../assets/css/admin-layout.css">
-    <link rel="stylesheet" href="../../assets/css/pages/styleOrders.css">
     <link rel="stylesheet" href="../../assets/css/pages/styleAdminOrders.css">
     <link rel="stylesheet" href="../../assets/css/pages/styleAdminUsers.css">
+    <link rel="stylesheet" href="../../assets/css/pages/styleAdminPortfolio.css">
 </head>
 <body>
     <div class="admin-wrapper">
@@ -105,8 +105,8 @@
     <!-- Scripts -->
     <script>window.CTX = "${pageContext.request.contextPath}";</script>
     <script src="../../assets/js/admin/admin-common.js"></script>
-    <script src="../../assets/js/admin-users.js?v=4"></script>
-<script src="../../assets/js/popup.js"></script>
+    <script src="../../assets/js/admin-users.js"></script>
+    <script src="../../assets/js/popup.js"></script>
     <script src="${pageContext.request.contextPath}/assets/js/auth.js"></script>
 
 </body>

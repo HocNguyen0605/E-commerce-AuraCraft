@@ -49,11 +49,15 @@
 
 .home-product-card .product-info h3 {
     display: -webkit-box;
-    min-height: 2.7em;
-    overflow: hidden;
+    min-height: 2.8em;
     margin: 0;
+    line-height: 1.4;
+    overflow: hidden;
+    overflow-wrap: anywhere;
     -webkit-box-orient: vertical;
     -webkit-line-clamp: 2;
+    line-clamp: 2;
+    flex: 0 0 auto;
 }
 
 .home-product-card .product-shop {

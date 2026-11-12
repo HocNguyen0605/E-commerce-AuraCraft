@@ -58,11 +58,11 @@
 
             <div class="form-side">
                 <div class="top-header">
-                    <a href="${pageContext.request.contextPath}/index.jsp" class="brand-logo">
+                    <a href="${pageContext.request.contextPath}/pages/home" class="brand-logo">
                         <span class="logo-icon">A</span>
                         <span class="logo-text">uraCraft</span>
                     </a>
-                    <a href="${pageContext.request.contextPath}/pages/login.jsp" class="auth-nav-back">← Quay lại Đăng nhập</a>
+                    <a href="${pageContext.request.contextPath}/pages/login" class="auth-nav-back">← Quay lại Đăng nhập</a>
                 </div>
 
                 <div id="requestState">
@@ -118,7 +118,7 @@
                     <i class="fa-solid fa-circle-check success-icon"></i>
                     <h2>Đổi mật khẩu thành công!</h2>
                     <p class="auth-subtitle">Bạn có thể đăng nhập bằng mật khẩu mới.</p>
-                    <a href="${pageContext.request.contextPath}/pages/login.jsp" class="btn btn-primary">Đăng nhập ngay</a>
+                    <a href="${pageContext.request.contextPath}/pages/login" class="btn btn-primary">Đăng nhập ngay</a>
                 </div>
 
                 <div class="auth-footer-text">
@@ -331,7 +331,7 @@
     // ===== Gửi mã (bấm nút hoặc Enter trong ô email) =====
     forgotForm.addEventListener('submit', async function (e) {
         e.preventDefault();
-        if (emailVerified) {          // đang là nút "Đổi email"
+        if (emailVerified) {          //đang là nút "Đổi email"
             resetOtpUi();
             emailInput.focus();
             return;

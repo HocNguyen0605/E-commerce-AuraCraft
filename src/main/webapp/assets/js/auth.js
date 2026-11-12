@@ -16,21 +16,19 @@ function whenReady(selector, cb) {
   } catch (e) {}
 
   whenReady('#nav-login', link => {
-    const profile = document.getElementById('nav-profile');
-
     if (!me.loggedIn) {
-      console.log("ĐÃ TÌM THẤY NAV-LOGIN:", link);
       link.textContent = 'Đăng nhập';
-      link.href = window.CTX + '/pages/login.jsp';
+      link.href = window.CTX + '/pages/login';
       return;
     }
 
-    link.textContent = 'Xin chào, ' + me.name;
-    link.href = window.CTX + '/profile';
-
-    if (profile) {
-      profile.style.display = '';
-      profile.href = window.CTX + '/profile';
+    link.hidden = true;
+    const group = document.getElementById('user-logged-in');
+    const greeting = document.getElementById('user-greeting');
+    if (group) group.hidden = false;
+    if (greeting) {
+      greeting.textContent = 'Xin chào, ' + (me.name || 'bạn');
+      greeting.href = window.CTX + '/pages/profile';
     }
   });
 })();
@@ -40,13 +38,13 @@ document.addEventListener('click', e => {
   const home = e.target.closest('[data-home]');
   if (home) {
     e.preventDefault();
-    location.href = window.CTX + '/index.jsp';
+    location.href = window.CTX + '/pages/home';
     return;
   }
   const out = e.target.closest('[data-logout]');
   if (out) {
     e.preventDefault();
     fetch(window.CTX + '/logout', { method: 'POST' })
-        .finally(() => location.href = window.CTX + '/index.jsp');
+        .finally(() => location.href = window.CTX + '/pages/home');
   }
 });

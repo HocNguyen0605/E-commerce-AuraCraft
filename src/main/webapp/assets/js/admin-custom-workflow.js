@@ -16,6 +16,7 @@ document.addEventListener("DOMContentLoaded", () => {
     pending_payment: "Chờ thanh toán",
     crafting: "Đang chế tác",
     unpaid: "Chưa thanh toán",
+    deposit_paid: "Đã cọc 50%",
     paid: "Đã thanh toán",
     adjustment_due: "Chờ thu chênh lệch",
     refund_due: "Chờ hoàn tiền",
@@ -37,7 +38,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function money(value) {
-    return `${Number(value || 0).toLocaleString("vi-VN")} đ`;
+    return `${Number(value || 0).toLocaleString("vi-VN")}đ`;
   }
 
   function cell(row, value, className) {
@@ -57,6 +58,7 @@ document.addEventListener("DOMContentLoaded", () => {
     pending_payment: "badge pending",
     crafting: "badge crafting",
     unpaid: "badge rejected",
+    deposit_paid: "badge pending",
     paid: "badge done",
     adjustment_due: "badge late",
     refund_due: "badge late",

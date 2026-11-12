@@ -1,5 +1,7 @@
 document.addEventListener('DOMContentLoaded', () => {
-    const formatVND = n => n.toLocaleString('vi-VN') + ' ₫';
+    const pagesIndex = window.location.pathname.indexOf('/pages/');
+    const contextPath = pagesIndex >= 0 ? window.location.pathname.slice(0, pagesIndex) : '';
+    const formatVND = n => n.toLocaleString('vi-VN') + 'đ';
     const params = new URLSearchParams(window.location.search);
     const id = parseInt(params.get('id'), 10) || AURA_PRODUCTS[0].id;
     const product = AURA_PRODUCTS.find(p => p.id === id) || AURA_PRODUCTS[0];
@@ -92,7 +94,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    document.getElementById('pdCustomCta').href = `customizer.html?type=${product.type}&id=${product.id}`;
+    document.getElementById('pdCustomCta').href = `${contextPath}/pages/customizer?type=${encodeURIComponent(product.type)}&id=${encodeURIComponent(product.id)}`;
     document.getElementById('pdCustomCtaTitle').textContent = `Custom ${product.typeLabel.toLowerCase()} này`;
 
     document.getElementById('pdShopAvatar').textContent = product.shop.charAt(0);
@@ -120,7 +122,7 @@ document.addEventListener('DOMContentLoaded', () => {
           <span>${formatVND(p.price)}</span>
         </div>`;
             item.addEventListener('click', () => {
-                window.location.href = `product-detail.jsp?id=${p.id}`;
+                window.location.href = `${contextPath}/pages/product-detail?id=${encodeURIComponent(p.id)}`;
             });
             grid.appendChild(item);
         });
@@ -150,7 +152,7 @@ document.addEventListener('DOMContentLoaded', () => {
           <span class="shop-suggest-rating">★ ${p.rating} · Đã bán ${p.sold}</span>
         </div>`;
             item.addEventListener('click', () => {
-                window.location.href = `product-detail.jsp?id=${p.id}`;
+                window.location.href = `${contextPath}/pages/product-detail?id=${encodeURIComponent(p.id)}`;
             });
             suggestGrid.appendChild(item);
         });
@@ -170,6 +172,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     document.getElementById('pdBuyNowBtn')?.addEventListener('click', () => {
-        window.location.href = 'checkout.html';
+        window.location.href = `${contextPath}/pages/checkout`;
     });
 });

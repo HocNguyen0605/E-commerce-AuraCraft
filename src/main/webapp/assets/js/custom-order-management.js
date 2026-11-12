@@ -45,7 +45,7 @@
       body.append(title, buyer, deadline);
       footer.className = "order-footer";
       amount.className = "total-price";
-      amount.textContent = `${Number(order.price).toLocaleString("vi-VN")} đ`;
+      amount.textContent = `${Number(order.price).toLocaleString("vi-VN")}đ`;
       footer.append(amount);
       if (order.status === "crafting") {
         const chatLink = document.createElement("a");

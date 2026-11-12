@@ -102,7 +102,7 @@
                             <td>#WD-1092</td>
                             <td><strong>Anna Nguyễn</strong></td>
                             <td>Vietcombank - 0123456789</td>
-                            <td style="font-weight: bold; color: var(--primary-blue);">3.500.000 đ</td>
+                            <td style="font-weight: bold; color: var(--primary-blue);">3.500.000đ</td>
                             <td><span class="badge pending">Chờ duyệt</span></td>
                             <td>27/09/2026</td>
                             <td>
@@ -113,7 +113,7 @@
                             <td>#WD-1088</td>
                             <td><strong>Trần Bảo</strong></td>
                             <td>MB Bank - 987654321</td>
-                            <td style="font-weight: bold; color: var(--primary-blue);">1.200.000 đ</td>
+                            <td style="font-weight: bold; color: var(--primary-blue);">1.200.000đ</td>
                             <td><span class="badge pending">Chờ duyệt</span></td>
                             <td>26/09/2026</td>
                             <td>
@@ -124,7 +124,7 @@
                             <td>#WD-1070</td>
                             <td><strong>Lê Vy</strong></td>
                             <td>Techcombank - 1122334455</td>
-                            <td style="font-weight: bold; color: var(--text-muted);">5.000.000 đ</td>
+                            <td style="font-weight: bold; color: var(--text-muted);">5.000.000đ</td>
                             <td><span class="badge done">Đã chuyển khoản</span></td>
                             <td>25/09/2026</td>
                             <td>

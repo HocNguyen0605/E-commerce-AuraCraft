@@ -24,14 +24,15 @@
             <a class="btn btn-primary" href="${pageContext.request.contextPath}/pages/products">Khám phá sản phẩm</a></div>
         <div class="cart-summary" id="cartSummary" hidden><p><span id="selectedCartCount">0 sản phẩm được chọn</span>
         </p>
-            <p>Tổng cộng: <strong class="total-price" id="cartTotal">0 ₫</strong></p>
+            <p>Tổng cộng: <strong class="total-price" id="cartTotal">0đ</strong></p>
             <button class="btn btn-primary checkout-btn" id="checkoutCartBtn" type="button">Tiến hành thanh toán
             </button>
         </div>
     </div>
 </main>
 <div id="footer-placeholder"></div>
-<script src="${pageContext.request.contextPath}/assets/js/cart.js"></script>
+<script src="${pageContext.request.contextPath}/assets/js/custom-workflow.js"></script>
+<script src="${pageContext.request.contextPath}/assets/js/cart.js?v=custom-design-v1"></script>
 <script src="${pageContext.request.contextPath}/assets/js/popup.js"></script>
 <script src="${pageContext.request.contextPath}/assets/js/site-shell.js"></script>
 <script src="${pageContext.request.contextPath}/assets/js/auth.js"></script>

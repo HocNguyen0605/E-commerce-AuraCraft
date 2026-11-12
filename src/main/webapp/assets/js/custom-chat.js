@@ -1,8 +1,10 @@
 document.addEventListener("DOMContentLoaded", () => {
   const requestId = new URLSearchParams(window.location.search).get("requestId");
+  const pagesIndex = window.location.pathname.indexOf("/pages/");
+  const contextPath = pagesIndex >= 0 ? window.location.pathname.slice(0, pagesIndex) : "";
   if (!requestId || !window.AuraCraftCustom.getRequest(requestId)) return;
 
-  const isSeller = window.location.pathname.endsWith("chat-seller.jsp");
+  const isSeller = window.location.pathname.endsWith("chat-seller.jsp") || window.location.pathname.includes("/seller/chat");
   const role = isSeller ? "artisan" : "buyer";
   const name = isSeller ? "Thợ thủ công" : "Người mua";
   const messageList = document.getElementById("customMessages");
@@ -73,7 +75,7 @@ document.addEventListener("DOMContentLoaded", () => {
         if (order && order.paymentStatus === "adjustment_due") {
           const paymentLink = document.createElement("a");
           paymentLink.className = "btn btn-primary";
-          paymentLink.href = `checkout.html?orderId=${encodeURIComponent(order.id)}`;
+          paymentLink.href = `${contextPath}/pages/checkout?orderId=${encodeURIComponent(order.id)}`;
           paymentLink.textContent = `Thanh toán phần chênh lệch ${Math.abs(order.priceDifference).toLocaleString("vi-VN")}đ`;
           item.append(paymentLink);
         }

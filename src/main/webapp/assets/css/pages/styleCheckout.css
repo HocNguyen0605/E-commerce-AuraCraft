@@ -14,9 +14,6 @@
     --error-color: #D9534F;
     --success-text: #28734A;
     --accent-gold: #D4AF37;
-
-    --font-title: "Segoe UI", sans-serif;
-    --font-content: "Segoe UI", sans-serif;
 }
 
 
@@ -163,6 +160,14 @@ textarea.form-control {
     font-weight: 600;
 }
 
+.field-help-msg {
+    display: block;
+    margin-top: 5px;
+    color: var(--text-muted);
+    font-size: 12px;
+    line-height: 1.45;
+}
+
 .form-group.invalid .field-error-msg {
     display: block;
 }
@@ -185,7 +190,7 @@ textarea.form-control {
     gap: 14px;
 }
 
-.payment-method-card:hover {
+.payment-method-card:not(.disabled):hover {
     border-color: var(--primary-blue);
     background-color: rgba(66, 91, 154, 0.02);
 }
@@ -248,9 +253,20 @@ textarea.form-control {
 }
 
 .payment-method-card.disabled {
-    opacity: 0.6;
-    background-color: #fbfbfb;
-    border-color: #e4e4e4;
+    opacity: 0.55;
+    filter: grayscale(1);
+    background-color: #f4f4f4;
+    border-color: #dedede;
+    box-shadow: none;
+    cursor: not-allowed;
+}
+
+.payment-method-card.disabled * {
+    cursor: not-allowed;
+}
+
+.payment-method-card.disabled .payment-method-desc {
+    color: #929292;
 }
 
 .payment-method-card.disabled .payment-method-name span:first-child {
