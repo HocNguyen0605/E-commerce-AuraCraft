@@ -18,6 +18,7 @@ public class SellerOrderDTO {
     private String buyerNote;       // orders.shipping_note (ghi chú của người mua)
     private long shippingFee;
     private long discount;
+    private long depositAmount;
     private String gateway;         // transactions.gateway: cod | vnpay
     private String status;          // orders.status: pending | paid | processing | shipping | completed
     private Date deadline;
@@ -49,6 +50,9 @@ public class SellerOrderDTO {
     public void setShippingFee(long shippingFee) { this.shippingFee = shippingFee; }
     public long getDiscount() { return discount; }
     public void setDiscount(long discount) { this.discount = discount; }
+    public long getDepositAmount() { return depositAmount; }
+    public void setDepositAmount(long depositAmount) { this.depositAmount = depositAmount; }
+    public long getRemainingCodAmount() { return Math.max(0, amount - depositAmount); }
     public String getGateway() { return gateway; }
     public void setGateway(String gateway) { this.gateway = gateway; }
     public String getStatus() { return status; }
@@ -77,10 +81,12 @@ public class SellerOrderDTO {
     }
 
     public String getPaymentLabel() {
+        if (depositAmount > 0) return "Đã cọc 50% qua VNPay · thu phần còn lại khi giao";
         if (gateway == null) return "Chưa rõ";
         switch (gateway.toLowerCase()) {
             case "cod":   return "Thanh toán khi nhận hàng (COD)";
             case "vnpay": return "VNPay";
+            case "vnpay_deposit": return "Đã cọc 50% qua VNPay · thu phần còn lại khi giao";
             default:      return gateway;
         }
     }

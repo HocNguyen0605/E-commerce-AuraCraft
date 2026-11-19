@@ -175,6 +175,10 @@
                                     <div class="od-sum-row"><span>Giảm giá</span><span>-<fmt:formatNumber value="${o.discount}" pattern="#,##0"/>đ</span></div>
                                 </c:if>
                                 <div class="od-sum-row od-sum-total"><span>Tổng thanh toán</span><span><fmt:formatNumber value="${o.amount}" pattern="#,##0"/>đ</span></div>
+                                <c:if test="${o.depositAmount gt 0}">
+                                    <div class="od-sum-row"><span>Đã nhận cọc qua VNPay</span><span><fmt:formatNumber value="${o.depositAmount}" pattern="#,##0"/>đ</span></div>
+                                    <div class="od-sum-row od-sum-total"><span>Còn thu khi giao (COD)</span><span><fmt:formatNumber value="${o.remainingCodAmount}" pattern="#,##0"/>đ</span></div>
+                                </c:if>
                             </div>
 
                             <div class="od-note">

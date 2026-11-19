@@ -25,7 +25,8 @@ public class SellerOrderDAO {
     /** Điều kiện "đơn có thể bắt đầu chế tác": đã thanh toán, hoặc đơn COD vừa đặt. */
     private static final String STARTABLE =
             "(o.status = 'paid' OR (o.status = 'pending' AND EXISTS (" +
-                    "   SELECT 1 FROM transactions t WHERE t.id_order = o.id AND t.gateway = 'cod')))";
+                    "   SELECT 1 FROM transactions t WHERE t.id_order = o.id AND t.gateway = 'cod') " +
+                    "AND NOT EXISTS (SELECT 1 FROM transactions td WHERE td.id_order=o.id AND td.gateway='vnpay_deposit')))";
 
     /** Đơn của shop mà seller cần xử lý, kèm danh sách sản phẩm của từng đơn. */
     public List<SellerOrderDTO> findByShop(int shopId) throws SQLException {
@@ -34,6 +35,8 @@ public class SellerOrderDAO {
                         "       o.shipping_receiver, o.shipping_phone, o.shipping_note, o.shipping_fee, o.discount, " +
                         "       o.status, o.deadline, " +
                         "       (SELECT t.gateway FROM transactions t WHERE t.id_order = o.id ORDER BY t.id DESC LIMIT 1) AS gateway, " +
+                        "       COALESCE((SELECT SUM(td.amount) FROM transactions td WHERE td.id_order=o.id " +
+                        "AND td.gateway='vnpay_deposit' AND td.status='success'),0) AS deposit_amount, " +
                         "       (SELECT GROUP_CONCAT(COALESCE(p.name, 'Sản phẩm custom') SEPARATOR ', ') " +
                         "          FROM orderitems oi LEFT JOIN products p ON p.id = oi.id_product " +
                         "         WHERE oi.id_order = o.id) AS product_names, " +
@@ -43,7 +46,8 @@ public class SellerOrderDAO {
                         "  FROM orders o JOIN users u ON u.id = o.id_user " +
                         " WHERE o.id_shop = ? AND (o.status IN ('paid','processing','shipping','completed') " +
                         "        OR (o.status = 'pending' AND EXISTS (SELECT 1 FROM transactions t " +
-                        "                                              WHERE t.id_order = o.id AND t.gateway = 'cod'))) " +
+                        "                                              WHERE t.id_order = o.id AND t.gateway = 'cod') " +
+                        "            AND NOT EXISTS (SELECT 1 FROM transactions td WHERE td.id_order=o.id AND td.gateway='vnpay_deposit'))) " +
                         " ORDER BY o.date_create DESC LIMIT 200";
         List<SellerOrderDTO> list = new ArrayList<>();
         try (Connection con = DBConnection.getConnection()) {
@@ -64,6 +68,7 @@ public class SellerOrderDAO {
                         o.setShippingFee(money(rs, "shipping_fee"));
                         o.setDiscount(money(rs, "discount"));
                         o.setGateway(rs.getString("gateway"));
+                        o.setDepositAmount(money(rs, "deposit_amount"));
                         o.setStatus(rs.getString("status"));
                         o.setDeadline(rs.getTimestamp("deadline"));
                         o.setProductNames(rs.getString("product_names"));

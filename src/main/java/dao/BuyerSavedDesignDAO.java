@@ -84,4 +84,15 @@ public class BuyerSavedDesignDAO {
         }
         return null;
     }
+    public boolean delete(int userId, String designKey) throws SQLException {
+        if (designKey == null || designKey.isBlank()) {
+            return false;
+        }
+        String sql = "DELETE FROM buyer_saved_designs WHERE id_user = ? AND design_key = ?";
+        try (Connection c = DBConnection.getConnection(); PreparedStatement ps = c.prepareStatement(sql)) {
+            ps.setInt(1, userId);
+            ps.setString(2, designKey.trim());
+            return ps.executeUpdate() > 0;
+        }
+    }
 }

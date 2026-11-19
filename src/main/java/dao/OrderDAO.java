@@ -19,7 +19,10 @@ public class OrderDAO {
     //   productimages(id_product, url)
     private static final String SQL_ORDERS =
             "SELECT o.id, o.status, o.amount, o.shipping_fee, o.discount, o.date_create, s.name AS shop_name, " +
-                    "o.shipping_receiver, o.shipping_phone, o.shipping_address, o.shipping_note, pm.name AS payment_method " +
+                    "o.shipping_receiver, o.shipping_phone, o.shipping_address, o.shipping_note, " +
+                    "CASE WHEN EXISTS (SELECT 1 FROM transactions td WHERE td.id_order=o.id AND td.gateway='vnpay_deposit' AND td.status='success') " +
+                    "THEN 'Đã cọc 50% qua VNPay · còn lại COD' ELSE pm.name END AS payment_method, " +
+                    "COALESCE((SELECT SUM(td.amount) FROM transactions td WHERE td.id_order=o.id AND td.gateway='vnpay_deposit' AND td.status='success'),0) AS deposit_amount " +
                     "FROM orders o JOIN shops s ON s.id = o.id_shop " +
                     "JOIN paymentmethods pm ON pm.id = o.id_payment_method " +
                     "WHERE o.id_user = ? ORDER BY o.date_create DESC";
@@ -37,12 +40,14 @@ public class OrderDAO {
                 ps.setInt(1, userId);
                 try (ResultSet rs = ps.executeQuery()) {
                     while (rs.next()) {
-                        orders.add(new OrderDTO(rs.getInt("id"), rs.getString("shop_name"),
+                        OrderDTO order = new OrderDTO(rs.getInt("id"), rs.getString("shop_name"),
                                 rs.getString("status"), rs.getBigDecimal("amount"),
                                 rs.getBigDecimal("shipping_fee"), rs.getBigDecimal("discount"),
                                 rs.getTimestamp("date_create"), rs.getString("shipping_receiver"),
                                 rs.getString("shipping_phone"), rs.getString("shipping_address"),
-                                rs.getString("shipping_note"), rs.getString("payment_method")));
+                                rs.getString("shipping_note"), rs.getString("payment_method"));
+                        order.setDepositAmount(rs.getBigDecimal("deposit_amount"));
+                        orders.add(order);
                     }
                 }
             }
@@ -59,7 +64,7 @@ public class OrderDAO {
                             } else {
                                 type = "product"; name = rs.getString("product_name");
                             }
-                            o.getItems().add(new OrderItemDTO(name, rs.getString("image"),
+                            o.getItems().add(new OrderItemDTO(rs.getInt("id_product"), name, rs.getString("image"),
                                     type, rs.getInt("quantity"), rs.getBigDecimal("price")));
                         }
                     }

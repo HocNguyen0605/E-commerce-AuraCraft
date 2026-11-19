@@ -9,6 +9,7 @@ public class OrderDTO {
     private int id;
     private String shopName, status, receiver, phone, address, note, paymentMethod;
     private BigDecimal amount, shippingFee, discount;
+    private BigDecimal depositAmount = BigDecimal.ZERO;
     private Timestamp dateCreate;
     private List<OrderItemDTO> items = new ArrayList<>();
 
@@ -30,7 +31,8 @@ public class OrderDTO {
         if (status == null) return "";
         switch (status) {
             case "pending":
-            case "paid":       return "pickup";      // chờ xử lý / đã thanh toán, chờ lấy hàng
+                return "pickup";
+            case "paid":       return depositAmount.signum() > 0 ? "processing" : "pickup";
             case "processing": return "processing";
             case "shipping":   return "shipping";
             case "completed":  return "done";
@@ -45,7 +47,7 @@ public class OrderDTO {
         if (status == null) return "";
         switch (status) {
             case "pending":    return "Chờ thanh toán";
-            case "paid":       return "Đã thanh toán, chờ lấy hàng";
+            case "paid":       return depositAmount.signum() > 0 ? "Đã cọc 50%, chờ shop xử lý" : "Đã thanh toán, chờ lấy hàng";
             case "processing": return "Đang thực hiện";
             case "shipping":   return "Đang giao";
             case "completed":  return "Đã giao";
@@ -65,6 +67,11 @@ public class OrderDTO {
     public BigDecimal getAmount() { return amount; }
     public BigDecimal getShippingFee() { return shippingFee; }
     public BigDecimal getDiscount() { return discount; }
+    public BigDecimal getDepositAmount() { return depositAmount; }
+    public BigDecimal getRemainingAmount() { return amount == null ? BigDecimal.ZERO : amount.subtract(depositAmount); }
+    public void setDepositAmount(BigDecimal depositAmount) {
+        this.depositAmount = depositAmount == null ? BigDecimal.ZERO : depositAmount;
+    }
     public Timestamp getDateCreate() { return dateCreate; }
     public List<OrderItemDTO> getItems() { return items; }
     public String getReceiver() { return receiver; }

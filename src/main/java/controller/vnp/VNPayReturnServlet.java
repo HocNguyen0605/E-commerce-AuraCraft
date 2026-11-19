@@ -77,7 +77,7 @@ public class VNPayReturnServlet extends HttpServlet {
             if (paid) {
                 PaymentDAO.MockResult r = paymentDAO.confirmMockPayment(reference, userId.intValue());
                 switch (r) {
-                    case SUCCESS -> resp.sendRedirect(ctx + "/pages/success.jsp");
+                    case SUCCESS -> resp.sendRedirect(ctx + "/pages/success.jsp?payment=vnpay-success");
                     case NOT_PENDING -> resp.sendRedirect(ctx + "/profile-orders");   // F5 lại trang, đơn đã xử lý
                     default -> resp.sendRedirect(ctx + "/pages/cart.jsp?payment=notfound");
                 }

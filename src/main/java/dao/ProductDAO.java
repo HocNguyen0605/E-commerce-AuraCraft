@@ -540,12 +540,15 @@ public class ProductDAO {
                 "EXISTS (SELECT 1 FROM product_charms pc JOIN products cp ON cp.id=pc.id_product " +
                 "WHERE cp.id_shop=p.id_shop AND cp.status='active' AND cp.customizable=1) AS shop_has_design_charms, " +
                 "c.id AS category_id, c.name AS category_name, s.id AS shop_id, s.name AS shop_name, " +
-                "s.avatar AS shop_avatar, s.rating AS shop_rating, " +
+                "s.avatar AS shop_avatar, COALESCE(shop_reviews.average_rating, 0) AS shop_rating, " +
                 "COALESCE(rs.average_rating, 0) AS rating, COALESCE(rs.review_count, 0) AS review_count " +
                 "FROM products p JOIN categories c ON c.id=p.id_category " +
                 "JOIN shops s ON s.id=p.id_shop " +
                 "LEFT JOIN (SELECT id_product, AVG(rating) average_rating, COUNT(*) review_count " +
                 "FROM reviews GROUP BY id_product) rs ON rs.id_product=p.id " +
+                "LEFT JOIN (SELECT p2.id_shop, AVG(r2.rating) average_rating FROM reviews r2 " +
+                "JOIN products p2 ON p2.id=r2.id_product WHERE p2.status='active' GROUP BY p2.id_shop) shop_reviews " +
+                "ON shop_reviews.id_shop=s.id " +
                 "WHERE p.id=? AND p.status='active' AND s.status='active'";
         try (Connection connection = DBConnection.getConnection();
              PreparedStatement statement = connection.prepareStatement(sql)) {
@@ -649,8 +652,10 @@ public class ProductDAO {
     }
 
     public List<Map<String, Object>> findProductReviews(int productId, int limit) throws SQLException {
-        String sql = "SELECT r.rating, r.comment, r.date, u.name AS reviewer_name FROM reviews r " +
-                "JOIN users u ON u.id=r.id_user WHERE r.id_product=? ORDER BY r.date DESC LIMIT ?";
+        String sql = "SELECT r.rating, r.comment, r.date, u.name AS reviewer_name, " +
+                "GROUP_CONCAT(ri.image_url ORDER BY ri.id SEPARATOR ',') AS image_urls FROM reviews r " +
+                "JOIN users u ON u.id=r.id_user LEFT JOIN review_images ri ON ri.review_id=r.id " +
+                "WHERE r.id_product=? GROUP BY r.id, r.rating, r.comment, r.date, u.name ORDER BY r.date DESC LIMIT ?";
         List<Map<String, Object>> reviews = new ArrayList<>();
         try (Connection connection = DBConnection.getConnection(); PreparedStatement statement = connection.prepareStatement(sql)) {
             statement.setInt(1, productId);
@@ -662,6 +667,9 @@ public class ProductDAO {
                     review.put("comment", rs.getString("comment"));
                     review.put("date", rs.getTimestamp("date"));
                     review.put("reviewerName", rs.getString("reviewer_name"));
+                    String imageUrls = rs.getString("image_urls");
+                    review.put("images", imageUrls == null || imageUrls.isBlank()
+                            ? List.of() : List.of(imageUrls.split(",")));
                     reviews.add(review);
                 }
             }
@@ -671,7 +679,7 @@ public class ProductDAO {
 
     public List<Integer> findReviewableOrders(int userId, int productId) throws SQLException {
         String sql = "SELECT DISTINCT o.id FROM orders o JOIN account a ON a.id_user=o.id_user AND a.role='buyer' JOIN orderitems oi ON oi.id_order=o.id " +
-                "LEFT JOIN reviews r ON r.id_user=o.id_user AND r.id_product=oi.id_product AND r.id_order=o.id " +
+                "LEFT JOIN reviews r ON r.id_user=o.id_user AND r.id_product=oi.id_product " +
                 "WHERE o.id_user=? AND oi.id_product=? AND o.status='completed' AND r.id IS NULL ORDER BY o.id DESC";
         List<Integer> orderIds = new ArrayList<>();
         try (Connection connection = DBConnection.getConnection(); PreparedStatement statement = connection.prepareStatement(sql)) {
@@ -684,19 +692,46 @@ public class ProductDAO {
         return orderIds;
     }
 
-    public boolean insertProductReview(int userId, int productId, int orderId, int rating, String comment) throws SQLException {
+    public boolean insertProductReview(int userId, int productId, int orderId, int rating, String comment,
+                                       List<String> imageUrls) throws SQLException {
         String sql = "INSERT INTO reviews (id_user,id_product,id_order,rating,comment) " +
                 "SELECT ?, oi.id_product, o.id, ?, ? FROM orders o JOIN account a ON a.id_user=o.id_user AND a.role='buyer' JOIN orderitems oi ON oi.id_order=o.id " +
                 "WHERE o.id=? AND o.id_user=? AND o.status='completed' AND oi.id_product=? " +
-                "AND NOT EXISTS (SELECT 1 FROM reviews r WHERE r.id_user=o.id_user AND r.id_product=oi.id_product AND r.id_order=o.id)";
-        try (Connection connection = DBConnection.getConnection(); PreparedStatement statement = connection.prepareStatement(sql)) {
-            statement.setInt(1, userId);
-            statement.setInt(2, rating);
-            statement.setString(3, comment);
-            statement.setInt(4, orderId);
-            statement.setInt(5, userId);
-            statement.setInt(6, productId);
-            return statement.executeUpdate() == 1;
+                "AND NOT EXISTS (SELECT 1 FROM reviews r WHERE r.id_user=o.id_user AND r.id_product=oi.id_product)";
+        try (Connection connection = DBConnection.getConnection()) {
+            connection.setAutoCommit(false);
+            try (PreparedStatement statement = connection.prepareStatement(sql, java.sql.Statement.RETURN_GENERATED_KEYS)) {
+                statement.setInt(1, userId);
+                statement.setInt(2, rating);
+                statement.setString(3, comment);
+                statement.setInt(4, orderId);
+                statement.setInt(5, userId);
+                statement.setInt(6, productId);
+                if (statement.executeUpdate() != 1) {
+                    connection.rollback();
+                    return false;
+                }
+                try (ResultSet keys = statement.getGeneratedKeys()) {
+                    if (!keys.next()) throw new SQLException("Review ID was not generated");
+                    int reviewId = keys.getInt(1);
+                    if (imageUrls != null && !imageUrls.isEmpty()) {
+                        try (PreparedStatement imageStatement = connection.prepareStatement(
+                                "INSERT INTO review_images (review_id,image_url) VALUES (?,?)")) {
+                            for (String imageUrl : imageUrls) {
+                                imageStatement.setInt(1, reviewId);
+                                imageStatement.setString(2, imageUrl);
+                                imageStatement.addBatch();
+                            }
+                            imageStatement.executeBatch();
+                        }
+                    }
+                }
+                connection.commit();
+                return true;
+            } catch (SQLException exception) {
+                connection.rollback();
+                throw exception;
+            }
         }
     }
 

@@ -166,12 +166,46 @@
                 const title = design.name || design.productType || 'Thiết kế của tôi';
                 const materials = (design.slots || []).filter(Boolean).length + (design.baseMaterial ? 1 : 0);
                 const url = CTX + '/pages/customizer?designId=' + encodeURIComponent(design.id);
-                card.innerHTML = '<img src="' + escapeHtml(imageUrl(design)) + '" alt="' + escapeHtml(title) + '">' +
-                    '<div class="saved-design-info"><h3 title="' + escapeHtml(title) + '">' + escapeHtml(title) + '</h3>' +
+                card.innerHTML =
+                    '<img src="' + escapeHtml(imageUrl(design)) + '" alt="' + escapeHtml(title) + '">' +
+                    '<div class="saved-design-info">' +
+                    '<h3 title="' + escapeHtml(title) + '">' + escapeHtml(title) + '</h3>' +
                     '<p>' + escapeHtml(design.designType || design.productType || 'Thiết kế sản phẩm') + ' · ' + materials + ' vật liệu</p>' +
                     '<p>' + escapeHtml(design.sellerName || design.shopName || 'AuraCraft') + '</p>' +
                     '<strong>' + money(design.price) + '</strong>' +
-                    '<div class="saved-design-actions"><a class="btn btn-outline btn-sm" href="' + escapeHtml(url) + '">Xem thiết kế</a></div></div>';
+                    '<div class="saved-design-actions">' +
+                    '<a class="btn btn-outline btn-sm" href="' + escapeHtml(url) + '">Xem thiết kế</a>' +
+                    '<button type="button" class="btn-delete-outline" data-id="' + escapeHtml(design.id) + '">Xóa</button>' +
+                    '</div>' +
+                    '</div>';
+                const deleteBtn = card.querySelector('.btn-delete-outline');
+                deleteBtn.addEventListener('click', async () => {
+                    if (!confirm('Bạn có chắc muốn xóa thiết kế "' + title + '" không?')) return;
+
+                    deleteBtn.disabled = true;
+                    try {
+                        const res = await fetch(
+                            CTX + '/api/buyer/saved-designs?id=' + encodeURIComponent(design.id),
+                            {
+                                method: 'DELETE',
+                                credentials: 'same-origin'
+                            }
+                        );
+                        if (!res.ok) throw new Error('Xóa thiết kế thất bại.');
+                        if (window.AuraCraftCustom && typeof window.AuraCraftCustom.removeCustomDesign === 'function') {
+                            window.AuraCraftCustom.removeCustomDesign(design.id);
+                        }
+
+                        card.remove();
+                        if (!grid.querySelector('.saved-design-card')) {
+                            empty.hidden = false;
+                        }
+                    } catch (err) {
+                        console.error(err);
+                        alert('Không thể xóa thiết kế. Vui lòng thử lại!');
+                        deleteBtn.disabled = false;
+                    }
+                });
                 grid.appendChild(card);
             });
         };
