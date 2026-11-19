@@ -72,6 +72,7 @@ public class BuyerQuoteDAO {
                     ps.setInt(2, buyerId);
                     if (ps.executeUpdate() != 1) throw new SQLException("Không thể cập nhật trạng thái yêu cầu.");
                 }
+                createPendingOrder(c, buyerId, requestId, quoteId);
                 c.commit();
                 return true;
             } catch (SQLException | RuntimeException e) {
@@ -80,6 +81,82 @@ public class BuyerQuoteDAO {
             } finally {
                 c.setAutoCommit(true);
             }
+        }
+    }
+
+    /**
+     * Sau khi khách chốt báo giá: lưu thiết kế thành đơn "Chờ xử lý" của shop (orders + orderitems + giao dịch COD),
+     * để seller thấy ngay ở trang Đơn hàng. Gọi trong cùng transaction với acceptQuote.
+     */
+    private void createPendingOrder(Connection c, int buyerId, int requestId, int quoteId) throws SQLException {
+        // Đã có đơn cho báo giá này thì thôi (tránh tạo trùng)
+        try (PreparedStatement ps = c.prepareStatement("SELECT 1 FROM orderitems WHERE id_quote=? LIMIT 1")) {
+            ps.setInt(1, quoteId);
+            try (ResultSet rs = ps.executeQuery()) { if (rs.next()) return; }
+        }
+        Integer designId = null;
+        try (PreparedStatement ps = c.prepareStatement("SELECT id_design FROM customrequests WHERE id=?")) {
+            ps.setInt(1, requestId);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) { int v = rs.getInt(1); if (!rs.wasNull()) designId = v; }
+            }
+        }
+        if (designId == null) throw new IllegalArgumentException("Yêu cầu này chưa có thiết kế đính kèm nên chưa thể tạo đơn.");
+
+        int shopId; long price; int days;
+        try (PreparedStatement ps = c.prepareStatement("SELECT id_shop, price, lead_time_days FROM quotes WHERE id=?")) {
+            ps.setInt(1, quoteId);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (!rs.next()) throw new SQLException("Không tìm thấy báo giá.");
+                shopId = rs.getInt(1); price = rs.getLong(2); days = rs.getInt(3);
+            }
+        }
+
+        // Thông tin nhận hàng: ưu tiên địa chỉ mặc định của khách
+        String address = "Chưa cung cấp địa chỉ", receiver = null, phone = null;
+        try (PreparedStatement ps = c.prepareStatement(
+                "SELECT receiver, phone, address FROM addresses WHERE id_user=? ORDER BY is_default DESC, id DESC LIMIT 1")) {
+            ps.setInt(1, buyerId);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) { receiver = rs.getString(1); phone = rs.getString(2); address = rs.getString(3); }
+            }
+        }
+        if (receiver == null) {
+            try (PreparedStatement ps = c.prepareStatement("SELECT name, phone FROM users WHERE id=?")) {
+                ps.setInt(1, buyerId);
+                try (ResultSet rs = ps.executeQuery()) {
+                    if (rs.next()) { receiver = rs.getString(1); phone = rs.getString(2); }
+                }
+            }
+        }
+
+        int orderId;
+        try (PreparedStatement ps = c.prepareStatement(
+                "INSERT INTO orders(id_user,id_payment_method,id_shop,amount,shipping_fee,shipping_address," +
+                        "shipping_receiver,shipping_phone,shipping_note,status,deadline) " +
+                        "VALUES(?, (SELECT id FROM paymentmethods WHERE name='COD' LIMIT 1), ?, ?, 0, ?, ?, ?, ?, 'pending', " +
+                        "DATE_ADD(NOW(), INTERVAL ? DAY))", java.sql.Statement.RETURN_GENERATED_KEYS)) {
+            ps.setInt(1, buyerId);
+            ps.setInt(2, shopId);
+            ps.setLong(3, price);
+            ps.setString(4, address);
+            ps.setString(5, receiver);
+            ps.setString(6, phone);
+            ps.setString(7, "Đơn thiết kế theo yêu cầu #" + requestId + " (từ báo giá #" + quoteId + ")");
+            ps.setInt(8, Math.max(days, 1));
+            ps.executeUpdate();
+            try (ResultSet k = ps.getGeneratedKeys()) { k.next(); orderId = k.getInt(1); }
+        }
+        try (PreparedStatement ps = c.prepareStatement(
+                "INSERT INTO orderitems(id_order,id_custom_design,id_quote,quantity,price,fee_amount) VALUES(?,?,?,1,?,0)")) {
+            ps.setInt(1, orderId); ps.setInt(2, designId); ps.setInt(3, quoteId); ps.setLong(4, price);
+            ps.executeUpdate();
+        }
+        // Giao dịch COD (pending) để đơn hiện ở "Chờ xử lý" của seller
+        try (PreparedStatement ps = c.prepareStatement(
+                "INSERT INTO transactions(id_order,gateway,txn_ref,amount,status) VALUES(?,'cod',?,?,'pending')")) {
+            ps.setInt(1, orderId); ps.setString(2, "COD-QUOTE-" + orderId); ps.setLong(3, price);
+            ps.executeUpdate();
         }
     }
 

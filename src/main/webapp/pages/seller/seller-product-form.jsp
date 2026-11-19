@@ -31,7 +31,8 @@
 <c:set var="vDesc"      value="${hasForm ? f.description : product.description}"/>
 <c:set var="vPrice"     value="${hasForm ? f.price : product.price}"/>
 <c:set var="vStock"     value="${hasForm ? f.stock : product.stock}"/>
-<c:set var="vCat"       value="${hasForm ? f.categoryId : product.categoryId}"/>
+<c:set var="vCat"       value="${hasForm ? f.categoryId : (isEdit ? product.categoryId : defaultCategoryId)}"/>
+<c:set var="vCord"      value="${hasForm ? f.cordType : product.baseType}"/>
 <c:set var="vStatus"    value="${hasForm ? f.status : (isEdit ? product.status : 'active')}"/>
 <c:set var="vCustom"    value="${hasForm ? f.customizable eq '1' : (isEdit and product.customizable)}"/>
 <c:set var="vBaseType"  value="${hasForm ? f.baseType : product.baseType}"/>
@@ -180,8 +181,8 @@
                             <select id="categoryId" name="categoryId" class="form-control">
                                 <option value="">-- Chọn danh mục --</option>
                                 <c:forEach var="cat" items="${categories}">
-                                    <option value="${cat.id}" ${vCat eq cat.id ? 'selected' : ''}>
-                                        <c:out value="${cat.name}"/>
+                                    <option value="${cat.id}" data-base="${cat.base}" ${vCat eq cat.id ? 'selected' : ''}>
+                                        <c:out value="${cat.name}"/><c:if test="${cat.base}"> (dây nền cho trang thiết kế)</c:if>
                                     </option>
                                 </c:forEach>
                             </select>
@@ -200,8 +201,22 @@
                 </div>
             </div>
 
+            <!-- ===== Dây nền (chỉ hiện khi chọn danh mục Dây nền) ===== -->
+            <div class="dashboard-section form-section" id="cordSection" style="display:none">
+                <div class="form-group ${not empty fe.cordType ? 'has-error' : ''}" data-field="cordType">
+                    <label for="cordType">Dây nền này dùng cho thiết kế nào? <span class="req">*</span></label>
+                    <select id="cordType" name="cordType" class="form-control" disabled>
+                        <option value="bracelet" ${vCord eq 'bracelet' or empty vCord ? 'selected' : ''}>Vòng tay</option>
+                        <option value="necklace" ${vCord eq 'necklace' ? 'selected' : ''}>Dây chuyền</option>
+                        <option value="ring"     ${vCord eq 'ring' ? 'selected' : ''}>Nhẫn</option>
+                    </select>
+                    <div class="field-error"><c:out value="${fe.cordType}"/></div>
+                    <p class="custom-hint">Dây nền không hiển thị ở trang sản phẩm. Khách chỉ thấy dây nền (kèm ảnh chính) khi vào trang Thiết kế rồi chọn shop của bạn.</p>
+                </div>
+            </div>
+
             <!-- ===== Tùy chỉnh charm ===== -->
-            <div class="dashboard-section form-section">
+            <div class="dashboard-section form-section" id="customSection">
                 <label class="custom-toggle">
                     <input type="checkbox" id="customizable" name="customizable" value="1" ${vCustom ? 'checked' : ''}>
                     Cho phép khách tùy chỉnh charm
@@ -426,8 +441,11 @@
                     ? 'Sản phẩm cần có ít nhất 1 ảnh. Hãy giữ lại một ảnh hoặc thêm ảnh mới.' : '');
             }
 
-            // Charm (chỉ khi bật tùy chỉnh)
-            if (form.elements['customizable'].checked) {
+            var baseCat = isBaseCategory();
+            chk('cordType', '');
+
+            // Charm (chỉ khi bật tùy chỉnh và không phải dây nền)
+            if (!baseCat && form.elements['customizable'].checked) {
                 var bf = form.elements['baseImage'].files[0];
                 var baseMsg = bf ? fileError(bf) : (HAS_BASE ? '' : 'Vui lòng tải ảnh nền để gắn charm.');
                 chk('baseImage', baseMsg);
@@ -598,6 +616,24 @@
         var toggle = document.getElementById('customizable');
         var fields = document.getElementById('customFields');
         toggle.addEventListener('change', function () { fields.disabled = !toggle.checked; });
+
+        // ---------- danh mục "Dây nền": ẩn phần charm, hiện phần chọn loại dây ----------
+        var catSelect = document.getElementById('categoryId');
+        var cordSection = document.getElementById('cordSection');
+        var cordSelect = document.getElementById('cordType');
+        var customSection = document.getElementById('customSection');
+        function isBaseCategory() {
+            var o = catSelect.options[catSelect.selectedIndex];
+            return !!o && o.getAttribute('data-base') === 'true';
+        }
+        function syncCategory() {
+            var base = isBaseCategory();
+            cordSection.style.display = base ? '' : 'none';
+            cordSelect.disabled = !base;
+            customSection.style.display = base ? 'none' : '';
+        }
+        catSelect.addEventListener('change', syncCategory);
+        syncCategory();
 
         var list = document.getElementById('charmList');
         var empty = document.getElementById('charmEmpty');

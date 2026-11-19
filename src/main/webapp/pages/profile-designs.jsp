@@ -73,6 +73,18 @@
             text-align: center;
         }
 
+        .saved-design-actions .btn-danger-outline {
+            border: 1px solid #e0b4ab;
+            border-radius: 8px;
+            background: #fff;
+            color: #b3402e;
+            cursor: pointer;
+        }
+
+        .saved-design-actions .btn-danger-outline:hover {
+            background: #fff5f2;
+        }
+
         .saved-design-sync-error {
             margin: 0 0 14px;
             padding: 10px 12px;
@@ -166,49 +178,37 @@
                 const title = design.name || design.productType || 'Thiết kế của tôi';
                 const materials = (design.slots || []).filter(Boolean).length + (design.baseMaterial ? 1 : 0);
                 const url = CTX + '/pages/customizer?designId=' + encodeURIComponent(design.id);
-                card.innerHTML =
-                    '<img src="' + escapeHtml(imageUrl(design)) + '" alt="' + escapeHtml(title) + '">' +
-                    '<div class="saved-design-info">' +
-                    '<h3 title="' + escapeHtml(title) + '">' + escapeHtml(title) + '</h3>' +
+                card.innerHTML = '<img src="' + escapeHtml(imageUrl(design)) + '" alt="' + escapeHtml(title) + '">' +
+                    '<div class="saved-design-info"><h3 title="' + escapeHtml(title) + '">' + escapeHtml(title) + '</h3>' +
                     '<p>' + escapeHtml(design.designType || design.productType || 'Thiết kế sản phẩm') + ' · ' + materials + ' vật liệu</p>' +
                     '<p>' + escapeHtml(design.sellerName || design.shopName || 'AuraCraft') + '</p>' +
                     '<strong>' + money(design.price) + '</strong>' +
-                    '<div class="saved-design-actions">' +
-                    '<a class="btn btn-outline btn-sm" href="' + escapeHtml(url) + '">Xem thiết kế</a>' +
-                    '<button type="button" class="btn-delete-outline" data-id="' + escapeHtml(design.id) + '">Xóa</button>' +
-                    '</div>' +
-                    '</div>';
-                const deleteBtn = card.querySelector('.btn-delete-outline');
-                deleteBtn.addEventListener('click', async () => {
-                    if (!confirm('Bạn có chắc muốn xóa thiết kế "' + title + '" không?')) return;
-
-                    deleteBtn.disabled = true;
-                    try {
-                        const res = await fetch(
-                            CTX + '/api/buyer/saved-designs?id=' + encodeURIComponent(design.id),
-                            {
-                                method: 'DELETE',
-                                credentials: 'same-origin'
-                            }
-                        );
-                        if (!res.ok) throw new Error('Xóa thiết kế thất bại.');
-                        if (window.AuraCraftCustom && typeof window.AuraCraftCustom.removeCustomDesign === 'function') {
-                            window.AuraCraftCustom.removeCustomDesign(design.id);
-                        }
-
-                        card.remove();
-                        if (!grid.querySelector('.saved-design-card')) {
-                            empty.hidden = false;
-                        }
-                    } catch (err) {
-                        console.error(err);
-                        alert('Không thể xóa thiết kế. Vui lòng thử lại!');
-                        deleteBtn.disabled = false;
-                    }
-                });
+                    '<div class="saved-design-actions"><a class="btn btn-outline btn-sm" href="' + escapeHtml(url) + '">Xem thiết kế</a>' +
+                    '<button type="button" class="btn btn-sm btn-danger-outline" data-delete-design="' + escapeHtml(design.id) + '"><i class="fa-solid fa-trash"></i> Xóa</button></div></div>';
                 grid.appendChild(card);
             });
         };
+        let currentDesigns = [];
+        const renderAll = designs => { currentDesigns = designs; render(designs); };
+        grid.addEventListener('click', async event => {
+            const button = event.target.closest('[data-delete-design]');
+            if (!button) return;
+            const id = button.dataset.deleteDesign;
+            if (!window.confirm('Bạn có chắc muốn xóa thiết kế này?')) return;
+            button.disabled = true;
+            try {
+                // Xóa trên tài khoản trước; bản trên thiết bị cũng phải xóa, nếu không sẽ bị đồng bộ ngược lại
+                const response = await fetch(CTX + '/api/buyer/saved-designs?id=' + encodeURIComponent(id), {
+                    method: 'DELETE', credentials: 'same-origin'
+                });
+                if (!response.ok && response.status !== 401) throw new Error('Không xóa được thiết kế.');
+                if (window.AuraCraftCustom) window.AuraCraftCustom.deleteCustomDesign(id);
+                renderAll(currentDesigns.filter(design => String(design.id) !== String(id)));
+            } catch (error) {
+                button.disabled = false;
+                window.alert(error.message || 'Không xóa được thiết kế.');
+            }
+        });
         try {
             let response = await fetch(CTX + '/api/buyer/saved-designs', { credentials: 'same-origin' });
             if (!response.ok) throw new Error('Không tải được thiết kế từ tài khoản.');
@@ -227,11 +227,11 @@
                 if (!response.ok) throw new Error('Không đồng bộ được thiết kế cũ.');
                 result = await response.json();
             }
-            render((result.designs || []).map(row => row.design));
+            renderAll((result.designs || []).map(row => row.design));
         } catch (error) {
             console.error(error);
             document.getElementById('savedDesignSyncError').hidden = false;
-            render(localDesigns);
+            renderAll(localDesigns);
         }
     })();
 </script>

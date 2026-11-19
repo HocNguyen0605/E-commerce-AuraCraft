@@ -37,8 +37,9 @@ public class SellerOrderDAO {
                         "       (SELECT t.gateway FROM transactions t WHERE t.id_order = o.id ORDER BY t.id DESC LIMIT 1) AS gateway, " +
                         "       COALESCE((SELECT SUM(td.amount) FROM transactions td WHERE td.id_order=o.id " +
                         "AND td.gateway='vnpay_deposit' AND td.status='success'),0) AS deposit_amount, " +
-                        "       (SELECT GROUP_CONCAT(COALESCE(p.name, 'Sản phẩm custom') SEPARATOR ', ') " +
+                        "       (SELECT GROUP_CONCAT(COALESCE(p.name, CONCAT('Thiết kế theo yêu cầu: ', NULLIF(cr.product_type,'')), 'Sản phẩm custom') SEPARATOR ', ') " +
                         "          FROM orderitems oi LEFT JOIN products p ON p.id = oi.id_product " +
+                        "          LEFT JOIN quotes q ON q.id = oi.id_quote LEFT JOIN customrequests cr ON cr.id = q.id_request " +
                         "         WHERE oi.id_order = o.id) AS product_names, " +
                         "       (SELECT pr.note FROM order_progress pr WHERE pr.id_order = o.id " +
                         "         ORDER BY pr.created_at DESC, pr.id DESC LIMIT 1) AS latest_note, " +
@@ -94,10 +95,11 @@ public class SellerOrderDAO {
             in.append('?');
         }
         String sql =
-                "SELECT oi.id_order, oi.id_product, COALESCE(p.name, 'Sản phẩm custom') AS name, " +
+                "SELECT oi.id_order, oi.id_product, COALESCE(p.name, CONCAT('Thiết kế theo yêu cầu: ', NULLIF(cr.product_type,'')), 'Sản phẩm custom') AS name, " +
                         "       oi.quantity, oi.price, pi.url AS image " +
                         "  FROM orderitems oi " +
                         "  LEFT JOIN products p ON p.id = oi.id_product " +
+                        "  LEFT JOIN quotes q ON q.id = oi.id_quote LEFT JOIN customrequests cr ON cr.id = q.id_request " +
                         "  LEFT JOIN productimages pi ON pi.id = " +
                         "       (SELECT MIN(pi2.id) FROM productimages pi2 WHERE pi2.id_product = p.id) " +
                         " WHERE oi.id_order IN (" + in + ") " +

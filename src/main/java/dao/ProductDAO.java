@@ -48,8 +48,10 @@ public class ProductDAO {
     private static class Filter {
         final StringBuilder where = new StringBuilder("WHERE p.id_shop = ? AND p.status <> 'deleted'");
         final List<Object> params = new ArrayList<>();
-        Filter(int shopId, String keyword, Integer categoryId, String status) {
+        Filter(int shopId, String keyword, Integer categoryId, String status, boolean baseOnly) {
             params.add(shopId);
+            // Tách "Dây nền" (categories.is_base = 1) khỏi danh sách sản phẩm thường
+            where.append(baseOnly ? " AND c.is_base = 1" : " AND c.is_base = 0");
             if (keyword != null && !keyword.trim().isEmpty()) {
                 where.append(" AND p.name LIKE ?");
                 params.add("%" + keyword.trim() + "%");
@@ -92,8 +94,8 @@ public class ProductDAO {
 //    }
 
     public List<Product> findByShop(int shopId, String keyword, Integer categoryId, String status,
-                                    String sort, int page, int size) throws SQLException {
-        Filter f = new Filter(shopId, keyword, categoryId, status);
+                                    String sort, int page, int size, boolean baseOnly) throws SQLException {
+        Filter f = new Filter(shopId, keyword, categoryId, status, baseOnly);
         String order;
         switch (sort == null ? "" : sort) {
             case "price_asc":
@@ -132,10 +134,11 @@ public class ProductDAO {
 //        }
 //    }
 
-    public int countByShop(int shopId, String keyword, Integer categoryId, String status) throws SQLException {
-        Filter f = new Filter(shopId, keyword, categoryId, status);
+    public int countByShop(int shopId, String keyword, Integer categoryId, String status, boolean baseOnly) throws SQLException {
+        Filter f = new Filter(shopId, keyword, categoryId, status, baseOnly);
         try (Connection c = DBConnection.getConnection();
-             PreparedStatement ps = c.prepareStatement("SELECT COUNT(*) FROM products p " + f.where)) {
+             PreparedStatement ps = c.prepareStatement(
+                     "SELECT COUNT(*) FROM products p JOIN categories c ON c.id = p.id_category " + f.where)) {
             bind(ps, f.params);
             try (ResultSet rs = ps.executeQuery()) {
                 return rs.next() ? rs.getInt(1) : 0;
@@ -461,13 +464,14 @@ public class ProductDAO {
                     "JOIN shops s ON s.id = p.id_shop " +
                     "LEFT JOIN (SELECT id_product, AVG(rating) AS average_rating, COUNT(*) AS review_count " +
                     "           FROM reviews GROUP BY id_product) review_stats ON review_stats.id_product = p.id " +
-                    "WHERE p.status = 'active' AND s.status = 'active'";
+                    "WHERE p.status = 'active' AND s.status = 'active' AND c.is_base = 0";
 
     public List<Map<String, Object>> findActiveCategories() throws SQLException {
         String sql = "SELECT c.id, c.name, COUNT(p.id) AS product_count " +
                 "FROM categories c " +
                 "JOIN products p ON p.id_category = c.id AND p.status = 'active' " +
                 "JOIN shops s ON s.id = p.id_shop AND s.status = 'active' " +
+                "WHERE c.is_base = 0 " +
                 "GROUP BY c.id, c.name ORDER BY c.name";
         List<Map<String, Object>> categories = new ArrayList<>();
         try (Connection connection = DBConnection.getConnection();
@@ -486,7 +490,8 @@ public class ProductDAO {
 
     public int countActiveProductsByShop(int shopId) throws SQLException {
         String sql = "SELECT COUNT(*) FROM products p JOIN shops s ON s.id=p.id_shop " +
-                "WHERE p.id_shop=? AND p.status='active' AND s.status='active'";
+                "JOIN categories c ON c.id=p.id_category " +
+                "WHERE p.id_shop=? AND p.status='active' AND s.status='active' AND c.is_base=0";
         try (Connection connection = DBConnection.getConnection();
              PreparedStatement statement = connection.prepareStatement(sql)) {
             statement.setInt(1, shopId);
@@ -504,7 +509,7 @@ public class ProductDAO {
                 "FROM products p JOIN categories c ON c.id=p.id_category JOIN shops s ON s.id=p.id_shop " +
                 "LEFT JOIN (SELECT id_product,AVG(rating) AS average_rating,COUNT(*) AS review_count " +
                 "FROM reviews GROUP BY id_product) rs ON rs.id_product=p.id " +
-                "WHERE p.id_shop=? AND p.status='active' AND s.status='active' " +
+                "WHERE p.id_shop=? AND p.status='active' AND s.status='active' AND c.is_base=0 " +
                 "ORDER BY p.sold_count DESC,p.id DESC LIMIT ? OFFSET ?";
         List<Map<String, Object>> products = new ArrayList<>();
         try (Connection connection = DBConnection.getConnection();
@@ -582,14 +587,20 @@ public class ProductDAO {
     /**
      * Public source products and their shop-configured base images and charms for the designer.
      */
-    public List<Map<String, Object>> findActiveCustomizerSources(Integer shopId) throws SQLException {
+    /**
+     * Nguồn thiết kế cho trang customizer: CHỈ lấy sản phẩm thuộc danh mục dây nền (categories.is_base = 1).
+     * Nếu truyền productId (chế độ "tùy chỉnh charm" từ trang sản phẩm) thì lấy thêm đúng sản phẩm đó.
+     */
+    public List<Map<String, Object>> findActiveCustomizerSources(Integer shopId, Integer productId) throws SQLException {
         StringBuilder sql = new StringBuilder(
                 "SELECT p.id, p.name, p.price, p.base_type, " +
                         "COALESCE(NULLIF(p.base_image, ''), (SELECT i.url FROM productimages i WHERE i.id_product=p.id ORDER BY i.id LIMIT 1)) AS base_image, " +
-                        "c.id AS category_id, c.name AS category_name, s.id AS shop_id, s.name AS shop_name " +
+                        "c.id AS category_id, c.name AS category_name, c.is_base AS is_base, " +
+                        "s.id AS shop_id, s.name AS shop_name, s.avatar AS shop_avatar, s.rating AS shop_rating " +
                         "FROM products p JOIN categories c ON c.id=p.id_category " +
                         "JOIN shops s ON s.id=p.id_shop " +
                         "WHERE p.status='active' AND s.status='active' " +
+                        "AND (c.is_base=1 OR (p.customizable=1 AND p.id=?)) " +
                         "AND EXISTS (SELECT 1 FROM product_charms pc JOIN products cp ON cp.id=pc.id_product " +
                         "WHERE cp.id_shop=s.id AND cp.status='active' AND cp.customizable=1) ");
         if (shopId != null && shopId > 0) sql.append("AND s.id=? ");
@@ -598,7 +609,8 @@ public class ProductDAO {
         List<Map<String, Object>> sources = new ArrayList<>();
         try (Connection connection = DBConnection.getConnection()) {
             try (PreparedStatement statement = connection.prepareStatement(sql.toString())) {
-                if (shopId != null && shopId > 0) statement.setInt(1, shopId);
+                statement.setInt(1, productId != null && productId > 0 ? productId : 0);
+                if (shopId != null && shopId > 0) statement.setInt(2, shopId);
                 try (ResultSet result = statement.executeQuery()) {
                     while (result.next()) {
                         Map<String, Object> source = new LinkedHashMap<>();
@@ -611,6 +623,9 @@ public class ProductDAO {
                         source.put("categoryName", result.getString("category_name"));
                         source.put("shopId", result.getInt("shop_id"));
                         source.put("shopName", result.getString("shop_name"));
+                        source.put("shopAvatar", result.getString("shop_avatar"));
+                        source.put("shopRating", result.getBigDecimal("shop_rating"));
+                        source.put("isBase", result.getInt("is_base") == 1);
                         sources.add(source);
                     }
                 }
@@ -741,7 +756,7 @@ public class ProductDAO {
                 "COALESCE(rs.average_rating,0) rating FROM products p JOIN shops s ON s.id=p.id_shop " +
                 "LEFT JOIN (SELECT id_product,AVG(rating) average_rating FROM reviews GROUP BY id_product) rs ON rs.id_product=p.id " +
                 "JOIN categories c ON c.id=p.id_category " +
-                "WHERE p.status='active' AND s.status='active' AND p.id_category=? AND p.id<>? " +
+                "WHERE p.status='active' AND s.status='active' AND c.is_base=0 AND p.id_category=? AND p.id<>? " +
                 "ORDER BY p.sold_count DESC,p.id DESC LIMIT ?";
         List<Map<String, Object>> products = new ArrayList<>();
         try (Connection connection = DBConnection.getConnection(); PreparedStatement statement = connection.prepareStatement(sql)) {
@@ -952,7 +967,7 @@ public class ProductDAO {
                 "JOIN shops s ON s.id = p.id_shop " +
                 "LEFT JOIN (SELECT id_product, AVG(rating) AS average_rating, COUNT(*) AS review_count " +
                 "           FROM reviews GROUP BY id_product) review_stats ON review_stats.id_product = p.id " +
-                "WHERE p.status = 'active' AND s.status = 'active' " +
+                "WHERE p.status = 'active' AND s.status = 'active' AND c.is_base = 0 " +
                 "ORDER BY fp.display_order ASC";
 
         List<Map<String, Object>> products = new ArrayList<>();
@@ -1023,7 +1038,7 @@ public class ProductDAO {
                         "JOIN shops s ON s.id = p.id_shop " +
                         "LEFT JOIN (SELECT id_product, AVG(rating) AS average_rating, COUNT(*) AS review_count " +
                         "           FROM reviews GROUP BY id_product) review_stats ON review_stats.id_product = p.id " +
-                        "WHERE p.status = 'active' AND s.status = 'active'");
+                        "WHERE p.status = 'active' AND s.status = 'active' AND c.is_base = 0");
 
         List<Object> params = new ArrayList<>();
         if (keyword != null && !keyword.trim().isEmpty()) {
@@ -1117,7 +1132,7 @@ public class ProductDAO {
             JOIN categories c ON c.id = p.id_category
             JOIN shops      s ON s.id = p.id_shop
             WHERE r.id_antecedent = ?
-              AND p.status = 'active' AND p.stock > 0
+              AND p.status = 'active' AND p.stock > 0 AND c.is_base = 0
             ORDER BY r.lift DESC, r.confidence DESC
             LIMIT ?
             """;
@@ -1146,4 +1161,3 @@ public class ProductDAO {
     }
 
 }
-

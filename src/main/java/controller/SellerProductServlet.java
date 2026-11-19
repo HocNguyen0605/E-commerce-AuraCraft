@@ -70,16 +70,25 @@ public class SellerProductServlet extends HttpServlet {
                     req.setAttribute("product", p);
                     req.setAttribute("editId", p.getId());
                 }
+                // Bấm "Thêm dây nền" -> chọn sẵn danh mục Dây nền
+                if (!editing && "base".equals(req.getParameter("tab"))) {
+                    for (dto.Category cat : categoryDAO.findAllWithCount(shop.getId())) {
+                        if (cat.isBase()) { req.setAttribute("defaultCategoryId", cat.getId()); break; }
+                    }
+                }
                 req.getRequestDispatcher(VIEW_FORM).forward(req, resp);
                 return;
             }
+            // tab=base -> mục "Dây nền" riêng; mặc định -> sản phẩm thường (không gồm dây nền)
+            boolean baseTab = "base".equals(req.getParameter("tab"));
+            req.setAttribute("tab", baseTab ? "base" : "products");
             String q = req.getParameter("q");
             String sort = req.getParameter("sort");
             Integer cat = parseIntOrNull(req.getParameter("category"));
             String status = req.getParameter("status");     // active | hidden | out | (rỗng = tất cả)
             int page = Math.max(1, parseIntOrDefault(req.getParameter("page"), 1));
-            int total = productDAO.countByShop(shop.getId(), q, cat, status);
-            req.setAttribute("products", productDAO.findByShop(shop.getId(), q, cat, status, sort, page, PAGE_SIZE));
+            int total = productDAO.countByShop(shop.getId(), q, cat, status, baseTab);
+            req.setAttribute("products", productDAO.findByShop(shop.getId(), q, cat, status, sort, page, PAGE_SIZE, baseTab));
             req.setAttribute("page", page);
             req.setAttribute("totalPages", Math.max(1, (total + PAGE_SIZE - 1) / PAGE_SIZE));
             req.setAttribute("q", q);
@@ -116,7 +125,7 @@ public class SellerProductServlet extends HttpServlet {
             } catch (Exception e) {
                 Flash.error(req, "Lỗi: " + e.getMessage());
             }
-            resp.sendRedirect(back);
+            resp.sendRedirect("base".equals(req.getParameter("tab")) ? back + "?tab=base" : back);
             return;
         }
 
@@ -146,6 +155,7 @@ public class SellerProductServlet extends HttpServlet {
         f.put("status", "hidden".equals(val(req, "status")) ? "hidden" : "active");
         f.put("customizable", "1".equals(val(req, "customizable")) ? "1" : "");
         f.put("baseType", val(req, "baseType"));
+        f.put("cordType", val(req, "cordType"));
         f.put("mainImageUrl", val(req, "mainImageUrl"));
         f.put("extraImageUrls", val(req, "extraImageUrls"));
 
@@ -229,8 +239,16 @@ public class SellerProductServlet extends HttpServlet {
             }
 
             // ---------- 4. Tùy chỉnh charm (fieldset bị tắt thì trình duyệt không gửi gì) ----------
-            boolean custom = "1".equals(f.get("customizable"));
+            // Sản phẩm thuộc danh mục "Dây nền": không có charm, chỉ cần loại dây (dùng cho trang thiết kế)
+            boolean baseCategory = categoryId != null && categoryId > 0 && categoryDAO.isBaseCategory(categoryId);
+            boolean custom = !baseCategory && "1".equals(f.get("customizable"));
             String baseType = f.get("baseType");
+            if (baseCategory) {
+                String cordType = f.get("cordType");
+                if (!BASE_TYPES.contains(cordType) || "other".equals(cordType)) {
+                    fe.put("cordType", "Vui lòng chọn loại thiết kế mà dây nền này dùng cho.");
+                }
+            }
             Part basePart = null;
             List<Part> imgs = new ArrayList<>();
             List<Charm> charms = new ArrayList<>();
@@ -338,6 +356,7 @@ public class SellerProductServlet extends HttpServlet {
                 p.setCategoryId(categoryId);
                 p.setStatus(f.get("status"));
                 p.setCustomizable(custom);
+                if (baseCategory) p.setBaseType(f.get("cordType"));
 
                 if (custom) {
                     // saveOne trả null nếu không chọn ảnh mới (DAO giữ ảnh cũ)
@@ -382,7 +401,8 @@ public class SellerProductServlet extends HttpServlet {
                     fatal != null ? fatal : "Vui lòng kiểm tra lại các mục được đánh dấu đỏ bên dưới.");
             return;
         }
-        resp.sendRedirect(back);
+        // vừa lưu dây nền thì quay về tab Dây nền
+        resp.sendRedirect(f.get("cordType") != null && !f.get("cordType").isEmpty() ? back + "?tab=base" : back);
     }
 
     // ===================================================== helper

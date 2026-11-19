@@ -22,10 +22,12 @@ public class CustomizerPageServlet extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         Integer shopId = parsePositiveId(request.getParameter("shopId"));
+        Integer productId = parsePositiveId(request.getParameter("id"));
         try {
-            List<Map<String, Object>> sources = productDAO.findActiveCustomizerSources(shopId);
+            List<Map<String, Object>> sources = productDAO.findActiveCustomizerSources(shopId, productId);
             for (Map<String, Object> source : sources) {
                 source.put("baseImage", resolveImage(request, (String) source.get("baseImage")));
+                source.put("shopAvatar", resolveImage(request, (String) source.get("shopAvatar")));
 //                @SuppressWarnings("unchecked")
                 List<Map<String, Object>> charms = (List<Map<String, Object>>) source.get("charms");
                 for (Map<String, Object> charm : charms) {

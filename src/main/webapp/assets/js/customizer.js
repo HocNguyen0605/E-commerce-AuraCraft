@@ -47,6 +47,8 @@ document.addEventListener('DOMContentLoaded', () => {
   const slotCounterEl = document.getElementById('czSlotCounter');
   const libraryEl = document.getElementById('czLibrary');
   const shopSelect = document.getElementById('czShopSelect');
+  const shopCardsEl = document.getElementById('czShopCards');
+  const baseCardsEl = document.getElementById('czBaseCards');
   const sourceProductSelect = document.getElementById('czSourceProduct');
   const sourceHelp = document.getElementById('czSourceHelp');
   const draftSelect = document.getElementById('czSavedDesigns');
@@ -219,8 +221,7 @@ document.addEventListener('DOMContentLoaded', () => {
         setFeedback('Vui lòng nhập chữ cần xếp.', 'error');
         return;
       }
-      const letterBead = LIBRARY_ITEMS.find(item => item.category === 'charm'
-          && item.name.toLocaleLowerCase('vi').includes('hạt chữ'));
+      const letterBead = LIBRARY_ITEMS.find(item => item.name.toLocaleLowerCase('vi').includes('hạt chữ'));
       if (!letterBead) {
         setFeedback('Mẫu đã chọn chưa có hạt chữ trong danh sách vật liệu của shop.', 'error');
         return;
@@ -425,15 +426,17 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
+  let materialFilter = 'all';
   function renderLibrary() {
+    syncPickers();
     libraryEl.innerHTML = '';
     if (!LIBRARY_ITEMS.length) {
       const empty = document.createElement('p');
       empty.className = 'cz-price-empty';
       empty.textContent = !hasDesignType
           ? 'Chọn danh mục thiết kế để bắt đầu.'
-          : !shopId ? 'Chọn shop để xem dây nền và vật liệu.'
-              : 'Chọn mẫu nền để tải thư viện charm của shop.';
+          : !shopId ? 'Chọn shop để xem dây nền.'
+              : 'Chọn dây nền ở trên để xem charm và hạt của shop.';
       libraryEl.appendChild(empty);
       return;
     }
@@ -441,7 +444,9 @@ document.addEventListener('DOMContentLoaded', () => {
       const el = document.createElement('div');
       el.className = 'cz-lib-strip-item';
       el.dataset.category = item.category || 'charm';
-      el.draggable = item.category !== 'base';
+      el.dataset.kind = item.kind || 'charm';
+      el.hidden = materialFilter !== 'all' && el.dataset.kind !== materialFilter;
+      el.draggable = true;
       el.tabIndex = 0;
       el.setAttribute('role', 'button');
       el.setAttribute('aria-label', `Thêm ${item.name}, ${formatVND(item.price)}`);
@@ -544,20 +549,123 @@ document.addEventListener('DOMContentLoaded', () => {
     if (matches.some(source => String(source.id) === String(currentId))) sourceProductSelect.value = currentId;
     else sourceProductSelect.value = '';
     if (!hasDesignType) sourceHelp.textContent = 'Chọn danh mục thiết kế trước.';
-    else if (!shopId) sourceHelp.textContent = 'Chọn shop để xem mẫu nền có sẵn.';
+    else if (!shopId) sourceHelp.textContent = 'Chọn shop để xem dây nền có sẵn.';
     else if (!matches.length) sourceHelp.textContent = `Shop chưa có mẫu nền thuộc danh mục ${cfg.label}.`;
+    syncPickers();
   }
 
+  // Dây nền được chọn ở khung chọn có hình ảnh phía trên, nên thư viện chỉ còn charm và hạt.
   function refreshBaseChoices() {
-    LIBRARY_ITEMS = productCustomizationMode ? [] : customizerSources.filter(source =>
-        hasDesignType && shopId && String(source.shopId) === String(shopId) && sourceType(source) === type
-    ).map(source => ({
-      baseId: source.id,
-      name: `${source.categoryName}: ${source.name}`,
-      price: Number(source.price) || 0,
-      image: source.baseImage || '',
-      category: 'base'
-    }));
+    LIBRARY_ITEMS = [];
+  }
+  function charmItem(charm) {
+    const name = charm.name || '';
+    return {
+      id: charm.id,
+      name,
+      price: Number(charm.price) || 0,
+      image: charm.image || '',
+      category: 'charm',
+      kind: /hạt|hat\b/i.test(name) ? 'bead' : 'charm'
+    };
+  }
+
+  // ---------- Khung chọn shop & dây nền bằng thẻ có hình ảnh ----------
+  const initialOf = value => (Array.from(String(value || '?').trim())[0] || '?').toUpperCase();
+  function renderShopCards() {
+    if (!shopCardsEl || productCustomizationMode) return;
+    shopCardsEl.innerHTML = '';
+    const shops = [...new Map(customizerSources.map(source => [String(source.shopId), source])).values()];
+    if (!shops.length) {
+      shopCardsEl.innerHTML = '<p class="cz-picker-empty">Chưa có shop nào đăng dây nền.</p>';
+      return;
+    }
+    shops.forEach(shop => {
+      const count = customizerSources.filter(source => String(source.shopId) === String(shop.shopId)
+          && (!hasDesignType || sourceType(source) === type)).length;
+      const card = document.createElement('button');
+      card.type = 'button';
+      card.className = 'cz-shop-card';
+      const active = String(shop.shopId) === String(shopId);
+      card.classList.toggle('is-selected', active);
+      card.classList.toggle('is-empty', hasDesignType && count === 0);
+      card.setAttribute('aria-pressed', String(active));
+      const avatar = document.createElement('span');
+      avatar.className = 'cz-shop-avatar';
+      if (shop.shopAvatar) {
+        const img = document.createElement('img');
+        img.alt = '';
+        img.src = shop.shopAvatar;
+        img.addEventListener('error', () => { img.remove(); avatar.textContent = initialOf(shop.shopName); }, { once: true });
+        avatar.appendChild(img);
+      } else avatar.textContent = initialOf(shop.shopName);
+      const info = document.createElement('span');
+      info.className = 'cz-shop-meta';
+      const name = document.createElement('strong');
+      name.textContent = shortenName(shop.shopName, 26);
+      name.title = shop.shopName;
+      const meta = document.createElement('small');
+      const rating = Number(shop.shopRating) || 0;
+      meta.textContent = `${rating > 0 ? '★ ' + rating.toFixed(1) + ' · ' : ''}${hasDesignType ? count : '—'} dây nền${hasDesignType ? ' ' + cfg.label.toLowerCase() : ''}`;
+      info.append(name, meta);
+      card.append(avatar, info);
+      card.addEventListener('click', () => {
+        if (String(shop.shopId) === String(shopId)) return;
+        if (!hasDesignType) { setFeedback('Hãy chọn danh mục thiết kế trước khi chọn shop.', 'error'); return; }
+        shopSelect.value = String(shop.shopId);
+        shopSelect.dispatchEvent(new Event('change'));
+      });
+      shopCardsEl.appendChild(card);
+    });
+  }
+  function renderBaseCards() {
+    if (!baseCardsEl || productCustomizationMode) return;
+    baseCardsEl.innerHTML = '';
+    const hint = text => {
+      const p = document.createElement('p');
+      p.className = 'cz-picker-empty';
+      p.textContent = text;
+      baseCardsEl.appendChild(p);
+    };
+    if (!hasDesignType) return hint('Chọn danh mục thiết kế trước.');
+    if (!shopId) return hint('Chọn shop để xem các dây nền.');
+    const matches = customizerSources.filter(source =>
+        String(source.shopId) === String(shopId) && sourceType(source) === type);
+    if (!matches.length) return hint(`Shop chưa có dây nền cho danh mục ${cfg.label}.`);
+    matches.forEach(source => {
+      const card = document.createElement('button');
+      card.type = 'button';
+      card.className = 'cz-base-card';
+      const active = selectedSource && String(selectedSource.id) === String(source.id);
+      card.classList.toggle('is-selected', Boolean(active));
+      card.setAttribute('aria-pressed', String(Boolean(active)));
+      const photo = document.createElement('span');
+      photo.className = 'cz-base-photo';
+      if (source.baseImage) {
+        const img = document.createElement('img');
+        img.alt = source.name;
+        img.loading = 'lazy';
+        img.src = source.baseImage;
+        img.addEventListener('error', () => { img.remove(); photo.textContent = '✧'; }, { once: true });
+        photo.appendChild(img);
+      } else photo.textContent = '✧';
+      const name = document.createElement('span');
+      name.className = 'cz-base-name';
+      name.textContent = shortenName(source.name, 40);
+      name.title = source.name;
+      const price = document.createElement('small');
+      price.textContent = formatVND(Number(source.price) || 0);
+      card.append(photo, name, price);
+      card.addEventListener('click', () => {
+        sourceProductSelect.value = String(source.id);
+        sourceProductSelect.dispatchEvent(new Event('change'));
+      });
+      baseCardsEl.appendChild(card);
+    });
+  }
+  function syncPickers() {
+    renderShopCards();
+    renderBaseCards();
   }
 
   function applySource(source) {
@@ -601,13 +709,7 @@ document.addEventListener('DOMContentLoaded', () => {
     baseMaterial = readBaseMaterial();
     updateBaseMaterialPreview();
     refreshBaseChoices();
-    (source.charms || []).forEach(charm => LIBRARY_ITEMS.push({
-      id: charm.id,
-      name: charm.name,
-      price: Number(charm.price) || 0,
-      image: charm.image || '',
-      category: 'charm'
-    }));
+    (source.charms || []).forEach(charm => LIBRARY_ITEMS.push(charmItem(charm)));
 
     const detailHref = `${context}/pages/product-detail?id=${encodeURIComponent(source.id)}`;
     document.getElementById('czBackLink').href = detailHref;
@@ -692,8 +794,9 @@ document.addEventListener('DOMContentLoaded', () => {
         filter.classList.toggle('is-active', active);
         filter.setAttribute('aria-pressed', String(active));
       });
+      materialFilter = category;
       libraryEl.querySelectorAll('.cz-lib-strip-item').forEach(item => {
-        item.hidden = category !== 'all' && item.dataset.category !== category;
+        item.hidden = category !== 'all' && item.dataset.kind !== category;
       });
     });
   });
@@ -830,7 +933,7 @@ document.addEventListener('DOMContentLoaded', () => {
     refreshBaseChoices();
     if (savedSource) (savedSource.charms || []).forEach(charm => {
       if (!LIBRARY_ITEMS.some(item => item.category === 'charm' && String(item.id) === String(charm.id))) {
-        LIBRARY_ITEMS.push({ id: charm.id, name: charm.name, price: Number(charm.price) || 0, image: charm.image || '', category: 'charm' });
+        LIBRARY_ITEMS.push(charmItem(charm));
       }
     });
     renderLibrary();

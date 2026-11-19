@@ -801,3 +801,56 @@
         grid-template-columns: repeat(2, minmax(0, 1fr));
     }
 }
+
+/* ===== Chọn shop & dây nền bằng thẻ có hình ảnh ===== */
+.cz-source-card select[hidden], #czSourcePicker select[hidden] { display: none !important; }
+.cz-shop-cards, .cz-base-cards {
+  display: grid;
+  gap: 10px;
+  margin: 6px 0 14px;
+}
+.cz-shop-cards { grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); }
+.cz-base-cards { grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); }
+.cz-shop-card, .cz-base-card {
+  font: inherit;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+  border: 1.5px solid #e8e4e2;
+  border-radius: 12px;
+  background: #fff;
+  transition: border-color .15s ease, box-shadow .15s ease, transform .15s ease;
+}
+.cz-shop-card:hover, .cz-base-card:hover { border-color: #4963a7; transform: translateY(-1px); }
+.cz-shop-card.is-selected, .cz-base-card.is-selected {
+  border-color: #4963a7;
+  box-shadow: 0 0 0 3px rgba(73, 99, 167, .18);
+  background: #f5f7ff;
+}
+.cz-shop-card { display: flex; align-items: center; gap: 10px; padding: 10px 12px; }
+.cz-shop-card.is-empty { opacity: .5; }
+.cz-shop-avatar {
+  flex: 0 0 44px; width: 44px; height: 44px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  overflow: hidden; background: #e9edf9; color: #4963a7; font-weight: 700;
+}
+.cz-shop-avatar img { width: 100%; height: 100%; object-fit: cover; }
+.cz-shop-meta { display: flex; flex-direction: column; min-width: 0; }
+.cz-shop-meta strong { font-size: .95rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.cz-shop-meta small { color: #81736d; }
+.cz-base-card { display: flex; flex-direction: column; gap: 6px; padding: 8px; }
+.cz-base-photo {
+  display: flex; align-items: center; justify-content: center;
+  width: 100%; aspect-ratio: 1 / 1; border-radius: 8px; overflow: hidden;
+  background: #f4f1ef; color: #b7aaa4; font-size: 1.6rem;
+}
+.cz-base-photo img { width: 100%; height: 100%; object-fit: contain; }
+.cz-base-name {
+  font-size: .85rem; line-height: 1.3; min-height: 2.6em;
+  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+}
+.cz-base-card small { color: #4963a7; font-weight: 600; }
+.cz-picker-empty { grid-column: 1 / -1; margin: 0; padding: 10px 12px; color: #81736d; background: #faf8f6; border-radius: 8px; font-size: .9rem; }
+
+/* Khung chọn shop + dây nền chiếm cả hàng để thẻ hình ảnh đủ rộng */
+.cz-tools #czSourceCard { grid-column: 1 / -1; }

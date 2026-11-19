@@ -43,6 +43,16 @@ public class BuyerSavedDesignDAO {
         }
     }
 
+    /** Xóa 1 thiết kế đã lưu của chính người dùng. Trả về true nếu có dòng bị xóa. */
+    public boolean delete(int userId, String designKey) throws SQLException {
+        try (Connection c = DBConnection.getConnection();
+             PreparedStatement ps = c.prepareStatement("DELETE FROM buyer_saved_designs WHERE id_user=? AND design_key=?")) {
+            ps.setInt(1, userId);
+            ps.setString(2, designKey);
+            return ps.executeUpdate() > 0;
+        }
+    }
+
     public List<Map<String, Object>> findByUser(int userId) throws SQLException {
         List<Map<String, Object>> designs = new ArrayList<>();
         String sql = "SELECT design_key,config,created_at,updated_at FROM buyer_saved_designs WHERE id_user=? ORDER BY updated_at DESC";
@@ -83,16 +93,5 @@ public class BuyerSavedDesignDAO {
             }
         }
         return null;
-    }
-    public boolean delete(int userId, String designKey) throws SQLException {
-        if (designKey == null || designKey.isBlank()) {
-            return false;
-        }
-        String sql = "DELETE FROM buyer_saved_designs WHERE id_user = ? AND design_key = ?";
-        try (Connection c = DBConnection.getConnection(); PreparedStatement ps = c.prepareStatement(sql)) {
-            ps.setInt(1, userId);
-            ps.setString(2, designKey.trim());
-            return ps.executeUpdate() > 0;
-        }
     }
 }

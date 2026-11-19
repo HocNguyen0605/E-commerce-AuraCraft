@@ -8,7 +8,7 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/style.css">
 <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/header-footer.css">
-<link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/pages/styleCustomizer.css?v=customizer-layout-v16">
+<link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/pages/styleCustomizer.css?v=customizer-layout-v17">
 </head>
 <body>
 
@@ -52,15 +52,14 @@
         </div>
         <div class="cz-size-selector card cz-design-mode-only" id="czSourceCard">
           <div id="czSourcePicker" class="cz-design-mode-only">
-            <label for="czShopSelect">Chọn shop thiết kế:</label>
-            <select id="czShopSelect" class="form-control">
-              <option value="">Chọn shop</option>
-            </select>
-            <label for="czSourceProduct">Chọn dây/mẫu nền:</label>
-            <select id="czSourceProduct" class="form-control">
-              <option value="">Chọn shop trước</option>
-            </select>
-            <small class="cz-source-help" id="czSourceHelp">Chọn shop, danh mục và mẫu nền; vật liệu lấy từ các sản phẩm đang bán của shop.</small>
+            <label>Chọn shop thiết kế:</label>
+            <div class="cz-shop-cards" id="czShopCards" role="group" aria-label="Danh sách shop"></div>
+            <label>Chọn dây nền:</label>
+            <div class="cz-base-cards" id="czBaseCards" role="group" aria-label="Danh sách dây nền"></div>
+            <%-- select ẩn: giữ làm nơi lưu giá trị đã chọn cho customizer.js --%>
+            <select id="czShopSelect" class="form-control" hidden><option value="">Chọn shop</option></select>
+            <select id="czSourceProduct" class="form-control" hidden><option value="">Chọn shop trước</option></select>
+            <small class="cz-source-help" id="czSourceHelp">Chọn shop, danh mục và dây nền; charm và hạt lấy từ các sản phẩm đang bán của shop.</small>
           </div>
           <div class="cz-base-preview" id="czBasePreview" hidden>
             <img id="czBaseMaterialImage" alt="Ảnh minh họa dây nền">
@@ -96,9 +95,8 @@
         <h3>Thư viện vật liệu</h3>
         <div class="cz-library-filters cz-design-mode-only" id="czLibraryFilters" role="group" aria-label="Lọc loại vật liệu">
           <button type="button" class="is-active" data-material-filter="all" aria-pressed="true">Tất cả</button>
-          <button type="button" data-material-filter="base" aria-pressed="false">Dây nền</button>
-          <button type="button" data-material-filter="bead" aria-pressed="false">Charm &amp; hạt</button>
           <button type="button" data-material-filter="charm" aria-pressed="false">Charm</button>
+          <button type="button" data-material-filter="bead" aria-pressed="false">Hạt</button>
         </div>
         <div class="cz-lib-strip" id="czLibrary"></div>
       </div>
@@ -133,7 +131,7 @@
 
 <script type="application/json" id="czInitialSources">${customizerSourcesJson}</script>
 <script src="${pageContext.request.contextPath}/assets/js/custom-workflow.js"></script>
-<script src="${pageContext.request.contextPath}/assets/js/customizer.js?v=customizer-v16"></script>
+<script src="${pageContext.request.contextPath}/assets/js/customizer.js?v=customizer-v17"></script>
 <script>
         fetch('../components/header.html').then(response => response.text()).then(data => { document.getElementById('header-placeholder').innerHTML = data; }).catch(error => console.error('Error loading header:', error));
 

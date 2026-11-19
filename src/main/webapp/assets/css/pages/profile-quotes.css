@@ -1,41 +1,5 @@
 /* Báo giá trong hồ sơ người mua */
-.profile-quotes-page {
-    background: #fbfaf8;
-    color: #40302e;
-}
-
-.profile-quotes-page main > .container {
-    width: min(1180px, calc(100% - 40px));
-    margin: 28px auto 56px;
-}
-
-.profile-quotes-page .avatar {
-    width: 76px;
-    height: 76px;
-    object-fit: cover;
-    border: 3px solid #fff;
-    box-shadow: 0 4px 16px rgba(55, 43, 40, .12);
-}
-
-.profile-quotes-page .info_name {
-    margin-top: 10px;
-    color: #40302e;
-    font-size: 1.08rem;
-}
-
-.profile-quotes-page .email {
-    margin-bottom: 22px;
-    color: #81736d;
-}
-
-.profile-quotes-page .body.row {
-    display: grid;
-    grid-template-columns: 245px minmax(0, 1fr);
-    align-items: start;
-    gap: 20px;
-    padding: 0;
-    background: transparent;
-}
+/* Layout (container, avatar, sidebar) dùng chung profile.css như các trang profile khác */
 
 .profile-quotes-page .panel-title {
     margin: 0 0 20px;
@@ -383,21 +347,12 @@
 }
 
 @media (max-width: 760px) {
-    .profile-quotes-page main > .container {
-        width: min(100% - 24px, 620px);
-        margin-top: 18px;
-    }
-
     .profile-quotes-page .quote-request-head {
         align-items: flex-start;
     }
 }
 
 @media (max-width: 480px) {
-    .profile-quotes-page main > .container {
-        width: calc(100% - 20px);
-    }
-
     .profile-quotes-page .panel {
         padding: 15px 12px;
         border-radius: 14px;
