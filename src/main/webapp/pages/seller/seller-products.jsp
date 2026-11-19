@@ -21,6 +21,8 @@
 <%-- URL của servlet controller.SellerProductServlet.SellerProductServlet --%>
 <c:set var="productsUrl" value="${ctx}/pages/seller/seller-products"/>
 <%-- Đang có bộ lọc nào không (để hiện nút "Xóa lọc") --%>
+<c:set var="isBaseTab" value="${tab eq 'base'}"/>
+<c:set var="tabQs" value="${isBaseTab ? '&tab=base' : ''}"/>
 <c:set var="hasFilter" value="${not empty param.q or not empty param.category or not empty param.status or (not empty param.sort and param.sort ne 'newest')}"/>
 <!DOCTYPE html>
 <html lang="vi">
@@ -47,13 +49,23 @@
         <c:if test="${not empty error}"><div class="alert alert-danger"><c:out value="${error}"/></div></c:if>
 
         <div class="content-header">
-            <h1 class="page-title">Quản lý Sản phẩm</h1>
-            <a href="${productsUrl}?action=form" class="btn btn-primary"><i class="bi bi-plus-lg"></i> Thêm Sản phẩm mới</a>
+            <h1 class="page-title">${isBaseTab ? 'Quản lý Dây nền' : 'Quản lý Sản phẩm'}</h1>
+            <a href="${productsUrl}?action=form${tabQs}" class="btn btn-primary"><i class="bi bi-plus-lg"></i> ${isBaseTab ? 'Thêm Dây nền mới' : 'Thêm Sản phẩm mới'}</a>
         </div>
+
+        <!-- Tách riêng: Sản phẩm / Dây nền -->
+        <div class="filter-actions" style="margin-bottom:14px;gap:8px">
+            <a href="${productsUrl}" class="btn ${isBaseTab ? 'btn-outline' : 'btn-primary'}">Sản phẩm</a>
+            <a href="${productsUrl}?tab=base" class="btn ${isBaseTab ? 'btn-primary' : 'btn-outline'}">Dây nền</a>
+        </div>
+        <c:if test="${isBaseTab}">
+            <p style="color:#7a6f6b;margin:0 0 12px">Dây nền chỉ hiển thị ở trang Thiết kế (khách chọn dây nền kèm hình ảnh), không hiện ở trang Sản phẩm.</p>
+        </c:if>
 
         <!-- Toolbar: tìm kiếm, lọc, sắp xếp (GET) -->
         <div class="filter-bar">
             <form action="${productsUrl}" method="GET">
+                <c:if test="${isBaseTab}"><input type="hidden" name="tab" value="base"/></c:if>
                 <%-- Hàng 1: ô tìm kiếm + nút Tìm kiếm + nút Xóa lọc (luôn nằm cạnh nhau) --%>
                 <div class="filter-search-row">
                     <div class="search-input">
@@ -67,14 +79,18 @@
                 </div>
                 <%-- Hàng 2: các ô lọc --%>
                 <div class="filter-actions">
+                    <c:if test="${not isBaseTab}">
                     <select class="custom-select" name="category" onchange="this.form.submit()">
                         <option value="">Tất cả danh mục</option>
                         <c:forEach var="cat" items="${categories}">
+                            <c:if test="${not cat.base}">
                             <option value="${cat.id}" ${param.category eq cat.id ? 'selected' : ''}>
                                 <c:out value="${cat.name}"/> (${cat.productCount})
                             </option>
+                            </c:if>
                         </c:forEach>
                     </select>
+                    </c:if>
                     <select class="custom-select" name="status" onchange="this.form.submit()">
                         <option value="">Tất cả trạng thái</option>
                         <option value="active" ${param.status eq 'active' ? 'selected' : ''}>Đang bán</option>
@@ -136,10 +152,11 @@
                                 </td>
                                 <td>
                                     <div class="action-btns">
-                                        <a href="${productsUrl}?action=form&id=${p.id}" class="btn-icon text-primary" title="Sửa"><i class="bi bi-pencil-fill"></i></a>
+                                        <a href="${productsUrl}?action=form&id=${p.id}${tabQs}" class="btn-icon text-primary" title="Sửa"><i class="bi bi-pencil-fill"></i></a>
                                         <form action="${productsUrl}" method="POST" style="display:inline;"
                                               onsubmit="return confirm('Bạn có chắc muốn xóa sản phẩm này?');">
                                             <input type="hidden" name="action" value="delete">
+                                            <c:if test="${isBaseTab}"><input type="hidden" name="tab" value="base"></c:if>
                                             <input type="hidden" name="id" value="${p.id}">
                                             <button type="submit" class="btn-icon text-danger" title="Xóa"><i class="bi bi-trash-fill"></i></button>
                                         </form>
@@ -156,6 +173,7 @@
         <!-- Phân trang (giữ nguyên bộ lọc) -->
         <c:if test="${totalPages > 1}">
             <c:url var="baseUrl" value="/pages/seller/seller-products">
+                <c:if test="${isBaseTab}"><c:param name="tab" value="base"/></c:if>
                 <c:if test="${not empty param.q}"><c:param name="q" value="${param.q}"/></c:if>
                 <c:if test="${not empty param.category}"><c:param name="category" value="${param.category}"/></c:if>
                 <c:if test="${not empty param.status}"><c:param name="status" value="${param.status}"/></c:if>

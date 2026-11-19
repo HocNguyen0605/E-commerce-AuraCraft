@@ -167,8 +167,7 @@
                 </span><span class="pd-shop-body"><strong class="pd-shop-name">
                         <c:out value="${product.shopName}"/>
                     </strong><span class="pd-shop-meta">★
-                        <fmt:formatNumber value="${product.shopRating}" minFractionDigits="1" maxFractionDigits="1"/> · Cửa hàng
-                        AuraCraft
+                        <fmt:formatNumber value="${product.shopRating}" minFractionDigits="1" maxFractionDigits="1"/> · Người bán trên AuraCraft
                     </span></span><span class="pd-shop-arrow">›</span></a>
     </section>
     <section class="pd-desc card">

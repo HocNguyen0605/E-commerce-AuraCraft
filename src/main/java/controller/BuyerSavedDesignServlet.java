@@ -52,6 +52,23 @@ public class BuyerSavedDesignServlet extends HttpServlet {
         }
     }
 
+    @Override
+    protected void doDelete(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        Integer userId = buyerId(request);
+        if (userId == null) { write(response, 401, Map.of("ok", false, "message", "Vui lòng đăng nhập.")); return; }
+        String key = request.getParameter("id");
+        if (key == null || key.isBlank() || key.length() > 80) {
+            write(response, 400, Map.of("ok", false, "message", "Thiếu mã thiết kế.")); return;
+        }
+        try {
+            dao.delete(userId, key);
+            write(response, 200, Map.of("ok", true));
+        } catch (Exception e) {
+            getServletContext().log("Unable to delete saved design", e);
+            write(response, 500, Map.of("ok", false, "message", "Chưa xóa được thiết kế."));
+        }
+    }
+
     private Integer buyerId(HttpServletRequest request) {
         Object value = request.getSession(false) == null ? null : request.getSession(false).getAttribute("userId");
         Object role = request.getSession(false) == null ? null : request.getSession(false).getAttribute("role");

@@ -3,6 +3,7 @@
 <%@ taglib prefix="fmt" uri="jakarta.tags.fmt" %>
 <fmt:setLocale value="vi_VN"/>
 <%@ taglib prefix="fn" uri="jakarta.tags.functions" %>
+<c:set var="displayShopName" value="${fn:startsWith(shop.name, 'Gian hàng của ') ? fn:substringAfter(shop.name, 'Gian hàng của ') : shop.name}" />
 <%
     if (request.getAttribute("shop") == null) {
         String target = request.getContextPath() + "/pages/shop-profile";
@@ -29,7 +30,7 @@
     <nav class="shop-breadcrumb" aria-label="Điều hướng">
         <a href="${pageContext.request.contextPath}/pages/home">Trang chủ</a><span>›</span>
         <a href="${pageContext.request.contextPath}/pages/products">Sản phẩm</a><span>›</span>
-        <span aria-current="page"><c:out value="${shop.name}"/></span>
+        <span aria-current="page"><c:out value="${displayShopName}"/></span>
     </nav>
 
     <div class="shop-profile-content">
@@ -46,8 +47,8 @@
             </c:choose>
         </div>
         <div class="shop-profile-info">
-            <p class="shop-eyebrow"><i class="fa-solid fa-store" aria-hidden="true"></i> Gian hàng AuraCraft</p>
-            <h1><c:out value="${shop.name}"/></h1>
+            <p class="shop-eyebrow"><i class="fa-solid fa-store" aria-hidden="true"></i> Gian hàng trên AuraCraft</p>
+            <h1><c:out value="${displayShopName}"/></h1>
             <div class="shop-profile-stats">
                 <span><i class="fa-solid fa-star" aria-hidden="true"></i> <fmt:formatNumber value="${shopRating}" minFractionDigits="1" maxFractionDigits="1"/> / 5 · ${shopReviewCount} đánh giá</span>
                 <span><i class="fa-solid fa-box" aria-hidden="true"></i> ${totalProducts} sản phẩm</span>

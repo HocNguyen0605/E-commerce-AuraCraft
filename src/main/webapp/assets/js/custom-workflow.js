@@ -328,6 +328,12 @@
     return saved;
   }
 
+  function deleteCustomDesign(designId) {
+    const state = readState();
+    state.customDesigns = state.customDesigns.filter(item => String(item.id) !== String(designId));
+    writeState(state);
+  }
+
   function createDesignerOrder(design) {
     const state = readState();
     const slots = Array.isArray(design.slots) ? design.slots : [];
@@ -919,7 +925,7 @@
 
   window.AuraCraftCustom = {
     listRequests, getRequest, createRequest, updateRequest, cancelRequest,
-    listCustomDesigns, saveCustomDesign, createDesignerOrder,
+    listCustomDesigns, saveCustomDesign, deleteCustomDesign, createDesignerOrder,
     listOpenRequests, listQuotes, addQuote, selectQuote, getOrder, listOrders, listTransactions, getOrderForRequest, saveOrderDetails, recordPayment,
     listDisputes, listViolations, clearViolation, listAdminActions, extendOrderDeadline, reviewLateOrder,
     advanceOrderStatus, cancelOrder, processRefund, createDispute, updateDispute, resolveDispute,

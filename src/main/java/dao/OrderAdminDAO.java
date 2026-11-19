@@ -167,12 +167,28 @@ git      */
      */
     public boolean updateOrderStatus(int orderId, String status) {
         String query = "UPDATE orders SET status = ? WHERE id = ?";
-        try (Connection conn = DBConnection.getConnection();
-             PreparedStatement ps = conn.prepareStatement(query)) {
-            ps.setString(1, status);
-            ps.setInt(2, orderId);
-            int updated = ps.executeUpdate();
-            return updated > 0;
+        try (Connection conn = DBConnection.getConnection()) {
+            conn.setAutoCommit(false);
+            try (PreparedStatement ps = conn.prepareStatement(query)) {
+                ps.setString(1, status);
+                ps.setInt(2, orderId);
+                int updated = ps.executeUpdate();
+                if (updated == 0) { conn.rollback(); return false; }
+                if ("completed".equalsIgnoreCase(status)) {
+                    try (PreparedStatement payment = conn.prepareStatement(
+                            "UPDATE transactions SET status='success',date=CURRENT_TIMESTAMP WHERE id_order=? AND gateway='cod' AND status='pending'")) {
+                        payment.setInt(1, orderId);
+                        payment.executeUpdate();
+                    }
+                }
+                conn.commit();
+                return updated > 0;
+            } catch (Exception e) {
+                conn.rollback();
+                throw e;
+            } finally {
+                conn.setAutoCommit(true);
+            }
         } catch (Exception e) {
             System.err.println("[OrderAdminDAO] Error updating order status: " + e.getMessage());
             e.printStackTrace();

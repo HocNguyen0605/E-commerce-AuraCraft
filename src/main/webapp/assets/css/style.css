@@ -92,7 +92,36 @@ ul {
   background-color: var(--primary-blue);
   color: var(--white);
 }
+.btn-delete-outline {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: fit-content;
+    min-width: auto;
+    flex: 0 0 auto;
+    padding: 5px 12px;
+    font-size: 13px;
+    line-height: 1.2;
+    white-space: nowrap;
+    background-color: transparent;
+    border: 1.5px solid #dc2626;
+    border-radius: 999px;
+    color: #dc2626;
+    cursor: pointer;
+    transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+}
 
+.btn-delete-outline:hover {
+    background-color: #dc2626;
+    border-color: #dc2626;
+    color: #ffffff;
+}
+
+.btn-delete-outline:active {
+    background-color: #b91c1c;
+    border-color: #b91c1c;
+    color: #ffffff;
+}
 .mt-4 {
     margin-top: 1.5rem;
 }
